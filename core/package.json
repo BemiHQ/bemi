@@ -20,6 +20,8 @@
     "@types/node": "^20.11.15"
   },
   "dependencies": {
+    "@mikro-orm/core": "^5.9.4",
+    "@mikro-orm/migrations": "^5.9.4",
     "nats": "^2.19.0"
   }
 }
