@@ -3,10 +3,10 @@ import { ChangeMessage } from './change-message'
 import { ChangeMessagesBuffer } from './change-message-buffer'
 
 export const stitchChangeMessages = (
-  { changeMessages, changeMessagesBuffer: initialChangeMessagesBuffer }:
+  { changeMessages: initialChangeMessages, changeMessagesBuffer: initialChangeMessagesBuffer }:
   { changeMessages: ChangeMessage[], changeMessagesBuffer: ChangeMessagesBuffer }
 ) => {
-  const mergedChangeMessagesBuffer = initialChangeMessagesBuffer.addChangeMessages(changeMessages)
+  const mergedChangeMessagesBuffer = initialChangeMessagesBuffer.addChangeMessages(initialChangeMessages)
   let stitchedChangeMsgs: ChangeMessage[] = []
   let ackSequenceBySubject: { [key: string]: string | undefined } = {}
   let newChangeMessagesBuffer = new ChangeMessagesBuffer()
@@ -71,6 +71,8 @@ export const stitchChangeMessages = (
   const ackStreamSequence = Object.values(ackSequenceBySubject).filter(Boolean).reduce((min, streamSequence) => (
     !min || streamSequence! < min ? streamSequence : min
   ), undefined) as undefined | number
+
+  logger.debug({ stitched: stitchedChangeMsgs, buffer: newChangeMessagesBuffer.store, ackStreamSequence })
 
   return {
     changeMessages: stitchedChangeMsgs,

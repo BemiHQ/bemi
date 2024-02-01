@@ -8,7 +8,9 @@ import { ChangeMessage } from '../core/change-message'
 import { ChangeMessagesBuffer } from '../core/change-message-buffer'
 import { stitchChangeMessages } from '../core/stitching'
 
-const INSERT_BATCH_LIMIT = 1000
+const sleep = (seconds: number) => (
+  new Promise(resolve => setTimeout(resolve, seconds * 1000))
+)
 
 const chunk = <T>(array: T[], size: number): T[][] => (
   [...Array(Math.ceil(array.length / size))].map((_, i) =>
@@ -16,33 +18,88 @@ const chunk = <T>(array: T[], size: number): T[][] => (
   )
 )
 
-const persistChangeMessages = async (orm: MikroORM<PostgreSqlDriver>, changeMessages: ChangeMessage[]) => {
+const persistChangeMessages = async (
+  { orm, changeMessages, insertBatchSize }:
+  { orm: MikroORM<PostgreSqlDriver>, changeMessages: ChangeMessage[], insertBatchSize: number }
+) => {
   logger.info(`Persisting ${changeMessages.length} change message(s)...`)
-  chunk(changeMessages, INSERT_BATCH_LIMIT).forEach((changeMsgs) => {
+  chunk(changeMessages, insertBatchSize).forEach((changeMsgs) => {
     const changesAttributes = changeMsgs.map(({ changeAttributes }) => changeAttributes)
     const queryBuilder = orm.em.createQueryBuilder(Change).insert(changesAttributes).onConflict().ignore();
     queryBuilder.execute()
   })
 }
 
-export const ingestMessages = async (
-  { orm, messages, changeMessagesBuffer }:
-  { orm: MikroORM<PostgreSqlDriver>, messages: Message[], changeMessagesBuffer: ChangeMessagesBuffer }
+const fetchMessages = async (
+  { consumer, fetchBatchSize, lastStreamSequence }:
+  { consumer: any, fetchBatchSize: number, lastStreamSequence: number | null }
 ) => {
-  const now = new Date()
-  const initialChangeMessages = messages.map((message: Message) => ChangeMessage.fromMessage(message, now)).filter(Boolean) as ChangeMessage[]
+  const messageBySequence: { [sequence: number]: Message } = {}
 
-  const stitchedResults = stitchChangeMessages({ changeMessages: initialChangeMessages, changeMessagesBuffer })
-  const { changeMessages, ackStreamSequence, changeMessagesBuffer: newChangeMessagesBuffer } = stitchedResults
-  logger.debug(stitchedResults)
+  const iterator = await consumer.fetch({ max_messages: fetchBatchSize });
 
-  if (changeMessages.length) {
-    await persistChangeMessages(orm, changeMessages)
-    await orm.em.flush()
+  for await (const message of iterator) {
+    const { streamSequence, pending } = message.info;
+    logger.debug(`Stream sequence: ${streamSequence}`)
+
+    // Accumulate the batch
+    if (!lastStreamSequence || lastStreamSequence < streamSequence) {
+      messageBySequence[streamSequence] = message
+    }
+
+    // Exhausted the batch
+    if (pending === 0) {
+      const sequences = Object.keys(messageBySequence).sort((a, b) => Number(b) - Number(a)) // reverse sort
+      const lastBatchSequence = sequences.length ? Number(sequences[0]) : null
+      if (lastBatchSequence && (!lastStreamSequence || lastBatchSequence > lastStreamSequence)) {
+        lastStreamSequence = lastBatchSequence;
+      }
+      break;
+    }
   }
 
-  return {
-    ackStreamSequence,
-    changeMessagesBuffer: newChangeMessagesBuffer,
+  return { messageBySequence, lastStreamSequence }
+}
+
+export const runIngestionLoop = async (
+  { orm, consumer, fetchBatchSize, refetchEmptyAfterSeconds, insertBatchSize }:
+  { orm: MikroORM<PostgreSqlDriver>, consumer: any, fetchBatchSize: number, refetchEmptyAfterSeconds: number, insertBatchSize: number }
+) => {
+  let lastStreamSequence: number | null = null
+  let changeMessagesBuffer = new ChangeMessagesBuffer()
+
+  while (true) {
+    // Fetching
+    logger.info('Fetching...')
+    const { messageBySequence, lastStreamSequence: newLastStreamSequence } = await fetchMessages({ consumer, fetchBatchSize, lastStreamSequence })
+    const messages = Object.values(messageBySequence)
+    lastStreamSequence = newLastStreamSequence
+
+    // Stitching
+    const now = new Date()
+    const changeMessages = messages.map((message: Message) => ChangeMessage.fromMessage(message, now)).filter(Boolean) as ChangeMessage[]
+    const { changeMessages: stitchedChangeMessages, changeMessagesBuffer: newChangeMessagesBuffer, ackStreamSequence } = stitchChangeMessages({ changeMessages, changeMessagesBuffer })
+    changeMessagesBuffer = newChangeMessagesBuffer
+
+    logger.info([
+      `Fetched: ${messages.length}`,
+      `Saving: ${stitchedChangeMessages.length}`,
+      `Pending: ${changeMessagesBuffer.size()}`,
+      `Last sequence: #${lastStreamSequence}`,
+    ].join('. '))
+
+    // Persisting and acking
+    if (stitchedChangeMessages.length) {
+      await persistChangeMessages({ orm, changeMessages: stitchedChangeMessages, insertBatchSize })
+      await orm.em.flush()
+    }
+    if (ackStreamSequence) {
+      logger.info(`Acking ${ackStreamSequence}...`)
+      messageBySequence[ackStreamSequence]?.ack()
+    }
+
+    // Waiting for the next loop
+    logger.debug(`Sleeping for ${refetchEmptyAfterSeconds} seconds...`)
+    await sleep(refetchEmptyAfterSeconds)
   }
 }

@@ -58,4 +58,10 @@ export class ChangeMessagesBuffer {
   changeMessagesByPosition(subject: string, position: string) {
     return this.store[subject]?.[position] || []
   }
+
+  size() {
+    return Object.values(this.store).map(changeMsgsByPos => (
+      Object.values(changeMsgsByPos).length
+    )).reduce((acc, l) => acc + l, 0)
+  }
 }
