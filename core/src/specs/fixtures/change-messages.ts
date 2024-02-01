@@ -1,4 +1,5 @@
 import { ChangeMessage, MESSAGE_PREFIX_CONTEXT } from '../../change-message'
+import { Operation } from '../../entities/Change'
 
 import { POSITIONS } from './nats-messages'
 
@@ -10,9 +11,9 @@ export const CHANGE_ATTRIBUTES = {
     "createdAt": MOCKED_DATE,
     "database": "bemi_dev_source",
     "context": {},
-    "operation": "CREATE",
+    "operation": Operation.CREATE,
     "position": POSITIONS.CREATE,
-    "primaryKey": 2,
+    "primaryKey": "2",
     "queuedAt": MOCKED_DATE,
     "schema": "public",
     "table": "todo",
@@ -20,10 +21,11 @@ export const CHANGE_ATTRIBUTES = {
     "values": { "id": 2, "isCompleted": false, "task": "Test" }
   },
   CREATE_MESSAGE: {
+    "committedAt": MOCKED_DATE,
     "createdAt": MOCKED_DATE,
     "database": "bemi_dev_source",
     "context": { "op": "c" },
-    "operation": "MESSAGE",
+    "operation": Operation.MESSAGE,
     "position": POSITIONS.CREATE,
     "primaryKey": undefined,
     "queuedAt": MOCKED_DATE,
@@ -37,9 +39,9 @@ export const CHANGE_ATTRIBUTES = {
     "createdAt": MOCKED_DATE,
     "database": "bemi_dev_source",
     "context": {},
-    "operation": "UPDATE",
+    "operation": Operation.UPDATE,
     "position": POSITIONS.UPDATE,
-    "primaryKey": 2,
+    "primaryKey": "2",
     "queuedAt": MOCKED_DATE,
     "schema": "public",
     "table": "todo",
@@ -51,7 +53,7 @@ export const CHANGE_ATTRIBUTES = {
     "createdAt": MOCKED_DATE,
     "database": "bemi_dev_source",
     "context": { "op": "u" },
-    "operation": "MESSAGE",
+    "operation": Operation.MESSAGE,
     "position": POSITIONS.UPDATE,
     "primaryKey": undefined,
     "queuedAt": MOCKED_DATE,
@@ -65,9 +67,9 @@ export const CHANGE_ATTRIBUTES = {
     "createdAt": MOCKED_DATE,
     "database": "bemi_dev_source",
     "context": {},
-    "operation": "DELETE",
+    "operation": Operation.DELETE,
     "position": POSITIONS.DELETE,
-    "primaryKey": 2,
+    "primaryKey": "2",
     "queuedAt": MOCKED_DATE,
     "schema": "public",
     "table": "todo",
@@ -79,7 +81,7 @@ export const CHANGE_ATTRIBUTES = {
     "createdAt": MOCKED_DATE,
     "database": "bemi_dev_source",
     "context": { "op": "d" },
-    "operation": "MESSAGE",
+    "operation": Operation.MESSAGE,
     "position": POSITIONS.DELETE,
     "primaryKey": undefined,
     "queuedAt": MOCKED_DATE,
@@ -88,12 +90,26 @@ export const CHANGE_ATTRIBUTES = {
     "transactionId": 767,
     "values": {},
   },
+  HEARTBEAT_MESSAGE: {
+    "committedAt": MOCKED_DATE,
+    "createdAt": MOCKED_DATE,
+    "database": "bemi_dev_source",
+    "context": {},
+    "operation": Operation.MESSAGE,
+    "position": POSITIONS.HEARTBEAT_MESSAGE,
+    "primaryKey": undefined,
+    "queuedAt": MOCKED_DATE,
+    "schema": "",
+    "table": "",
+    "transactionId": 769,
+    "values": {},
+  },
   TRUNCATE: {
     "committedAt": MOCKED_DATE,
     "createdAt": MOCKED_DATE,
     "database": "bemi_dev_source",
     "context": {},
-    "operation": "TRUNCATE",
+    "operation": Operation.TRUNCATE,
     "position": POSITIONS.TRUNCATE,
     "primaryKey": undefined,
     "queuedAt": MOCKED_DATE,
@@ -103,15 +119,3 @@ export const CHANGE_ATTRIBUTES = {
     "values": {},
   },
 }
-
-export const buildChangeMessage = (
-  { changeAttributes, context, subject, streamSequence }:
-  { changeAttributes: any, context?: any, subject: string, streamSequence: number }
-): ChangeMessage => (
-  new ChangeMessage({
-    changeAttributes: context ? { ...changeAttributes, context: context } : changeAttributes,
-    streamSequence,
-    subject,
-    messagePrefix: Object.keys(changeAttributes.context).length ? MESSAGE_PREFIX_CONTEXT : undefined,
-  })
-)

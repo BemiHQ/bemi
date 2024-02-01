@@ -35,7 +35,7 @@ const parseDebeziumData = (debeziumChange: any, now: Date) => {
     {}
 
   return {
-    primaryKey: operation === Operation.DELETE ? before?.id : after?.id,
+    primaryKey: (operation === Operation.DELETE ? before : after)?.id?.toString(),
     values: after || {},
     context,
     database,

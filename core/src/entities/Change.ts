@@ -20,7 +20,7 @@ export enum Operation {
 
 export class Change extends BaseEntity {
   @Property({ nullable: true })
-  primaryKey: string;
+  primaryKey: string | undefined;
 
   @Property({ type: JsonType, default: '{}' })
   values: object;
@@ -54,7 +54,7 @@ export class Change extends BaseEntity {
 
   constructor(
     { primaryKey, values, context, database, schema, table, operation, committedAt, queuedAt, transactionId, position }:
-    { primaryKey: string, values: object, context: object, database: string, schema: string, table: string, operation: Operation, committedAt: Date, queuedAt: Date, transactionId: number, position: number }
+    { primaryKey?: string, values: object, context: object, database: string, schema: string, table: string, operation: Operation, committedAt: Date, queuedAt: Date, transactionId: number, position: number }
   ) {
     super();
     this.primaryKey = primaryKey;
