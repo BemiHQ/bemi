@@ -1,0 +1,25 @@
+{
+  "name": "@bemi-db/core",
+  "version": "0.1.0",
+  "description": "Automatic data change tracking for PostgreSQL",
+  "main": "index.ts",
+  "scripts": {
+    "test": "jest --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BemiHQ/bemi.git"
+  },
+  "author": "",
+  "license": "SSPL-1.0",
+  "bugs": {
+    "url": "https://github.com/BemiHQ/bemi/issues"
+  },
+  "homepage": "https://github.com/BemiHQ/bemi#readme",
+  "devDependencies": {
+    "@types/node": "^20.11.15"
+  },
+  "dependencies": {
+    "nats": "^2.19.0"
+  }
+}
