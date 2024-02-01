@@ -14,31 +14,34 @@ export class ChangeMessagesBuffer {
   }
 
   addChangeMessage(changeMessage: ChangeMessage) {
+    const newBuffer = Object.assign(Object.create(this), this)
     const { subject, changeAttributes } = changeMessage
     const position = changeAttributes.position.toString()
     const existingChangeMessages = this.store[subject]?.[position]
 
     if (existingChangeMessages) {
-      this.store = {
+      newBuffer.store = {
         ...this.store,
         [subject]: { ...this.store[subject], [position]: [...existingChangeMessages, changeMessage] },
       }
-      return this
+      return newBuffer
     }
 
-    this.store = {
+    newBuffer.store = {
       ...this.store,
       [subject]: { ...(this.store[subject] || []), [position]: [changeMessage] },
     }
-    return this
+    return newBuffer
   }
 
   addChangeMessages(changeMessages: ChangeMessage[]) {
+    let newBuffer = this
+
     changeMessages.forEach((changeMessage: ChangeMessage) => {
-      this.addChangeMessage(changeMessage)
+      newBuffer = newBuffer.addChangeMessage(changeMessage)
     })
 
-    return this
+    return newBuffer
   }
 
   forEach(callback: (subject: string, changeMessages: ChangeMessage[]) => void) {

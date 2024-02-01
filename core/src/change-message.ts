@@ -96,7 +96,8 @@ export class ChangeMessage {
   }
 
   setContext(context: object) {
-    this.changeAttributes = { ...this.changeAttributes, context }
-    return this
+    const newChangeMessage = Object.assign(Object.create(this), this)
+    newChangeMessage.changeAttributes = { ...this.changeAttributes, context }
+    return newChangeMessage
   }
 }

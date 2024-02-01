@@ -68,11 +68,13 @@ export const stitchChangeMessages = (
     }
   })
 
+  const ackStreamSequence = Object.values(ackSequenceBySubject).filter(Boolean).reduce((min, streamSequence) => (
+    !min || streamSequence! < min ? streamSequence : min
+  ), undefined) as undefined | number
+
   return {
     changeMessages: stitchedChangeMsgs,
     changeMessagesBuffer: newChangeMessagesBuffer,
-    ackStreamSequence: Object.values(ackSequenceBySubject).filter(Boolean).reduce((min, streamSequence) => (
-      !min || streamSequence! < min ? streamSequence : min
-    ), undefined),
+    ackStreamSequence,
   }
 }

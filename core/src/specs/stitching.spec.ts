@@ -27,7 +27,7 @@ describe('stitchChangeMessages', () => {
 
       expect(result).toStrictEqual({
         changeMessages: [
-          findChangeMessage(changeMessages, 2).setContext(findChangeMessage(changeMessages, 1).context),
+          findChangeMessage(changeMessages, 2).setContext(findChangeMessage(changeMessages, 1).context()),
         ],
         ackStreamSequence: 2,
         changeMessagesBuffer: ChangeMessagesBuffer.fromStore({}),
@@ -47,7 +47,7 @@ describe('stitchChangeMessages', () => {
 
       expect(result).toStrictEqual({
         changeMessages: [
-          findChangeMessage(changeMessages, 1).setContext(findChangeMessage(changeMessages, 2).context),
+          findChangeMessage(changeMessages, 1).setContext(findChangeMessage(changeMessages, 2).context()),
           findChangeMessage(changeMessages, 3),
         ],
         ackStreamSequence: 3,
@@ -74,7 +74,7 @@ describe('stitchChangeMessages', () => {
       const result1 = stitchChangeMessages({ changeMessages: changeMessages1, changeMessagesBuffer: new ChangeMessagesBuffer() })
       expect(result1).toStrictEqual({
         changeMessages: [
-          findChangeMessage(changeMessages1, 1).setContext(findChangeMessage(changeMessages1, 2).context),
+          findChangeMessage(changeMessages1, 1).setContext(findChangeMessage(changeMessages1, 2).context()),
         ],
         ackStreamSequence: 1,
         changeMessagesBuffer: ChangeMessagesBuffer.fromStore({
@@ -94,7 +94,7 @@ describe('stitchChangeMessages', () => {
       const result2 = stitchChangeMessages({ changeMessages: changeMessages2, changeMessagesBuffer: result1.changeMessagesBuffer })
       expect(result2).toStrictEqual({
         changeMessages: [
-          findChangeMessage(changeMessages1, 3).setContext(findChangeMessage(changeMessages2, 4).context),
+          findChangeMessage(changeMessages1, 3).setContext(findChangeMessage(changeMessages2, 4).context()),
         ],
         ackStreamSequence: 3,
         changeMessagesBuffer: ChangeMessagesBuffer.fromStore({
@@ -135,7 +135,7 @@ describe('stitchChangeMessages', () => {
       const result2 = stitchChangeMessages({ changeMessages: changeMessages2, changeMessagesBuffer: result1.changeMessagesBuffer })
       expect(result2).toStrictEqual({
         changeMessages: [
-          findChangeMessage(changeMessages1, 1).setContext(findChangeMessage(changeMessages2, 2).context),
+          findChangeMessage(changeMessages1, 1).setContext(findChangeMessage(changeMessages2, 2).context()),
           findChangeMessage(changeMessages2, 3),
         ],
         ackStreamSequence: 3,
