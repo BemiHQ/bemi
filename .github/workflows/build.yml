@@ -1,0 +1,32 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test-core:
+    name: Test core
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+
+    - name: Install Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 21
+
+    - uses: pnpm/action-setup@v2
+      name: Install pnpm
+      with:
+        version: 8
+        run_install: false
+
+    - name: Install dependencies
+      run: pnpm install
+      working-directory: ./core
+
+    - name: Run tests
+      run: pnpm jest
+      working-directory: ./core
