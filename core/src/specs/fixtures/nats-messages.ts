@@ -150,9 +150,6 @@ export const MESSAGE_DATA = {
     ts_ms: 1701192064622,
     transaction: null,
   },
-  HEARTBEAT_TS: {
-    ts_ms: 1701192064622,
-  },
   HEARTBEAT_MESSAGE: {
     op: 'm',
     ts_ms: 1706128742602,

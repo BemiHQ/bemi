@@ -77,7 +77,7 @@ export const runIngestionLoop = async (
 
     // Stitching
     const now = new Date()
-    const changeMessages = messages.map((message: Message) => ChangeMessage.fromMessage(message, now)).filter(Boolean) as ChangeMessage[]
+    const changeMessages = messages.map((message: Message) => ChangeMessage.fromMessage(message, now))
     const { changeMessages: stitchedChangeMessages, changeMessagesBuffer: newChangeMessagesBuffer, ackStreamSequence } = stitchChangeMessages({ changeMessages, changeMessagesBuffer })
     changeMessagesBuffer = newChangeMessagesBuffer
 

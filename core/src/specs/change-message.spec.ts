@@ -15,7 +15,7 @@ describe('fromMessage', () => {
       buildMessage({ subject, streamSequence: 2, data: MESSAGE_DATA.CREATE_MESSAGE }),
     ]
 
-    const result = messages.map((message) => ChangeMessage.fromMessage(message)) as ChangeMessage[]
+    const result = messages.map((message) => ChangeMessage.fromMessage(message))
 
     expect(result).toStrictEqual([
       new ChangeMessage({
@@ -39,7 +39,7 @@ describe('fromMessage', () => {
       buildMessage({ subject, streamSequence: 2, data: MESSAGE_DATA.UPDATE_MESSAGE }),
     ]
 
-    const result = messages.map((message) => ChangeMessage.fromMessage(message)) as ChangeMessage[]
+    const result = messages.map((message) => ChangeMessage.fromMessage(message))
 
     expect(result).toStrictEqual([
       new ChangeMessage({
@@ -63,7 +63,7 @@ describe('fromMessage', () => {
       buildMessage({ subject, streamSequence: 2, data: MESSAGE_DATA.DELETE_MESSAGE }),
     ]
 
-    const result = messages.map((message) => ChangeMessage.fromMessage(message)) as ChangeMessage[]
+    const result = messages.map((message) => ChangeMessage.fromMessage(message))
 
     expect(result).toStrictEqual([
       new ChangeMessage({

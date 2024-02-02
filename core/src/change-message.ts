@@ -8,11 +8,6 @@ export const MESSAGE_PREFIX_CONTEXT = '_bemi'
 export const MESSAGE_PREFIX_HEARTBEAT = '_bemi_heartbeat'
 
 const parseDebeziumData = (debeziumChange: any, now: Date) => {
-  if (Object.keys(debeziumChange).length === 1 && debeziumChange.ts_ms) {
-    logger.debug(`Ignoring heartbeat ts`)
-    return
-  }
-
   const {
     op,
     before,
@@ -68,11 +63,9 @@ export class ChangeMessage {
 
   static fromMessage(message: Message, now = new Date()) {
     const debeziumData = decodeData(message.data) as any
-    const changeAttributes = parseDebeziumData(debeziumData, now)
-    if (!changeAttributes) return
 
     return new ChangeMessage({
-      changeAttributes,
+      changeAttributes: parseDebeziumData(debeziumData, now),
       subject: message.subject,
       streamSequence: message.info.streamSequence,
       messagePrefix: debeziumData.message?.prefix,
