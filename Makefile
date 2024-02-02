@@ -1,6 +1,14 @@
-docs-up:
-	cd docs && pnpm start
+core-install:
+	devbox run "cd core && pnpm install"
+core-test:
+	devbox run "cd core && pnpm test"
+
 docs-install:
-	cd docs && pnpm install
+	devbox run "cd docs && pnpm install"
+docs-up:
+	devbox run "cd docs && pnpm start"
 docs-build:
-	cd docs && pnpm build
+	devbox run "cd docs && pnpm build"
+
+sh:
+	devbox shell
