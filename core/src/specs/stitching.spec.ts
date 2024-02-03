@@ -23,14 +23,17 @@ describe('stitchChangeMessages', () => {
         new ChangeMessage({ subject, streamSequence: 3, changeAttributes: CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE, messagePrefix: MESSAGE_PREFIX_HEARTBEAT }),
       ]
 
-      const result = stitchChangeMessages({ changeMessages, changeMessagesBuffer: new ChangeMessagesBuffer() })
+      const result = stitchChangeMessages({
+        changeMessagesBuffer: new ChangeMessagesBuffer().addChangeMessages(changeMessages),
+        useBuffer: true,
+      })
 
       expect(result).toStrictEqual({
-        changeMessages: [
+        stitchedChangeMessages: [
           findChangeMessage(changeMessages, 2).setContext(findChangeMessage(changeMessages, 1).context()),
         ],
         ackStreamSequence: 2,
-        changeMessagesBuffer: ChangeMessagesBuffer.fromStore({}),
+        newChangeMessagesBuffer: ChangeMessagesBuffer.fromStore({}),
       })
     })
 
@@ -43,15 +46,18 @@ describe('stitchChangeMessages', () => {
         new ChangeMessage({ subject, streamSequence: 4, changeAttributes: CHANGE_ATTRIBUTES.DELETE }),
       ]
 
-      const result = stitchChangeMessages({ changeMessages, changeMessagesBuffer: new ChangeMessagesBuffer() })
+      const result = stitchChangeMessages({
+        changeMessagesBuffer: new ChangeMessagesBuffer().addChangeMessages(changeMessages),
+        useBuffer: true,
+      })
 
       expect(result).toStrictEqual({
-        changeMessages: [
+        stitchedChangeMessages: [
           findChangeMessage(changeMessages, 1).setContext(findChangeMessage(changeMessages, 2).context()),
           findChangeMessage(changeMessages, 3),
         ],
         ackStreamSequence: 3,
-        changeMessagesBuffer: ChangeMessagesBuffer.fromStore({
+        newChangeMessagesBuffer: ChangeMessagesBuffer.fromStore({
           [subject]: {
             [POSITIONS.DELETE]: [
               findChangeMessage(changeMessages, 4),
@@ -71,13 +77,16 @@ describe('stitchChangeMessages', () => {
         new ChangeMessage({ subject, streamSequence: 3, changeAttributes: CHANGE_ATTRIBUTES.UPDATE }),
       ]
 
-      const result1 = stitchChangeMessages({ changeMessages: changeMessages1, changeMessagesBuffer: new ChangeMessagesBuffer() })
+      const result1 = stitchChangeMessages({
+        changeMessagesBuffer: new ChangeMessagesBuffer().addChangeMessages(changeMessages1),
+        useBuffer: true,
+      })
       expect(result1).toStrictEqual({
-        changeMessages: [
+        stitchedChangeMessages: [
           findChangeMessage(changeMessages1, 1).setContext(findChangeMessage(changeMessages1, 2).context()),
         ],
         ackStreamSequence: 1,
-        changeMessagesBuffer: ChangeMessagesBuffer.fromStore({
+        newChangeMessagesBuffer: ChangeMessagesBuffer.fromStore({
           [subject]: {
             [POSITIONS.UPDATE]: [
               findChangeMessage(changeMessages1, 3),
@@ -91,13 +100,16 @@ describe('stitchChangeMessages', () => {
         new ChangeMessage({ subject, streamSequence: 5, changeAttributes: CHANGE_ATTRIBUTES.DELETE_MESSAGE, messagePrefix: MESSAGE_PREFIX_CONTEXT }),
       ]
 
-      const result2 = stitchChangeMessages({ changeMessages: changeMessages2, changeMessagesBuffer: result1.changeMessagesBuffer })
+      const result2 = stitchChangeMessages({
+        changeMessagesBuffer: result1.newChangeMessagesBuffer.addChangeMessages(changeMessages2),
+        useBuffer: true,
+      })
       expect(result2).toStrictEqual({
-        changeMessages: [
+        stitchedChangeMessages: [
           findChangeMessage(changeMessages1, 3).setContext(findChangeMessage(changeMessages2, 4).context()),
         ],
         ackStreamSequence: 3,
-        changeMessagesBuffer: ChangeMessagesBuffer.fromStore({
+        newChangeMessagesBuffer: ChangeMessagesBuffer.fromStore({
           [subject]: {
             [POSITIONS.DELETE]: [
               findChangeMessage(changeMessages2, 5),
@@ -113,11 +125,14 @@ describe('stitchChangeMessages', () => {
         new ChangeMessage({ subject, streamSequence: 1, changeAttributes: CHANGE_ATTRIBUTES.CREATE }),
       ]
 
-      const result1 = stitchChangeMessages({ changeMessages: changeMessages1, changeMessagesBuffer: new ChangeMessagesBuffer() })
+      const result1 = stitchChangeMessages({
+        changeMessagesBuffer: new ChangeMessagesBuffer().addChangeMessages(changeMessages1),
+        useBuffer: true,
+      })
       expect(result1).toStrictEqual({
-        changeMessages: [],
+        stitchedChangeMessages: [],
         ackStreamSequence: undefined,
-        changeMessagesBuffer: ChangeMessagesBuffer.fromStore({
+        newChangeMessagesBuffer: ChangeMessagesBuffer.fromStore({
           [subject]: {
             [POSITIONS.CREATE]: [
               findChangeMessage(changeMessages1, 1),
@@ -132,14 +147,17 @@ describe('stitchChangeMessages', () => {
         new ChangeMessage({ subject, streamSequence: 4, changeAttributes: CHANGE_ATTRIBUTES.DELETE }),
       ]
 
-      const result2 = stitchChangeMessages({ changeMessages: changeMessages2, changeMessagesBuffer: result1.changeMessagesBuffer })
+      const result2 = stitchChangeMessages({
+        changeMessagesBuffer: result1.newChangeMessagesBuffer.addChangeMessages(changeMessages2),
+        useBuffer: true,
+      })
       expect(result2).toStrictEqual({
-        changeMessages: [
+        stitchedChangeMessages: [
           findChangeMessage(changeMessages1, 1).setContext(findChangeMessage(changeMessages2, 2).context()),
           findChangeMessage(changeMessages2, 3),
         ],
         ackStreamSequence: 3,
-        changeMessagesBuffer: ChangeMessagesBuffer.fromStore({
+        newChangeMessagesBuffer: ChangeMessagesBuffer.fromStore({
           [subject]: {
             [POSITIONS.DELETE]: [findChangeMessage(changeMessages2, 4)],
           },
@@ -153,11 +171,14 @@ describe('stitchChangeMessages', () => {
         new ChangeMessage({ subject, streamSequence: 1, changeAttributes: CHANGE_ATTRIBUTES.CREATE }),
       ]
 
-      const result1 = stitchChangeMessages({ changeMessages: changeMessages1, changeMessagesBuffer: new ChangeMessagesBuffer() })
+      const result1 = stitchChangeMessages({
+        changeMessagesBuffer: new ChangeMessagesBuffer().addChangeMessages(changeMessages1),
+        useBuffer: true,
+      })
       expect(result1).toStrictEqual({
-        changeMessages: [],
+        stitchedChangeMessages: [],
         ackStreamSequence: undefined,
-        changeMessagesBuffer: ChangeMessagesBuffer.fromStore({
+        newChangeMessagesBuffer: ChangeMessagesBuffer.fromStore({
           [subject]: {
             [POSITIONS.CREATE]: [
               findChangeMessage(changeMessages1, 1),
@@ -170,13 +191,16 @@ describe('stitchChangeMessages', () => {
         new ChangeMessage({ subject, streamSequence: 2, changeAttributes: CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE, messagePrefix: MESSAGE_PREFIX_HEARTBEAT }),
       ]
 
-      const result2 = stitchChangeMessages({ changeMessages: changeMessages2, changeMessagesBuffer: result1.changeMessagesBuffer })
+      const result2 = stitchChangeMessages({
+        changeMessagesBuffer: result1.newChangeMessagesBuffer.addChangeMessages(changeMessages2),
+        useBuffer: true,
+      })
       expect(result2).toStrictEqual({
-        changeMessages: [
+        stitchedChangeMessages: [
           findChangeMessage(changeMessages1, 1),
         ],
         ackStreamSequence: 1,
-        changeMessagesBuffer: ChangeMessagesBuffer.fromStore({}),
+        newChangeMessagesBuffer: ChangeMessagesBuffer.fromStore({}),
       })
     })
   })

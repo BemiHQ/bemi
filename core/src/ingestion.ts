@@ -1,12 +1,12 @@
 import { MikroORM } from '@mikro-orm/core';
 import type { PostgreSqlDriver } from '@mikro-orm/postgresql'
 
-import { logger } from '../core/logger'
-import { Message } from '../core/nats'
-import { Change } from "../core/entities/Change"
-import { ChangeMessage } from '../core/change-message'
-import { ChangeMessagesBuffer } from '../core/change-message-buffer'
-import { stitchChangeMessages } from '../core/stitching'
+import { logger } from './logger'
+import { Message } from './nats'
+import { Change } from "./entities/Change"
+import { ChangeMessage } from './change-message'
+import { ChangeMessagesBuffer } from './change-message-buffer'
+import { stitchChangeMessages } from './stitching'
 
 const sleep = (seconds: number) => (
   new Promise(resolve => setTimeout(resolve, seconds * 1000))
@@ -62,8 +62,21 @@ const fetchMessages = async (
 }
 
 export const runIngestionLoop = async (
-  { orm, consumer, fetchBatchSize, refetchEmptyAfterSeconds, insertBatchSize }:
-  { orm: MikroORM<PostgreSqlDriver>, consumer: any, fetchBatchSize: number, refetchEmptyAfterSeconds: number, insertBatchSize: number }
+  {
+    orm,
+    consumer,
+    fetchBatchSize = 100,
+    insertBatchSize = 100,
+    refetchEmptyAfterSeconds = 10,
+    useBuffer = false,
+  }: {
+    orm: MikroORM<PostgreSqlDriver>,
+    consumer: any,
+    fetchBatchSize?: number,
+    refetchEmptyAfterSeconds?: number,
+    insertBatchSize?: number,
+    useBuffer?: boolean,
+  }
 ) => {
   let lastStreamSequence: number | null = null
   let changeMessagesBuffer = new ChangeMessagesBuffer()
@@ -78,13 +91,18 @@ export const runIngestionLoop = async (
     // Stitching
     const now = new Date()
     const changeMessages = messages.map((message: Message) => ChangeMessage.fromMessage(message, now))
-    const { changeMessages: stitchedChangeMessages, changeMessagesBuffer: newChangeMessagesBuffer, ackStreamSequence } = stitchChangeMessages({ changeMessages, changeMessagesBuffer })
+
+    const { stitchedChangeMessages, newChangeMessagesBuffer, ackStreamSequence } = stitchChangeMessages({
+      changeMessagesBuffer: changeMessagesBuffer.addChangeMessages(changeMessages),
+      useBuffer,
+    })
     changeMessagesBuffer = newChangeMessagesBuffer
 
     logger.info([
       `Fetched: ${messages.length}`,
       `Saving: ${stitchedChangeMessages.length}`,
       `Pending: ${changeMessagesBuffer.size()}`,
+      `Ack sequence: #${ackStreamSequence}`,
       `Last sequence: #${lastStreamSequence}`,
     ].join('. '))
 

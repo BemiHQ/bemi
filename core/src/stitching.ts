@@ -3,24 +3,24 @@ import { ChangeMessage } from './change-message'
 import { ChangeMessagesBuffer } from './change-message-buffer'
 
 export const stitchChangeMessages = (
-  { changeMessages: initialChangeMessages, changeMessagesBuffer: initialChangeMessagesBuffer }:
-  { changeMessages: ChangeMessage[], changeMessagesBuffer: ChangeMessagesBuffer }
+  { changeMessagesBuffer, useBuffer = false }:
+  { changeMessagesBuffer: ChangeMessagesBuffer, useBuffer: boolean }
 ) => {
-  const mergedChangeMessagesBuffer = initialChangeMessagesBuffer.addChangeMessages(initialChangeMessages)
-  let stitchedChangeMsgs: ChangeMessage[] = []
+  let stitchedChangeMessages: ChangeMessage[] = []
   let ackSequenceBySubject: { [key: string]: string | undefined } = {}
   let newChangeMessagesBuffer = new ChangeMessagesBuffer()
 
-  mergedChangeMessagesBuffer.forEach((subject, sortedChangeMessages) => {
+  changeMessagesBuffer.forEach((subject, sortedChangeMessages) => {
     let ackSequence: number | undefined = undefined
 
     sortedChangeMessages.forEach((changeMessage) => {
       const position = changeMessage.changeAttributes.position.toString()
-      const changeMessages = mergedChangeMessagesBuffer.changeMessagesByPosition(subject, position)
+      const changeMessages = changeMessagesBuffer.changeMessagesByPosition(subject, position)
       const contextMessageChangeMessage = changeMessages.find(cm => cm.isContextMessage())
 
       // Last message without a pair - skip it
       if (
+        useBuffer &&
         changeMessage === sortedChangeMessages[sortedChangeMessages.length - 1] &&
         changeMessages.length === 1
       ) {
@@ -47,14 +47,14 @@ export const stitchChangeMessages = (
 
       if (contextMessageChangeMessage) {
         // Stitch with context message change message if it exists
-        stitchedChangeMsgs = [
-          ...stitchedChangeMsgs,
+        stitchedChangeMessages = [
+          ...stitchedChangeMessages,
           changeMessage.setContext(contextMessageChangeMessage.context()),
         ]
       } else {
         // Return mutation change message as is without stitching
-        stitchedChangeMsgs = [
-          ...stitchedChangeMsgs,
+        stitchedChangeMessages = [
+          ...stitchedChangeMessages,
           changeMessage,
         ]
       }
@@ -72,11 +72,11 @@ export const stitchChangeMessages = (
     !min || streamSequence! < min ? streamSequence : min
   ), undefined) as undefined | number
 
-  logger.debug({ stitched: stitchedChangeMsgs, buffer: newChangeMessagesBuffer.store, ackStreamSequence })
+  logger.debug({ stitched: stitchedChangeMessages, buffer: newChangeMessagesBuffer.store, ackStreamSequence })
 
   return {
-    changeMessages: stitchedChangeMsgs,
-    changeMessagesBuffer: newChangeMessagesBuffer,
+    stitchedChangeMessages,
+    newChangeMessagesBuffer,
     ackStreamSequence,
   }
 }

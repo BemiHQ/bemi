@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "lib": ["esnext"],
+    "module": "commonjs",
+    "target": "es6",
+    "moduleResolution": "node",
+    "strict": true,
+    "baseUrl": ".",
+    "allowJs": true,
+    "sourceMap": true,
+
+    // MikroORM
+    "experimentalDecorators": true,
+
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "inlineSources": true,
+
+    "sourceRoot": "/"
+  },
+  "include": ["mikro-orm.config.ts", "src/index.ts", "core/src"],
+  "exclude": ["node_modules", "core/node_modules", "core/src/specs"]
+}

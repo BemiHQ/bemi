@@ -152,6 +152,10 @@ dist
 
 .dynamodb/
 
+# Debezium
+
+debezium-server/
+
 # TernJS port file
 
 .tern-port

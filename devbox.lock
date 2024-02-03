@@ -1,0 +1,65 @@
+{
+  "lockfile_version": "1",
+  "packages": {
+    "nats-server@latest": {
+      "last_modified": "2024-01-23T02:13:08Z",
+      "resolved": "github:NixOS/nixpkgs/4d3d04cfd372a0511f12b885c9822e406b00fe8e#nats-server",
+      "source": "devbox-search",
+      "version": "2.10.9",
+      "systems": {
+        "aarch64-darwin": {
+          "store_path": "/nix/store/5yc0acxf8zi0m05cky21zh7689bc21xf-nats-server-2.10.9"
+        },
+        "aarch64-linux": {
+          "store_path": "/nix/store/f93srmd78zm5a980hp8h59090x6qajyq-nats-server-2.10.9"
+        },
+        "x86_64-darwin": {
+          "store_path": "/nix/store/p2y7hwn55vivp54qr5r5qr27vq2dnmbd-nats-server-2.10.9"
+        },
+        "x86_64-linux": {
+          "store_path": "/nix/store/2llnywivgyxf84wmviljmsf6cbfy8k8h-nats-server-2.10.9"
+        }
+      }
+    },
+    "nodePackages.pnpm@latest": {
+      "last_modified": "2024-01-23T02:13:08Z",
+      "resolved": "github:NixOS/nixpkgs/4d3d04cfd372a0511f12b885c9822e406b00fe8e#nodePackages.pnpm",
+      "source": "devbox-search",
+      "version": "8.14.0",
+      "systems": {
+        "aarch64-darwin": {
+          "store_path": "/nix/store/rw37gcc3m93kh2hq3pi8891g41p54518-pnpm-8.14.0"
+        },
+        "aarch64-linux": {
+          "store_path": "/nix/store/ab961l4fcs1n5ldfy4463kqr4pln1cxc-pnpm-8.14.0"
+        },
+        "x86_64-darwin": {
+          "store_path": "/nix/store/06qmz8k1gi9s68mcynlyis35w2pj6fl6-pnpm-8.14.0"
+        },
+        "x86_64-linux": {
+          "store_path": "/nix/store/pgzxiapcydn1mmqh1w4jkl9pcw7ybbj4-pnpm-8.14.0"
+        }
+      }
+    },
+    "nodejs@latest": {
+      "last_modified": "2023-11-19T17:46:56Z",
+      "resolved": "github:NixOS/nixpkgs/0bf3f5cf6a98b5d077cdcdb00a6d4b3d92bc78b5#nodejs_21",
+      "source": "devbox-search",
+      "version": "21.2.0",
+      "systems": {
+        "aarch64-darwin": {
+          "store_path": "/nix/store/waq8bb12nbqwxxn1lgvdzsgs0gqk0d04-nodejs-21.2.0"
+        },
+        "aarch64-linux": {
+          "store_path": "/nix/store/v03cn5xw03nxykgix04r1l31jjrgf9d3-nodejs-21.2.0"
+        },
+        "x86_64-darwin": {
+          "store_path": "/nix/store/sv6nivfsqcl8s1dhqjpjy8dqvbx9mxwl-nodejs-21.2.0"
+        },
+        "x86_64-linux": {
+          "store_path": "/nix/store/iklfdn5l792z46dl5qq9zqzqsmp2m4m9-nodejs-21.2.0"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "packages": {
+    "nodejs":            "latest",
+    "nats-server":       "latest",
+    "nodePackages.pnpm": "latest"
+  }
+}
