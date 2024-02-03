@@ -22,6 +22,10 @@
 
 # Bemi
 
+## Architecture
+
+![Bemi Worker Architecture](docs/static/img/worker.png)
+
 ## License
 
 Distributed under the terms of the [SSPL-1.0 License](/LICENSE). If you need to modify and distribute the code, please release it to contribute back to the open-source community.
