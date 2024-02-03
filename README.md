@@ -22,4 +22,6 @@
 
 # Bemi
 
-Automatic data change tracking for PostgreSQL.
+## License
+
+Distributed under the terms of the [SSPL-1.0 License](/LICENSE). If you need to modify and distribute the code, please release it to contribute back to the open-source community.
