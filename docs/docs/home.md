@@ -4,9 +4,11 @@ slug: /
 
 # Bemi Docs
 
-[Bemi](https://bemi.io) plugs into PostgreSQL and ORMs to track database changes automatically. It unlocks robust context-aware audit trails and time travel querying inside your application.
+[Bemi](https://bemi.io) is an open-source solution that plugs into PostgreSQL and ORMs to track database changes automatically.
+It unlocks robust context-aware audit trails and time travel querying inside your application.
 
-Designed with simplicity and non-invasiveness in mind, Bemi doesn't require any alterations to your existing database structure. It operates in the background, empowering you with data change tracking features.
+Designed with simplicity and non-invasiveness in mind, Bemi doesn't require any alterations to your existing database structure.
+It operates in the background, empowering you with data change tracking features.
 
 ## Demo
 

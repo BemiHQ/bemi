@@ -73,6 +73,14 @@ SHOW wal_level;
 Note that changing `wal_level` in PostgreSQL requires a restart. Changing from `replica` to `logical` won't break replication.
 It will just increase the WAL volume (disk space and network traffic if there are replicas).
 
+### Changing WAL level in a self-managed PostgreSQL
+
+Run the following SQL command and restart your database:
+
+```sql
+ALTER SYSTEM SET wal_level = logical;
+```
+
 ### Changing WAL level on AWS RDS
 
 At a high level, these are the steps necessary to update `wal_level` from `replica` to `logical`
@@ -127,3 +135,7 @@ echo 'ssh-ed25519 AAAAC3Nz...' >> ~/.ssh/authorized_keys
 ```
 
 If you need a public SSH Key before you know the SSH host address, just specify any address and later reach out to us to update it.
+
+## Static IPs
+
+If you restrict access to your databases by IP addresses, [contact us](mailto:hi@bemi.io). We will share our static IP addresses, which you can add to an allowlist, so we can connect to your Source PostgreSQL database.
