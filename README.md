@@ -57,12 +57,12 @@ There's a wide range of use cases that Bemi is built for! The tech was initially
 
 ### System dependencies
 
-* [Node.js](https://github.com/nodejs/node)
-* [NATS server](https://github.com/nats-io/nats-server)
+- [Node.js](https://github.com/nodejs/node)
+- [NATS server](https://github.com/nats-io/nats-server)
 
 You can install these system dependencies manually or use [Devbox](https://github.com/jetpack-io/devbox) which uses [Nix Packages](https://github.com/NixOS/nixpkgs) providing isolated shells without containerization.
 
-And of course, you need a PostgreSQL database that you want to connect to to track data changes. Make sure your database has `SHOW wal_level;` returning  `logical`. Otherwise, you need to run the following SQL command and restart your PostgreSQL server:
+And of course, you need a PostgreSQL database that you want to connect to to track data changes. Make sure your database has `SHOW wal_level;` returning `logical`. Otherwise, you need to run the following SQL command and restart your PostgreSQL server:
 
 ```sql
 ALTER SYSTEM SET wal_level = logical;
@@ -107,7 +107,7 @@ UPDATE _bemi_migrations SET executed_at = NOW() WHERE id = 1;
 
 This will add a new record in the `changes` table within the same database after a few seconds.
 
-If you want to also store application-specific context (e.g., user ID, API endpoint, etc.) with these low-level database changes, check out our open-source [ORM packages](https://docs.bemi.io/#supported-nodejs-orms).
+To optionally automatically enhance these low-level database changes with application-specific context (e.g., user ID, API endpoint, etc.), check out our compatible [ORM packages](https://docs.bemi.io/#supported-nodejs-orms).
 
 ## Architecture
 
@@ -119,7 +119,7 @@ Bemi consists of three main parts:
 2. [NATS JetStream](https://github.com/nats-io/nats-server), a cloud-native messaging system written in Go. Debezium is historically designed to send data to Kafka, but it can be also re-configured to send data to NATS JetStream. It is much more lightweight and easy to manage while being very performant and having over 45 clients for different programming languages.
 3. Bemi Worker, a process responsible for stitching data change with app context sent via our open-source [ORM packages](https://docs.bemi.io/#supported-nodejs-orms) and storing data changes. It is written in TypeScript and uses the `core` that we rely on for our [Bemi](https://bemi.io/) cloud platform.
 
-The described architecture and the `worker` code in this repository are a simplified version that can be easily run without much overhead. If you want to self-host it in a production environment, see our [self-hosting docs](https://docs.bemi.io/self-hosting).
+The described architecture and the `worker` code in this repository are a simplified version that can be easily run without much overhead. If you want to self-host it in a production environment, see our [self-hosting docs](https://docs.bemi.io/self-hosting). Alternatively, [sign up](https://dashboard.bemi.io/) with your GitHub login to use Bemi Cloud.
 
 ## License
 
