@@ -61,7 +61,8 @@ AppDataSource.initialize() // initialize TypeORM connection as normal
 
 ## Data change tracking
 
-Connect your PostgreSQL source database on [bemi.io](https://bemi.io) to start ingesting and storing all data changes stitched together with application-specific context. The database connection details can be securely configured through the [dashboard UI](https://dashboard.bemi.io/log-in?ref=prisma) in a few seconds.
+Connect your PostgreSQL source database on [bemi.io](https://bemi.io) to start ingesting and storing all data changes stitched together with application-specific context.
+The database connection details can be securely configured through the [dashboard UI](https://dashboard.bemi.io/log-in?ref=typeorm) in a few seconds.
 
 ![dashboard](/img/dashboard.png)
 

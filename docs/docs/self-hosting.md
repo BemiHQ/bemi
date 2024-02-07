@@ -17,13 +17,14 @@ and we'll be happy to provide you with a Docker image and assist with configurin
 
 ## Self-Hosting vs Bemi Cloud
 
-|                                | Self-Hosting  | Bemi Cloud  |
-| ------------------------------ | ------------- | ----------- |
-| Automatic data change tracking | ✅            | ✅          |
-| PostgreSQL support             | ✅            | ✅          |
-| Automatic table partitioning   | ❌            | ✅          |
-| Automatic data retention       | ❌            | ✅          |
-| Auto-scaling and redundancy    | ❌            | ✅          |
-| Control plane and monitoring   | ❌            | ✅          |
-| Support                        | ❌            | ✅          |
-| Bemi Search UI (coming soon)   | ❌            | ✅          |
+|                                   | Self-Hosting  | Bemi Cloud  |
+| --------------------------------- | ------------- | ----------- |
+| Automatic data change tracking    | ✅            | ✅          |
+| PostgreSQL source database        | ✅            | ✅          |
+| Automatic table partitioning      | ❌            | ✅          |
+| Automatic data retention          | ❌            | ✅          |
+| Autoscaling and high availability | ❌            | ✅          |
+| Control plane and monitoring      | ❌            | ✅          |
+| Automatic updates                 | ❌            | ✅          |
+| Included support                  | ❌            | ✅          |
+| Activity Log UI (coming soon)     | ❌            | ✅          |
