@@ -102,7 +102,7 @@ export const runIngestionLoop = async (
       `Fetched: ${messages.length}`,
       `Saving: ${stitchedChangeMessages.length}`,
       `Pending: ${changeMessagesBuffer.size()}`,
-      `Ack sequence: #${ackStreamSequence}`,
+      `Ack sequence: ${ackStreamSequence ? `#${ackStreamSequence}` : 'none'}`,
       `Last sequence: #${lastStreamSequence}`,
     ].join('. '))
 

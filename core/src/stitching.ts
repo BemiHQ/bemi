@@ -7,11 +7,16 @@ export const stitchChangeMessages = (
   { changeMessagesBuffer: ChangeMessagesBuffer, useBuffer: boolean }
 ) => {
   let stitchedChangeMessages: ChangeMessage[] = []
-  let ackSequenceBySubject: { [key: string]: string | undefined } = {}
+  let maxSequence: number | undefined = undefined
+  let maxStitchedSequenceBySubject: { [key: string]: string | undefined } = {}
   let newChangeMessagesBuffer = new ChangeMessagesBuffer()
 
   changeMessagesBuffer.forEach((subject, sortedChangeMessages) => {
-    let ackSequence: number | undefined = undefined
+    if (sortedChangeMessages.length && (!maxSequence || sortedChangeMessages[sortedChangeMessages.length - 1].streamSequence > maxSequence)) {
+      maxSequence = sortedChangeMessages[sortedChangeMessages.length - 1].streamSequence
+    }
+
+    let maxStitchedSequence: number | undefined = undefined
 
     sortedChangeMessages.forEach((changeMessage) => {
       const position = changeMessage.changeAttributes.position.toString()
@@ -41,8 +46,8 @@ export const stitchChangeMessages = (
       //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       // Update ack sequence number
-      if (!ackSequence || ackSequence < changeMessage.streamSequence) {
-        ackSequence = changeMessage.streamSequence
+      if (!maxStitchedSequence || maxStitchedSequence < changeMessage.streamSequence) {
+        maxStitchedSequence = changeMessage.streamSequence
       }
 
       if (contextMessageChangeMessage) {
@@ -60,19 +65,25 @@ export const stitchChangeMessages = (
       }
     })
 
-    if (ackSequence) {
-      ackSequenceBySubject = {
-        ...ackSequenceBySubject,
-        [subject]: ackSequence,
+    if (maxStitchedSequence) {
+      maxStitchedSequenceBySubject = {
+        ...maxStitchedSequenceBySubject,
+        [subject]: maxStitchedSequence,
       }
     }
   })
 
-  const ackStreamSequence = Object.values(ackSequenceBySubject).filter(Boolean).reduce((min, streamSequence) => (
+  const maxStitchedSequence = Object.values(maxStitchedSequenceBySubject).filter(Boolean).reduce((min, streamSequence) => (
     !min || streamSequence! < min ? streamSequence : min
   ), undefined) as undefined | number
 
-  logger.debug({ stitched: stitchedChangeMessages, buffer: newChangeMessagesBuffer.store, ackStreamSequence })
+  const ackStreamSequence = newChangeMessagesBuffer.size() ? maxStitchedSequence : maxSequence
+
+  logger.debug({
+    stitched: stitchedChangeMessages,
+    buffer: newChangeMessagesBuffer.store,
+    ackStreamSequence,
+  })
 
   return {
     stitchedChangeMessages,

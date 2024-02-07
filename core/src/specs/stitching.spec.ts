@@ -1,3 +1,5 @@
+process.env.LOG_LEVEL = 'INFO'
+
 import { stitchChangeMessages } from '../stitching';
 import { ChangeMessage, MESSAGE_PREFIX_CONTEXT, MESSAGE_PREFIX_HEARTBEAT } from '../change-message';
 import { ChangeMessagesBuffer } from '../change-message-buffer';
@@ -32,7 +34,7 @@ describe('stitchChangeMessages', () => {
         stitchedChangeMessages: [
           findChangeMessage(changeMessages, 2).setContext(findChangeMessage(changeMessages, 1).context()),
         ],
-        ackStreamSequence: 2,
+        ackStreamSequence: 3,
         newChangeMessagesBuffer: ChangeMessagesBuffer.fromStore({}),
       })
     })
@@ -64,6 +66,26 @@ describe('stitchChangeMessages', () => {
             ],
           }
         }),
+      })
+    })
+
+    test('acks the last heartbeat message if the buffer is empty', () => {
+      const subject = 'bemi-subject'
+      const changeMessages = [
+        new ChangeMessage({ subject, streamSequence: 1, changeAttributes: { ...CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE, position: 1 }, messagePrefix: MESSAGE_PREFIX_HEARTBEAT }),
+        new ChangeMessage({ subject, streamSequence: 3, changeAttributes: { ...CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE, position: 3 }, messagePrefix: MESSAGE_PREFIX_HEARTBEAT }),
+        new ChangeMessage({ subject, streamSequence: 2, changeAttributes: { ...CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE, position: 2 }, messagePrefix: MESSAGE_PREFIX_HEARTBEAT }),
+      ]
+
+      const result = stitchChangeMessages({
+        changeMessagesBuffer: new ChangeMessagesBuffer().addChangeMessages(changeMessages),
+        useBuffer: true,
+      })
+
+      expect(result).toStrictEqual({
+        stitchedChangeMessages: [],
+        ackStreamSequence: 3,
+        newChangeMessagesBuffer: ChangeMessagesBuffer.fromStore({}),
       })
     })
   })
@@ -199,7 +221,7 @@ describe('stitchChangeMessages', () => {
         stitchedChangeMessages: [
           findChangeMessage(changeMessages1, 1),
         ],
-        ackStreamSequence: 1,
+        ackStreamSequence: 2,
         newChangeMessagesBuffer: ChangeMessagesBuffer.fromStore({}),
       })
     })
