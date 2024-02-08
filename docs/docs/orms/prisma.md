@@ -12,7 +12,7 @@ See [this repo](https://github.com/BemiHQ/bemi-prisma-example) as an Todo app ex
 
 ## Prerequisites
 
-- PostgreSQL
+- PostgreSQL 14+
 - Prisma
 - Express (Fastify support coming soon)
 

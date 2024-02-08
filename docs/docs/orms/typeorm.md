@@ -12,7 +12,7 @@ See [this repo](https://github.com/BemiHQ/bemi-typeorm-example) as an Todo app e
 
 ## Prerequisites
 
-- PostgreSQL
+- PostgreSQL 14+
 - TypeORM
 - Express (Fastify support coming soon)
 
