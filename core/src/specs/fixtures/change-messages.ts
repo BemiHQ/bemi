@@ -18,7 +18,8 @@ export const CHANGE_ATTRIBUTES = {
     "schema": "public",
     "table": "todo",
     "transactionId": 768,
-    "values": { "id": 2, "isCompleted": false, "task": "Test" }
+    "before": {},
+    "after": { "id": 2, "isCompleted": false, "task": "Test" },
   },
   CREATE_MESSAGE: {
     "committedAt": MOCKED_DATE,
@@ -32,7 +33,8 @@ export const CHANGE_ATTRIBUTES = {
     "schema": "",
     "table": "",
     "transactionId": 768,
-    "values": {},
+    "before": {},
+    "after": {},
   },
   UPDATE: {
     "committedAt": MOCKED_DATE,
@@ -46,7 +48,8 @@ export const CHANGE_ATTRIBUTES = {
     "schema": "public",
     "table": "todo",
     "transactionId": 769,
-    "values": { "id": 2, "isCompleted": false, "task": "2023-11-28THH:06:22:437" },
+    "before": { "id": 2, "isCompleted": false, "task": "Test" },
+    "after": { "id": 2, "isCompleted": true, "task": "Test" },
   },
   UPDATE_MESSAGE: {
     "committedAt": MOCKED_DATE,
@@ -60,7 +63,8 @@ export const CHANGE_ATTRIBUTES = {
     "schema": "",
     "table": "",
     "transactionId": 769,
-    "values": {},
+    "before": {},
+    "after": {},
   },
   DELETE: {
     "committedAt": MOCKED_DATE,
@@ -74,7 +78,8 @@ export const CHANGE_ATTRIBUTES = {
     "schema": "public",
     "table": "todo",
     "transactionId": 767,
-    "values": {},
+    "before": { "id": 2, "isCompleted": true, "task": "Test" },
+    "after": {},
   },
   DELETE_MESSAGE: {
     "committedAt": MOCKED_DATE,
@@ -88,7 +93,8 @@ export const CHANGE_ATTRIBUTES = {
     "schema": "",
     "table": "",
     "transactionId": 767,
-    "values": {},
+    "before": {},
+    "after": {},
   },
   HEARTBEAT_MESSAGE: {
     "committedAt": MOCKED_DATE,
@@ -102,7 +108,8 @@ export const CHANGE_ATTRIBUTES = {
     "schema": "",
     "table": "",
     "transactionId": 769,
-    "values": {},
+    "before": {},
+    "after": {},
   },
   TRUNCATE: {
     "committedAt": MOCKED_DATE,
@@ -116,6 +123,7 @@ export const CHANGE_ATTRIBUTES = {
     "schema": "public",
     "table": "todo",
     "transactionId": 770,
-    "values": {},
+    "before": {},
+    "after": {},
   },
 }

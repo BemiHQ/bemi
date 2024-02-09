@@ -50,8 +50,8 @@ export const MESSAGE_DATA = {
     message: { prefix: '_bemi', content: 'eyJvcCI6ICJjIn0=' },
   },
   UPDATE: {
-    before: null,
-    after: { id: 2, task: '2023-11-28THH:06:22:437', isCompleted: false },
+    before: { id: 2, task: 'Test', isCompleted: false },
+    after: { id: 2, task: 'Test', isCompleted: true },
     source: {
       version: '2.4.1.Final',
       connector: 'postgresql',
@@ -90,7 +90,7 @@ export const MESSAGE_DATA = {
     message: { prefix: '_bemi', content: 'eyJvcCI6ICJ1In0=' },
   },
   DELETE: {
-    before: { id: 2, task: '', isCompleted: false },
+    before: { id: 2, task: 'Test', isCompleted: true },
     after: null,
     source: {
       version: '2.4.1.Final',

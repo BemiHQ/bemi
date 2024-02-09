@@ -20,6 +20,7 @@ const sidebars: SidebarsConfig = {
       collapsed: false,
       items: [
         'postgresql/source-database',
+        'postgresql/destination-database',
       ],
     },
     {

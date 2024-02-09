@@ -1,7 +1,6 @@
 import { RequiredEntityData } from '@mikro-orm/core';
 
 import { Change, Operation } from "./entities/Change"
-import { logger } from './logger'
 import { Message, decodeData } from './nats'
 
 export const MESSAGE_PREFIX_CONTEXT = '_bemi'
@@ -31,7 +30,8 @@ const parseDebeziumData = (debeziumChange: any, now: Date) => {
 
   return {
     primaryKey: (operation === Operation.DELETE ? before : after)?.id?.toString(),
-    values: after || {},
+    before: before || {},
+    after: after || {},
     context,
     database,
     schema,
