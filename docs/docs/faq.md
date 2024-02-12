@@ -29,6 +29,8 @@ They usually have some of the following disadvantages
 * Storing data changes in a hard-to-query serialized format
 * Lacking the UI for troubleshooting and audit log purposes
 
+See this [page](/alternatives) that summarizes the main differences between different alternative solutions.
+
 ### Why not just use logging solutions like DataDog and APM tools like New Relic?
 
 These tools do not track changes made within a database. Bemi allows automatically tracking changes for each database record individually. This data represents an audit log which can be used for audit, digital forensics, and troubleshooting purposes.
@@ -47,7 +49,7 @@ Bemi allows to event-source any database. We take a practical approach without r
 
 ### How can I self-host?
 
-Currently, we're in the process of developing self-serve capabilities for self-hosting. If you require self-hosting and this feature is essential for your needs, please reach out to us. We're here to assist you and can provide further information or support based on your specific requirements.
+See this [docs page](/self-hosting).
 
 ### What does Bemi mean and how is it pronounced?
 

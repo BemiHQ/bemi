@@ -32,6 +32,7 @@ const sidebars: SidebarsConfig = {
         'orms/typeorm',
       ],
     },
+    'alternatives',
     'self-hosting',
   ],
 };
