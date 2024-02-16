@@ -59,7 +59,7 @@ These commands are safe to execute without any downtime or performance issues:
 ## WAL Level
 
 Bemi relies on logical replication that allows ingesting changes row-by-row, unlike physical replication that sends disk block changes.
-You can check `wal_level` to make sure logical replication is enabled:
+You can check the [`wal_level`](https://www.postgresql.org/docs/current/runtime-config-wal.html#GUC-WAL-LEVEL) to make sure logical replication is enabled:
 
 ```
 SHOW wal_level;
