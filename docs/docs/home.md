@@ -61,7 +61,7 @@ Bemi plugs into both the database and application levels, ensuring 100% reliabil
 
 On the database level, Bemi securely connects to PostgreSQL's [Write-Ahead Log](https://www.postgresql.org/docs/current/wal-intro.html)'s and implements [Change Data Capture](https://en.wikipedia.org/wiki/Change_data_capture). This allows tracking even the changes that get triggered via direct SQL.
 
-On the application level, Bemi packages automatically passe application context to the replication logs to enhance the low-level database changes. For example, information about a user who made a change, an API endpoint where the change was triggered, a worker name that automatically triggered database changes, etc.
+On the application level, Bemi packages automatically pass application context to the replication logs to enhance the low-level database changes. For example, information about a user who made a change, an API endpoint where the change was triggered, a worker name that automatically triggered database changes, etc.
 
 Bemi workers then stitch the low-level data with the application context and store this information in a structured easily queryable format, as depicted below:
 
