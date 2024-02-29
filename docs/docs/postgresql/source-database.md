@@ -70,20 +70,20 @@ SHOW wal_level;
 +-------------+
 ```
 
-Note that changing `wal_level` in PostgreSQL requires a restart. Changing from `replica` to `logical` won't break replication.
-It will just increase the WAL volume (disk space and network traffic if there are replicas).
+Note that changing the WAL level in PostgreSQL requires a restart. Changing from `replica` to `logical` won't break replication.
+It will just slightly increase the WAL volume (disk space and network traffic if there are replicas).
 
-### Changing WAL level in a self-managed PostgreSQL
+### Self-managed PostgreSQL
 
-Run the following SQL command and restart your database:
+Run the following SQL command to change the WAL level to `logical` and restart your database:
 
 ```sql
 ALTER SYSTEM SET wal_level = logical;
 ```
 
-### Changing WAL level on AWS RDS
+### AWS RDS
 
-At a high level, these are the steps necessary to update `wal_level` from `replica` to `logical`
+At a high level, these are the steps necessary to update the WAL level from `replica` to `logical`
 
 1. Create an RDS parameter group if it doesn’t exist
 2. Update `rds.logical_replication` parameter from 0 to 1
@@ -117,6 +117,14 @@ The Reader endpoint will continue to be available without downtime.
 ![](/img/wal_level-writer-reboot.png)
 
 See the [AWS RDS user guides](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithParamGroups.html) to learn more about parameter groups.
+
+### Supabase
+
+[Supabase](https://supabase.com/) provisions PostgreSQL with the WAL level already set to `logical`. So, it is ready to be used.
+
+### Unsupported managed PostgreSQL options
+
+* [Render](https://render.com/). It doesn't allow enabling logical replication, see [this discussion](https://community.render.com/t/changing-postgres-wal-level-and-max-slot-wal-keep-size/4954).
 
 If you have issues in other PostgreSQL hosting environments, please [reach out](mailto:hi@bemi.io) to us and we will send you detailed instructions on how to set it up.
 
