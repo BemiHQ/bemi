@@ -8,13 +8,10 @@
 
 This package is an recommended Prisma integration, enabling you to pass application-specific context when performing database changes. This can include context such as the 'where' (API endpoint, worker, etc.), 'who' (user, cron job, etc.), and 'how' behind a change, thereby enriching the information captured by Bemi.
 
-See [this repo](https://github.com/BemiHQ/bemi-prisma-example) as an Todo app example with Prisma that automatically tracks all changes.
-
 ## Prerequisites
 
 - PostgreSQL 14+
 - Prisma
-- Express (Fastify support coming soon)
 
 ## Installation
 
@@ -58,7 +55,7 @@ const prisma = withPgAdapter(new PrismaClient());
 
 ### Express.js
 
-Add an [Express.js](https://expressjs.com/) middleware to pass application context with all underlying data changes within made an HTTP request:
+Add the `setContext` [Express.js](https://expressjs.com/) middleware to pass application context with all underlying data changes within made an HTTP request:
 
 ```ts
 import { setContext } from "@bemi-db/prisma";
@@ -78,11 +75,11 @@ app.use(
 
 ### Apollo Server
 
-If you use [Apollo Server](https://www.apollographql.com/docs/apollo-server), it's possible to pass application context with all underlying data changes made within a GraphQL request:
+If you use [Apollo Server](https://www.apollographql.com/docs/apollo-server), it's possible use the `BemiApolloServerPlugin` to pass application context with all underlying data changes made within a GraphQL request:
 
 ```ts
-import { BemiApolloServerPlugin } from '@bemi-db/prisma';
-import { ApolloServer } from '@apollo/server';
+import { BemiApolloServerPlugin } from "@bemi-db/prisma";
+import { ApolloServer } from "@apollo/server";
 
 new ApolloServer({
   plugins: [
@@ -96,6 +93,69 @@ new ApolloServer({
   ],
 });
 ```
+
+### Next.js
+
+With [Next.js](https://github.com/vercel/next.js) API Routes, it is possible to use the `bemiContext` function to set application context in a handler function:
+
+```ts
+import { bemiContext } from "@bemi-db/prisma";
+import type { NextApiRequest, NextApiResponse } from "next";
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Customizable context
+  bemiContext({ url: req.url, userToken: req.cookies['user-token'] });
+
+  // ...
+}
+```
+
+Alternatively, you can use our Express.js-compatible `setContext` middleware with [next-connect](https://github.com/hoangvvo/next-connect):
+
+```ts
+import { setContext } from "@bemi-db/prisma";
+import { createRouter, expressWrapper } from "next-connect";
+import type { NextApiRequest, NextApiResponse } from "next";
+
+const router = createRouter<NextApiRequest, NextApiResponse>();
+
+router.use(
+  // Customizable context
+  setContext((req) => ({ url: req.url, userToken: req.cookies['user-token'] }))
+).get((req, res) => {
+  // ...
+})
+
+export default router.handler({
+  onError: (err, req, res) => { res.status(500).end(err.message) },
+});
+```
+
+Note that Next.js middlewares are not supported because they cannot be executed with the Node.js Runtime, see [this discussion](https://github.com/vercel/next.js/discussions/34179).
+
+### Inline context
+
+It is also possible to manually set or override context by using the `bemiContext` function:
+
+```ts
+import { bemiContext } from "@bemi-db/prisma";
+
+const MyWorker = () => {
+  bemiContext({ worker: 'MyWorker', stage: 'calculate' })
+  // ...
+
+  bemiContext({ worker: 'MyWorker', stage: 'store' })
+  // ...
+}
+```
+
+See [this repo](https://github.com/BemiHQ/bemi-prisma-example) as an Todo app example with Prisma that automatically tracks all changes.
+
+## Application context
+
+* Application context is bound to the current asynchronous runtime execution context, for example, an HTTP request.
+* It is being used only with `INSERT`, `UPDATE`, `DELETE` SQL queries performed via Prisma. Otherwise, it is a no-op.
+* It is passed directly into PostgreSQL Write-Ahead Log with data changes, so it doesn't affect the SQL queries or DB schema.
 
 ## Data change tracking
 
