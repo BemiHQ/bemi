@@ -25,6 +25,15 @@ After that, you can enable selective tracking and pick which database tables you
 You can specify the same regular database credentials you use to connect to PostgreSQL from your code.
 And that's it, everything should just work!
 
+#### Supabase
+
+To connect a Supabase database, you need to go to your Supabase project settings and:
+
+1. Purchase a [dedicated IPv4](https://supabase.com/docs/guides/platform/ipv4-address) for $4/mo to resolve to the IPv4 address instead of the default IPv6
+2. Untoggle "Use connection pooling" and use these connection details on Bemi to connect to the replication log
+
+![](/img/perm-supabase.png)
+
 ### Read-only credentials
 
 Alternatively, you can manually create read-only PostgreSQL database credentials to connect to the primary instance's WAL.
