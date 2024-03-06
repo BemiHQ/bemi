@@ -34,12 +34,8 @@ To connect a Supabase database, you need to go to your Supabase project settings
 
 ![](/img/perm-supabase.png)
 
-Supabase [no longer allows managing event triggers](https://github.com/orgs/supabase/discussions/9314). So after creating a new table(s) you want to track, you need to manually run:
-
-```sql
--- Set REPLICA IDENTITY FULL for tables to track the "before" state on DB row changes
-CALL _bemi_set_replica_identity();
-```
+Supabase recently [deprecated free IPv4](https://github.com/orgs/supabase/discussions/17817).
+So you might see some IPv4 removal warnings on their dashboard, even after purchasing the IPv4 add-on, which should work fine.
 
 ### Read-only credentials
 
@@ -50,13 +46,17 @@ At a high level, you need to run these commands that are safe to execute without
 * `CREATE PUBLICATION` creates a "channel" that we'll subscribe to and track changes in real-time.
 * `REPLICA IDENTITY FULL` enhances records stored in WAL to record the previous state (“before”) in addition to the tracked by default new state (“after”).
 
-#### Self-managed PostgreSQL
+#### AWS RDS
 
 ```sql
--- Create read-only user with REPLICATION permission
-CREATE ROLE [username] WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE REPLICATION PASSWORD '[password]';
--- Grant SELECT access to tables for selective tracking
+-- Create read-only user
+CREATE ROLE [username] WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION PASSWORD '[password]';
+-- Grant RDS replication permission
+GRANT rds_replication TO [username];
+-- Grant SELECT access to existing tables for selective tracking
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO [username];
+-- Grant SELECT access to new tables created in the future for selective tracking
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO [username];
 
 -- Create "bemi" PUBLICATION to enable logical replication
 CREATE PUBLICATION bemi FOR ALL TABLES;
@@ -78,15 +78,15 @@ CREATE EVENT TRIGGER _bemi_set_replica_identity_trigger ON ddl_command_end WHEN 
 EXECUTE FUNCTION _bemi_set_replica_identity_func();
 ```
 
-#### AWS RDS
+#### Self-managed PostgreSQL
 
 ```sql
--- Create read-only user
-CREATE ROLE [username] WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION PASSWORD '[password]';
--- Grant RDS replication permission
-GRANT rds_replication TO [username];
+-- Create read-only user with REPLICATION permission
+CREATE ROLE [username] WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE REPLICATION PASSWORD '[password]';
 -- Grant SELECT access to tables for selective tracking
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO [username];
+-- Grant SELECT access to new tables created in the future for selective tracking
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO [username];
 
 -- Create "bemi" PUBLICATION to enable logical replication
 CREATE PUBLICATION bemi FOR ALL TABLES;
@@ -118,13 +118,13 @@ You have to use the [existing credentials](#existing-credentials) instead.
 Run the following queries if you want to isolate read access only to logical replication for certain tables and manage permissions manually
 instead of relying on our robust built-in selective tracking manageable through our UI.
 
-#### Self-managed PostgreSQL
+#### AWS RDS
 
 ```sql
--- Create read-only user with REPLICATION permission
-CREATE ROLE [username] WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE REPLICATION PASSWORD '[password]';
--- Revoke all read access leaving only replication permission
-REVOKE SELECT ON ALL TABLES IN SCHEMA public FROM [username];
+-- Create read-only user
+CREATE ROLE [username] WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION PASSWORD '[password]';
+-- Grant replication permission to allow using replication slots
+GRANT rds_replication TO [username];
 
 -- Create "bemi" PUBLICATION to enable logical replication for selected tables
 CREATE PUBLICATION bemi FOR TABLE [table1], [table2];
@@ -148,15 +148,11 @@ ALTER PUBLICATION bemi DROP TABLE [table3];
 ALTER TABLE [table3] REPLICA IDENTITY DEFAULT;
 ```
 
-#### AWS RDS
+#### Self-managed PostgreSQL
 
 ```sql
--- Create read-only user
-CREATE ROLE [username] WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION PASSWORD '[password]';
--- Grant replication permission to allow using replication slots
-GRANT rds_replication TO [username];
--- Revoke all read access leaving only replication permission
-REVOKE SELECT ON ALL TABLES IN SCHEMA public FROM [username];
+-- Create read-only user with REPLICATION permission
+CREATE ROLE [username] WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE REPLICATION PASSWORD '[password]';
 
 -- Create "bemi" PUBLICATION to enable logical replication for selected tables
 CREATE PUBLICATION bemi FOR TABLE [table1], [table2];
