@@ -33,6 +33,16 @@ npx bemi migration:create
 npx prisma migrate dev
 ```
 
+### Supabase
+
+If you host your database with Supabase, it [no longer allows managing event triggers](https://github.com/orgs/supabase/discussions/9314).
+So after creating a new table(s) you want to track, you need to manually add the following line at the end of your migration file:
+
+```sql
+-- Create lightweight Bemi triggers to inject context with data changes into PostgreSQL WAL
+CALL _bemi_create_triggers();
+```
+
 ## Usage
 
 Enable the new [Prisma driver adapters](https://www.prisma.io/docs/orm/overview/databases/database-drivers) to use a native [PostgreSQL client](https://github.com/brianc/node-postgres) for Node.js by adding the following in your `schema.prisma`:

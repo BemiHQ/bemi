@@ -34,6 +34,13 @@ To connect a Supabase database, you need to go to your Supabase project settings
 
 ![](/img/perm-supabase.png)
 
+Supabase [no longer allows managing event triggers](https://github.com/orgs/supabase/discussions/9314). So after creating a new table(s) you want to track, you need to manually run:
+
+```sql
+-- Set REPLICA IDENTITY FULL for tables to track the "before" state on DB row changes
+CALL _bemi_set_replica_identity();
+```
+
 ### Read-only credentials
 
 Alternatively, you can manually create read-only PostgreSQL database credentials to connect to the primary instance's WAL.
@@ -46,27 +53,27 @@ At a high level, you need to run these commands that are safe to execute without
 #### Self-managed PostgreSQL
 
 ```sql
-/* Create read-only user with REPLICATION permission */
+-- Create read-only user with REPLICATION permission
 CREATE ROLE [username] WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE REPLICATION PASSWORD '[password]';
-/* Grant SELECT access to tables for selective tracking */
+-- Grant SELECT access to tables for selective tracking
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO [username];
 
-/* Create "bemi" PUBLICATION to enable logical replication */
+-- Create "bemi" PUBLICATION to enable logical replication
 CREATE PUBLICATION bemi FOR ALL TABLES;
 
-/* Create a procedure to set REPLICA IDENTITY FULL for tables to track the "before" state on DB row changes */
+-- Create a procedure to set REPLICA IDENTITY FULL for tables to track the "before" state on DB row changes
 CREATE OR REPLACE PROCEDURE _bemi_set_replica_identity() AS $$ DECLARE current_tablename TEXT;
 BEGIN
   FOR current_tablename IN SELECT tablename FROM pg_tables WHERE schemaname = 'public' LOOP
     EXECUTE format('ALTER TABLE %I REPLICA IDENTITY FULL', current_tablename);
   END LOOP;
 END $$ LANGUAGE plpgsql;
-/* Call the created procedure */
+-- Call the created procedure
 CALL _bemi_set_replica_identity();
-/* Create a trigger function that calls the created procedure */
+-- Create a trigger function that calls the created procedure
 CREATE OR REPLACE FUNCTION _bemi_set_replica_identity_func() RETURNS event_trigger AS $$
 BEGIN CALL _bemi_set_replica_identity(); END $$ LANGUAGE plpgsql;
-/* Create a trigger to set REPLICA IDENTITY FULL for all new created tables */
+-- Create a trigger to set REPLICA IDENTITY FULL for all new created tables
 CREATE EVENT TRIGGER _bemi_set_replica_identity_trigger ON ddl_command_end WHEN TAG IN ('CREATE TABLE')
 EXECUTE FUNCTION _bemi_set_replica_identity_func();
 ```
@@ -74,29 +81,29 @@ EXECUTE FUNCTION _bemi_set_replica_identity_func();
 #### AWS RDS
 
 ```sql
-/* Create read-only user */
+-- Create read-only user
 CREATE ROLE [username] WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION PASSWORD '[password]';
-/* Grant RDS replication permission */
+-- Grant RDS replication permission
 GRANT rds_replication TO [username];
-/* Grant SELECT access to tables for selective tracking */
+-- Grant SELECT access to tables for selective tracking
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO [username];
 
-/* Create "bemi" PUBLICATION to enable logical replication */
+-- Create "bemi" PUBLICATION to enable logical replication
 CREATE PUBLICATION bemi FOR ALL TABLES;
 
-/* Create a procedure to set REPLICA IDENTITY FULL for tables to track the "before" state on DB row changes */
+-- Create a procedure to set REPLICA IDENTITY FULL for tables to track the "before" state on DB row changes
 CREATE OR REPLACE PROCEDURE _bemi_set_replica_identity() AS $$ DECLARE current_tablename TEXT;
 BEGIN
   FOR current_tablename IN SELECT tablename FROM pg_tables WHERE schemaname = 'public' LOOP
     EXECUTE format('ALTER TABLE %I REPLICA IDENTITY FULL', current_tablename);
   END LOOP;
 END $$ LANGUAGE plpgsql;
-/* Call the created procedure */
+-- Call the created procedure
 CALL _bemi_set_replica_identity();
-/* Create a trigger function that calls the created procedure */
+-- Create a trigger function that calls the created procedure
 CREATE OR REPLACE FUNCTION _bemi_set_replica_identity_func() RETURNS event_trigger AS $$
 BEGIN CALL _bemi_set_replica_identity(); END $$ LANGUAGE plpgsql;
-/* Create a trigger to set REPLICA IDENTITY FULL for all new created tables */
+-- Create a trigger to set REPLICA IDENTITY FULL for all new created tables
 CREATE EVENT TRIGGER _bemi_set_replica_identity_trigger ON ddl_command_end WHEN TAG IN ('CREATE TABLE')
 EXECUTE FUNCTION _bemi_set_replica_identity_func();
 ```
@@ -114,15 +121,15 @@ instead of relying on our robust built-in selective tracking manageable through 
 #### Self-managed PostgreSQL
 
 ```sql
-/* Create read-only user with REPLICATION permission */
+-- Create read-only user with REPLICATION permission
 CREATE ROLE [username] WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE REPLICATION PASSWORD '[password]';
-/* Revoke all read access leaving only replication permission */
+-- Revoke all read access leaving only replication permission
 REVOKE SELECT ON ALL TABLES IN SCHEMA public FROM [username];
 
-/* Create "bemi" PUBLICATION to enable logical replication for selected tables */
+-- Create "bemi" PUBLICATION to enable logical replication for selected tables
 CREATE PUBLICATION bemi FOR TABLE [table1], [table2];
 
-/* Set REPLICA IDENTITY FULL for tables to track the "before" state on DB row changes */
+-- Set REPLICA IDENTITY FULL for tables to track the "before" state on DB row changes
 ALTER TABLE [table1] REPLICA IDENTITY FULL;
 ALTER TABLE [table2] REPLICA IDENTITY FULL;
 ```
@@ -144,17 +151,17 @@ ALTER TABLE [table3] REPLICA IDENTITY DEFAULT;
 #### AWS RDS
 
 ```sql
-/* Create read-only user */
+-- Create read-only user
 CREATE ROLE [username] WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION PASSWORD '[password]';
-/* Grant replication permission to allow using replication slots */
+-- Grant replication permission to allow using replication slots
 GRANT rds_replication TO [username];
-/* Revoke all read access leaving only replication permission */
+-- Revoke all read access leaving only replication permission
 REVOKE SELECT ON ALL TABLES IN SCHEMA public FROM [username];
 
-/* Create "bemi" PUBLICATION to enable logical replication for selected tables */
+-- Create "bemi" PUBLICATION to enable logical replication for selected tables
 CREATE PUBLICATION bemi FOR TABLE [table1], [table2];
 
-/* Set REPLICA IDENTITY FULL for tables to track the "before" state on DB row changes */
+-- Set REPLICA IDENTITY FULL for tables to track the "before" state on DB row changes
 ALTER TABLE [table1] REPLICA IDENTITY FULL;
 ALTER TABLE [table2] REPLICA IDENTITY FULL;
 ```
