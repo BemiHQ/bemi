@@ -53,6 +53,12 @@ import { PrismaClient } from '@prisma/client';
 const prisma = withPgAdapter(new PrismaClient());
 ```
 
+Now you can specify custom application context that will be passed with all data changes by following the code examples below. Application context:
+
+* Is bound to the current asynchronous runtime execution context, for example, an HTTP request.
+* Is used only with `INSERT`, `UPDATE`, `DELETE` SQL queries performed via Prisma. Otherwise, it is a no-op.
+* Is passed directly into PG Write-Ahead Log with data changes without affecting the SQL queries or DB schema.
+
 ### Express.js
 
 Add the `setContext` [Express.js](https://expressjs.com/) middleware to pass application context with all underlying data changes within made an HTTP request:
@@ -151,11 +157,15 @@ const MyWorker = () => {
 
 See [this repo](https://github.com/BemiHQ/bemi-prisma-example) as an Todo app example with Prisma that automatically tracks all changes.
 
-## Application context
+### SSL
 
-* Application context is bound to the current asynchronous runtime execution context, for example, an HTTP request.
-* It is being used only with `INSERT`, `UPDATE`, `DELETE` SQL queries performed via Prisma. Otherwise, it is a no-op.
-* It is passed directly into PostgreSQL Write-Ahead Log with data changes, so it doesn't affect the SQL queries or DB schema.
+If your database uses a self-signed SSL certificate and you want to enforce using it, you can modify your [Connection URL](https://www.prisma.io/docs/orm/overview/databases/postgresql#connection-url) to include the following arguments:
+
+```
+postgresql://USER:PASSWORD@HOST:PORT/DATABASE?sslmode=verify-full&sslrootcert=./prod-ca-2021.crt
+```
+
+The `sslrootcert` argument can be a relative or an absolute path pointing to your self-signed SSL certificate.
 
 ## Data change tracking
 
