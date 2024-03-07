@@ -195,10 +195,10 @@ Lastly, connect to the Bemi PostgreSQL destination database to easily query chan
 
 To query the read-only historical data, add a new Prisma schema in `prisma/bemi.prisma`
 
-```
+```prisma
 datasource db {
   provider = "postgresql"
-  url      =  "postgresql://u_9adb30103a55:password@us-west-1-prod-destination-pool.ctbxbtz4ojdc.us-west-1.rds.amazonaws.com:5432/db_9adb30103a55"
+  url      = "postgresql://[USERNAME]:[PASSWORD]@[DESTINATION_HOST]:5432/[DESTINATION_DATABASE]"
 }
 
 generator client {
@@ -211,12 +211,14 @@ model Change {
   primaryKey  String   @map("primary_key")
   before      Json
   after       Json
-  metadata    Json
+  context     Json
   database    String
   schema      String
   table       String
   operation   String
   committedAt DateTime @map("committed_at")
+  createdAt   DateTime @map("created_at")
+
   @@map("changes")
 }
 ```
@@ -227,13 +229,34 @@ Generate Prisma client:
 npx prisma generate --schema prisma/bemi.prisma
 ```
 
-Query changes from the destination database:
+Initialize a new Prisma client connected to the destination database:
 
 ```tsx
 import { PrismaClient } from '../prisma/generated/bemi'
 
 const bemiPrisma = new PrismaClient()
-await bemiPrisma.change.findMany()
+```
+
+Query changes from the destination database:
+
+```tsx
+const changes = await bemiPrisma.change.findMany({
+  where: { table: "todo", context: { path: ['userId'], equals: 1 } },
+  orderBy: { committedAt: "desc" },
+  take: 1,
+});
+```
+
+Or by using a raw SQL query:
+
+```tsx
+
+const changes = await bemiPrisma.$queryRaw`
+  SELECT * FROM "changes"
+  WHERE "table" = 'todo' AND "context" @> '{"userId": 1}'
+  ORDER BY "committed_at" DESC
+  LIMIT 1
+`;
 ```
 
 ## License
