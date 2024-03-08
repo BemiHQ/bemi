@@ -35,9 +35,9 @@ npx prisma migrate dev
 
 ## Usage
 
-Enable the new [Prisma driver adapters](https://www.prisma.io/docs/orm/overview/databases/database-drivers) to use a native [PostgreSQL client](https://github.com/brianc/node-postgres) for Node.js by adding the following in your `schema.prisma`:
+Enable the new [Prisma driver adapters](https://www.prisma.io/docs/orm/overview/databases/database-drivers) to use a native [PostgreSQL client](https://github.com/brianc/node-postgres) for Node.js by adding the following:
 
-```
+```prisma title="prisma/schema.prisma"
 generator client {
   previewFeatures = ["driverAdapters"]
   ...
@@ -46,7 +46,7 @@ generator client {
 
 Enable PostgreSQL adapter for your Prisma client by using `withPgAdapter`:
 
-```js
+```ts title="src/prisma.ts"
 import { withPgAdapter } from "@bemi-db/prisma";
 import { PrismaClient } from '@prisma/client';
 
@@ -63,7 +63,7 @@ Now you can specify custom application context that will be automatically passed
 
 Add the `setContext` [Express.js](https://expressjs.com/) middleware to pass application context with all underlying data changes within made an HTTP request:
 
-```ts
+```ts title="src/index.ts"
 import { setContext } from "@bemi-db/prisma";
 import express, { Request } from "express";
 
@@ -83,7 +83,7 @@ app.use(
 
 If you use [Apollo Server](https://www.apollographql.com/docs/apollo-server), it's possible use the `BemiApolloServerPlugin` to pass application context with all underlying data changes made within a GraphQL request:
 
-```ts
+```ts title="src/apollo-server.ts"
 import { BemiApolloServerPlugin } from "@bemi-db/prisma";
 import { ApolloServer } from "@apollo/server";
 
@@ -104,7 +104,7 @@ new ApolloServer({
 
 With [Next.js](https://github.com/vercel/next.js) API Routes, it is possible to use the `bemiContext` function to set application context in a handler function:
 
-```ts
+```ts title="pages/api/endpoint.ts"
 import { bemiContext } from "@bemi-db/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -118,7 +118,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
 Alternatively, you can use our Express.js-compatible `setContext` middleware with [next-connect](https://github.com/hoangvvo/next-connect):
 
-```ts
+```ts title="pages/api/endpoint.ts"
 import { setContext } from "@bemi-db/prisma";
 import { createRouter, expressWrapper } from "next-connect";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -143,7 +143,7 @@ Note that Next.js middlewares are not supported because they cannot be executed 
 
 It is also possible to manually set or override context by using the `bemiContext` function:
 
-```ts
+```ts title="src/my-worker.ts"
 import { bemiContext } from "@bemi-db/prisma";
 
 const MyWorker = () => {
@@ -155,7 +155,7 @@ const MyWorker = () => {
 }
 ```
 
-See [this repo](https://github.com/BemiHQ/bemi-prisma-example) as an Todo app example with Prisma that automatically tracks all changes.
+See this [example repo](https://github.com/BemiHQ/bemi-prisma-example) as an Todo app example with Prisma that automatically tracks all changes.
 
 ### SSL
 
@@ -176,9 +176,7 @@ Connect your PostgreSQL source database on [bemi.io](https://bemi.io) to start i
 Once your destination PostgreSQL database has been fully provisioned, you'll see a "Connected" status. You can now test the connection after making database changes in your connected source database:
 
 ```
-psql -h us-west-1-prod-destination-pool.ctbxbtz4ojdc.us-west-1.rds.amazonaws.com -p 5432 -U u_9adb30103a55 -d db_9adb30103a55 -c \
-  'SELECT "primary_key", "table", "operation", "before", "after", "context", "committed_at" FROM changes;'
-Password for user u_9adb30103a55:
+psql -h [HOSTNAME] -U [USERNAME] -d [DATABASE] -c 'SELECT "primary_key", "table", "operation", "before", "after", "context", "committed_at" FROM changes;'
 
  primary_key | table | operation |                       before                      |                       after                        |                                context                                                      |      committed_at
 -------------+-------+-----------+---------------------------------------------------+----------------------------------------------------+---------------------------------------------------------------------------------------------+------------------------
@@ -195,9 +193,9 @@ See [Destination Database](/postgresql/destination-database) for more details.
 
 Lastly, connect to the Bemi PostgreSQL destination database to easily query change data from your application.
 
-To query the read-only historical data, add a new Prisma schema in `prisma/bemi.prisma`
+To query the read-only historical data, add a new Prisma schema
 
-```prisma
+```prisma title="prisma/bemi.prisma"
 datasource db {
   provider = "postgresql"
   url      = "postgresql://[USERNAME]:[PASSWORD]@[DESTINATION_HOST]:5432/[DESTINATION_DATABASE]"
@@ -233,7 +231,7 @@ npx prisma generate --schema prisma/bemi.prisma
 
 Initialize a new Prisma client connected to the destination database:
 
-```tsx
+```tsx title="src/bemiPrisma.ts"
 import { PrismaClient } from '../prisma/generated/bemi'
 
 const bemiPrisma = new PrismaClient()

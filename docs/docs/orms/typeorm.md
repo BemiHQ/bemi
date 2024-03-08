@@ -8,7 +8,7 @@
 
 This package is a recommended TypeORM integration, enabling you to pass application-specific context when performing database changes. This can include context such as the 'where' (API endpoint, worker, etc.), 'who' (user, cron job, etc.), and 'how' behind a change, thereby enriching the information captured by Bemi.
 
-See [this repo](https://github.com/BemiHQ/bemi-typeorm-example) as an Todo app example with TypeORM that automatically tracks all changes.
+See this [example repo](https://github.com/BemiHQ/bemi-typeorm-example) as an Todo app example with TypeORM that automatically tracks all changes.
 
 ## Prerequisites
 
@@ -39,7 +39,7 @@ npx typeorm migration:run
 
 Add an [Express](https://expressjs.com/) middleware to pass application context with all underlying data changes within an HTTP request:
 
-```ts
+```ts title="src/index.ts"
 import { setContext } from "@bemi-db/typeorm";
 import express, { Request } from "express";
 import { AppDataSource } from "./data-source";
@@ -74,9 +74,7 @@ The database connection details can be securely configured through the [dashboar
 Once your destination PostgreSQL database has been fully provisioned, you'll see a "Connected" status. You can now test the connection after making database changes in your connected source database:
 
 ```
-psql -h us-west-1-prod-destination-pool.ctbxbtz4ojdc.us-west-1.rds.amazonaws.com -p 5432 -U u_9adb30103a55 -d db_9adb30103a55 -c \
-  'SELECT "primary_key", "table", "operation", "before", "after", "context", "committed_at" FROM changes;'
-Password for user u_9adb30103a55:
+psql -h [HOSTNAME] -U [USERNAME] -d [DATABASE] -c 'SELECT "primary_key", "table", "operation", "before", "after", "context", "committed_at" FROM changes;'
 
  primary_key | table | operation |                       before                      |                       after                        |                                context                                                      |      committed_at
 -------------+-------+-----------+---------------------------------------------------+----------------------------------------------------+---------------------------------------------------------------------------------------------+------------------------
@@ -95,7 +93,7 @@ Lastly, connect directly to the Bemi PostgreSQL database to easily query change 
 
 To query the read-only historical data, add the Bemi destination database to TypeORM using [multiple data source](https://typeorm.io/multiple-data-sources#using-multiple-data-sources). Configuration setting are found directly on the [Bemi dashboard](https://dashboard.bemi.io/log-in/):
 
-```ts
+```ts title="src/data-source.ts"
 import { DataSource } from "typeorm";
 import { Change } from "@bemi-db/typeorm";
 
@@ -128,7 +126,7 @@ export const BemiDataSource = new DataSource({
 
 Initialize the BemiDataSource the same place you would your main AppDataSource
 
-```ts
+```ts title="src/index.ts"
 BemiDataSource.initialize()
   .then(() => {
     console.log("Connected to Bemi");

@@ -15,9 +15,9 @@ This Ruby gem is a recommended Ruby on Rails integration, enabling you to pass a
 
 ## Installation
 
-1. Install the gem by adding it to your `Gemfile`
+1. Install the gem
 
-```
+```rb title="Gemfile"
 gem 'bemi-rails'
 ```
 
@@ -37,7 +37,7 @@ bin/rails db:migrate
 
 Now you can easily specify custom application context that will be automatically passed with all data changes.
 
-```rb
+```rb title="app/controllers/application_controller.rb"
 class ApplicationController < ActionController::Base
   before_action :set_bemi_context
 
@@ -59,6 +59,7 @@ Application context:
 * Is used only with `INSERT`, `UPDATE`, `DELETE` SQL queries performed via Active Record. Otherwise, it is a no-op.
 * Is passed directly into PG [Write-Ahead Log](https://www.postgresql.org/docs/current/wal-intro.html) with data changes without affecting the structure of the database and SQL queries.
 
+See this [example repo](https://github.com/BemiHQ/bemi-rails-example) as a Ruby on Rails Todo app that automatically tracks all changes.
 
 ## Data change tracking
 
@@ -69,9 +70,7 @@ Connect your PostgreSQL source database on [bemi.io](https://bemi.io) to start i
 Once your destination PostgreSQL database has been fully provisioned, you'll see a "Connected" status. You can now test the connection after making database changes in your connected source database:
 
 ```
-psql -h us-west-1-prod-destination-pool.ctbxbtz4ojdc.us-west-1.rds.amazonaws.com -p 5432 -U u_9adb30103a55 -d db_9adb30103a55 -c \
-  'SELECT "primary_key", "table", "operation", "before", "after", "context", "committed_at" FROM changes;'
-Password for user u_9adb30103a55:
+psql -h [HOSTNAME] -U [USERNAME] -d [DATABASE] -c 'SELECT "primary_key", "table", "operation", "before", "after", "context", "committed_at" FROM changes;'
 
  primary_key | table  | operation |                       before                    |                       after                      |                                context                                                   |      committed_at
 -------------+--------+-----------+-------------------------------------------------+--------------------------------------------------+------------------------------------------------------------------------------------------+------------------------
@@ -83,6 +82,58 @@ Password for user u_9adb30103a55:
 ```
 
 See [Destination Database](/postgresql/destination-database) for more details.
+
+## Data change querying
+
+Lastly, connect to the Bemi PostgreSQL destination database to easily query change data from your application.
+
+To query historical data, configure an additional [database connection with Active Record](https://guides.rubyonrails.org/active_record_multiple_databases.html):
+
+```yml title="config/database.yml"
+production:
+  primary:
+    <<: *default
+    # Your regular database settings go here
+  bemi:
+    adapter: postgresql
+    encoding: unicode
+    pool: <%= ENV["RAILS_MAX_THREADS"] || 5 %>
+    host: <%= ENV["DESTINATION_DB_HOST"] %>
+    port: <%= ENV["DESTINATION_DB_PORT"] %>
+    database: <%= ENV["DESTINATION_DB_DATABASE"] %>
+    username: <%= ENV["DESTINATION_DB_USERNAME"] %>
+    password: <%= ENV["DESTINATION_DB_PASSWORD"] %>
+    migrations_paths: db/bemi_migrate
+```
+
+Create a new model that connects to the destination database:
+
+```rb title="app/models/bemi_record.rb"
+# frozen_string_literal: true
+
+class BemiRecord < ApplicationRecord
+  self.abstract_class = true
+  connects_to database: { writing: :bemi, reading: :bemi }
+end
+```
+
+Create a new `Change` model to access all data changes:
+
+```rb title="app/models/change.rb"
+# frozen_string_literal: true
+
+class Change < BemiRecord
+end
+```
+
+Query changes from the destination database:
+
+```rb
+changes = Change.where(table: 'todos')
+  .where('context @> ?', { user_id: 1}.to_json)
+  .order(committed_at: :desc)
+  .limit(1)
+```
 
 ## Alternative gems
 
