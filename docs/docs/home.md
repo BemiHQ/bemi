@@ -48,10 +48,16 @@ This allows tracking all database changes with 100% accuracy by reusing built-in
 
 This allows automatically enhancing low-level database changes with application-specific context by using our open-source libraries built for popular ORMs. For example, see all recent changes made by a user, revert all data changes made within an API request, see all processes that made changes by a record, etc.
 
-## Supported Node.js ORMs
+## Supported ORMs
+
+#### Node.js
 
 * **[Prisma](/orms/prisma)**
 * **[TypeORM](/orms/typeorm)**
+
+#### Ruby
+
+* **[Ruby on Rails](/orms/rails)**
 
 ## Architecture overview
 

@@ -97,6 +97,10 @@ const config: Config = {
               label: "TypeORM",
               href: "https://github.com/BemiHQ/bemi-typeorm",
             },
+            {
+              label: "Ruby on Rails",
+              href: "https://github.com/BemiHQ/bemi-rails",
+            },
           ],
         },
         {

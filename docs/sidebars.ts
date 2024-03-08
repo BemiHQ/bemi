@@ -30,6 +30,7 @@ const sidebars: SidebarsConfig = {
       items: [
         'orms/prisma',
         'orms/typeorm',
+        'orms/rails',
       ],
     },
     'alternatives',

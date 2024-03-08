@@ -6,7 +6,7 @@
 
 [Bemi](https://bemi.io/) plugs into [TypeORM](https://github.com/typeorm/typeorm) and PostgreSQL to track database changes automatically. It unlocks robust context-aware audit trails and time travel querying inside your application.
 
-This package is an recommended TypeORM integration, enabling you to pass application-specific context when performing database changes. This can include context such as the 'where' (API endpoint, worker, etc.), 'who' (user, cron job, etc.), and 'how' behind a change, thereby enriching the information captured by Bemi.
+This package is a recommended TypeORM integration, enabling you to pass application-specific context when performing database changes. This can include context such as the 'where' (API endpoint, worker, etc.), 'who' (user, cron job, etc.), and 'how' behind a change, thereby enriching the information captured by Bemi.
 
 See [this repo](https://github.com/BemiHQ/bemi-typeorm-example) as an Todo app example with TypeORM that automatically tracks all changes.
 
@@ -14,7 +14,6 @@ See [this repo](https://github.com/BemiHQ/bemi-typeorm-example) as an Todo app e
 
 - PostgreSQL 14+
 - TypeORM
-- Express (Fastify support coming soon)
 
 ## Installation
 
@@ -24,7 +23,7 @@ See [this repo](https://github.com/BemiHQ/bemi-typeorm-example) as an Todo app e
 npm install @bemi-db/typeorm
 ```
 
-2. Generate a TypeORM compatible migration file to add lightweight [PostgreSQL triggers](https://www.postgresql.org/docs/current/plpgsql-trigger.html) for inserting application metadata into replication logs.
+2. Generate a TypeORM migration file to add lightweight [PostgreSQL triggers](https://www.postgresql.org/docs/current/plpgsql-trigger.html) for passing application context with all data changes into PostgreSQL replication log
 
 ```sh
 npx bemi migration:create ./path-to-migrations-dir
@@ -38,7 +37,7 @@ npx typeorm migration:run
 
 ## Usage
 
-Add an [Express](https://expressjs.com/) middleware. Here is an example of how to pass application context with all underlying data changes within an HTTP request:
+Add an [Express](https://expressjs.com/) middleware to pass application context with all underlying data changes within an HTTP request:
 
 ```ts
 import { setContext } from "@bemi-db/typeorm";
@@ -58,6 +57,12 @@ app.use(
 
 AppDataSource.initialize() // initialize TypeORM connection as normal
 ```
+
+Application context:
+
+* Is bound to the current asynchronous runtime execution context, for example, an HTTP request.
+* Is used only with `INSERT`, `UPDATE`, `DELETE` SQL queries performed via TypeORM. Otherwise, it is a no-op.
+* Is passed directly into PG [Write-Ahead Log](https://www.postgresql.org/docs/current/wal-intro.html) with data changes without affecting the structure of the database and SQL queries.
 
 ## Data change tracking
 
@@ -81,6 +86,8 @@ Password for user u_9adb30103a55:
  26          | todo  | UPDATE    | {"id": 26, "task": "Sleep", "isCompleted": false} | {"id": 26, "task": "Sleep", "isCompleted": true}   | {"userId": 187234, "endpoint": "/todo/complete", "params": {"id": 26}}                      | 2023-12-11 17:09:15+00
  27          | todo  | DELETE    | {"id": 27, "task": "Eat", "isCompleted": false}   | {}                                                 | {"userId": 187234, "endpoint": "/todo/27", "params": {"id": 27}}                            | 2023-12-11 17:09:18+00
 ```
+
+See [Destination Database](/postgresql/destination-database) for more details.
 
 ## Data change querying
 

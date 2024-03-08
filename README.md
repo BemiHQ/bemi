@@ -39,7 +39,7 @@ Bemi automatically tracks database changes ensuring 100% reliability and a compr
 - High performance without affecting runtime execution
 - Easy-to-use without changing table structures
 - Time travel querying and ability to easily filter changes
-- Optional application-specific context by using [ORM packages](https://docs.bemi.io/#supported-nodejs-orms)
+- Optional application-specific context by using [ORM packages](https://docs.bemi.io/#supported-orms)
 
 ## Use cases
 
@@ -108,7 +108,7 @@ UPDATE _bemi_migrations SET executed_at = NOW() WHERE id = 1;
 
 This will add a new record in the `changes` table within the same database after a few seconds.
 
-To optionally automatically enhance these low-level database changes with application-specific context (e.g., user ID, API endpoint, etc.), check out our compatible [ORM packages](https://docs.bemi.io/#supported-nodejs-orms).
+To optionally automatically enhance these low-level database changes with application-specific context (e.g., user ID, API endpoint, etc.), check out our compatible [ORM packages](https://docs.bemi.io/#supported-orms).
 
 ## Architecture
 
@@ -118,7 +118,7 @@ Bemi consists of three main parts:
 
 1. [Debezium](https://github.com/debezium/debezium), a very flexible tool for implementing Change Data Capture that is written in Java. It is used by many companies that need to implement ETL such as [Airbyte](https://github.com/airbytehq/airbyte) and [Materialize](https://github.com/MaterializeInc/materialize). We rely on it to be able to connect to PostgreSQL replication log, perform logical decoding, and send raw data to a data sink.
 2. [NATS JetStream](https://github.com/nats-io/nats-server), a cloud-native messaging system written in Go. Debezium is historically designed to send data to Kafka, but it can be also re-configured to send data to NATS JetStream. It is much more lightweight and easy to manage while being very performant and having over 45 clients for different programming languages.
-3. Bemi Worker, a process responsible for stitching data change with app context sent via our open-source [ORM packages](https://docs.bemi.io/#supported-nodejs-orms) and storing data changes. It is written in TypeScript and uses the `core` that we rely on for our [Bemi](https://bemi.io/) cloud platform.
+3. Bemi Worker, a process responsible for stitching data change with app context sent via our open-source [ORM packages](https://docs.bemi.io/#supported-orms) and storing data changes. It is written in TypeScript and uses the `core` that we rely on for our [Bemi](https://bemi.io/) cloud platform.
 
 The described architecture and the `worker` code in this repository are a simplified version that can be easily run without much overhead.
 If you want to self-host it in a production environment, see our [self-hosting docs](https://docs.bemi.io/self-hosting).

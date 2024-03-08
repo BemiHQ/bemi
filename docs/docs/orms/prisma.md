@@ -6,7 +6,7 @@
 
 [Bemi](https://bemi.io) plugs into [Prisma](https://github.com/prisma/prisma) and PostgreSQL to track database changes automatically. It unlocks robust context-aware audit trails and time travel querying inside your application.
 
-This package is an recommended Prisma integration, enabling you to pass application-specific context when performing database changes. This can include context such as the 'where' (API endpoint, worker, etc.), 'who' (user, cron job, etc.), and 'how' behind a change, thereby enriching the information captured by Bemi.
+This package is a recommended Prisma integration, enabling you to pass application-specific context when performing database changes. This can include context such as the 'where' (API endpoint, worker, etc.), 'who' (user, cron job, etc.), and 'how' behind a change, thereby enriching the information captured by Bemi.
 
 ## Prerequisites
 
@@ -21,7 +21,7 @@ This package is an recommended Prisma integration, enabling you to pass applicat
 npm install @bemi-db/prisma
 ```
 
-2. Generate a Prisma migration file to add lightweight [PostgreSQL triggers](https://www.postgresql.org/docs/current/plpgsql-trigger.html) for inserting application context into replication logs.
+2. Generate a Prisma migration file to add lightweight [PostgreSQL triggers](https://www.postgresql.org/docs/current/plpgsql-trigger.html) for passing application context with all data changes into PostgreSQL replication log
 
 ```sh
 npx bemi migration:create
@@ -53,11 +53,11 @@ import { PrismaClient } from '@prisma/client';
 const prisma = withPgAdapter(new PrismaClient());
 ```
 
-Now you can specify custom application context that will be passed with all data changes by following the code examples below. Application context:
+Now you can specify custom application context that will be automatically passed with all data changes by following the code examples below. Application context:
 
 * Is bound to the current asynchronous runtime execution context, for example, an HTTP request.
 * Is used only with `INSERT`, `UPDATE`, `DELETE` SQL queries performed via Prisma. Otherwise, it is a no-op.
-* Is passed directly into PG Write-Ahead Log with data changes without affecting the SQL queries or DB schema.
+* Is passed directly into PG [Write-Ahead Log](https://www.postgresql.org/docs/current/wal-intro.html) with data changes without affecting the structure of the database and SQL queries.
 
 ### Express.js
 
@@ -188,6 +188,8 @@ Password for user u_9adb30103a55:
  26          | todo  | UPDATE    | {"id": 26, "task": "Sleep", "isCompleted": false} | {"id": 26, "task": "Sleep", "isCompleted": true}   | {"userId": 187234, "endpoint": "/todo/complete", "params": {"id": 26}}                      | 2023-12-11 17:09:15+00
  27          | todo  | DELETE    | {"id": 27, "task": "Eat", "isCompleted": false}   | {}                                                 | {"userId": 187234, "endpoint": "/todo/27", "params": {"id": 27}}                            | 2023-12-11 17:09:18+00
 ```
+
+See [Destination Database](/postgresql/destination-database) for more details.
 
 ## Data change querying
 

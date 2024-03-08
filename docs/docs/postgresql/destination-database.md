@@ -24,7 +24,7 @@ Changes performed by creating, updating, or deleting each row are stored in a ta
 | `operation`      | `text`           | Enum that can be either `CREATE`, `UPDATE`, or `DELETE`      |
 | `before`         | `jsonb`          | Record's values before the change                            |
 | `after`          | `jsonb`          | Record's values after the change                             |
-| `context`        | `jsonb`          | App context passed by using our recommended [ORM packages](/#supported-nodejs-orms) |
+| `context`        | `jsonb`          | App context passed by using our recommended [ORM packages](/#supported-orms) |
 | `committed_at`   | `timestamptz(0)` | When the record was changed                                  |
 | `queued_at`      | `timestamptz(0)` | When the changed record was ingested from WAL                |
 | `created_at`     | `timestamptz(0)` | When the change record was stored in the database            |
@@ -33,7 +33,7 @@ Changes performed by creating, updating, or deleting each row are stored in a ta
 
 ## Querying Changes
 
-You can query changes by using our [ORM packages](/#supported-nodejs-orms) or by directly connecting and executing SQL queries.
+You can query changes by using our [ORM packages](/#supported-orms) or by directly connecting and executing SQL queries.
 For example, if you need to find when and how a user record with ID `b7267340-5011-40f4-ab9a-902b68fc5b25` had its email updated to `new@example.com` in the last 3 months:
 
 ```sql
