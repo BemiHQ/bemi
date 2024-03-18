@@ -18,14 +18,9 @@ Specify the following source database connection details:
 
 After that, you can enable selective tracking and pick which database tables you want to track.
 
-## Permissions
+## Credentials
 
-### Existing credentials
-
-You can specify the same regular database credentials you use to connect to PostgreSQL from your code.
-And that's it, everything should just work!
-
-#### Supabase
+### Supabase
 
 To connect a Supabase database, you need to go to your Supabase project settings and:
 
@@ -37,7 +32,16 @@ To connect a Supabase database, you need to go to your Supabase project settings
 Supabase recently [deprecated free IPv4](https://github.com/orgs/supabase/discussions/17817).
 So you might see some IPv4 removal warnings on their dashboard, even after purchasing the IPv4 add-on, which should work fine.
 
-### Read-only credentials
+Note that you can't create new credentials with `REPLICATION` permissions in Supabase, see [this discussion](https://github.com/orgs/supabase/discussions/9314).
+
+### AWS RDS
+
+#### Existing credentials
+
+You can specify the same regular database credentials you use to connect to PostgreSQL from your code.
+And that's it, everything should just work!
+
+#### Read-only credentials
 
 Alternatively, you can manually create read-only PostgreSQL database credentials to connect to the primary instance's WAL.
 At a high level, you need to run these commands that are safe to execute without any downtime or performance issues:
@@ -45,8 +49,6 @@ At a high level, you need to run these commands that are safe to execute without
 * `CREATE ROLE` creates a new read-only user for Bemi to read database changes.
 * `CREATE PUBLICATION` creates a "channel" that we'll subscribe to and track changes in real-time.
 * `REPLICA IDENTITY FULL` enhances records stored in WAL to record the previous state (“before”) in addition to the tracked by default new state (“after”).
-
-#### AWS RDS
 
 ```sql
 -- Create read-only user
@@ -78,47 +80,10 @@ CREATE EVENT TRIGGER _bemi_set_replica_identity_trigger ON ddl_command_end WHEN 
 EXECUTE FUNCTION _bemi_set_replica_identity_func();
 ```
 
-#### Self-managed PostgreSQL
-
-```sql
--- Create read-only user with REPLICATION permission
-CREATE ROLE [username] WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE REPLICATION PASSWORD '[password]';
--- Grant SELECT access to tables for selective tracking
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO [username];
--- Grant SELECT access to new tables created in the future for selective tracking
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO [username];
-
--- Create "bemi" PUBLICATION to enable logical replication
-CREATE PUBLICATION bemi FOR ALL TABLES;
-
--- Create a procedure to set REPLICA IDENTITY FULL for tables to track the "before" state on DB row changes
-CREATE OR REPLACE PROCEDURE _bemi_set_replica_identity() AS $$ DECLARE current_tablename TEXT;
-BEGIN
-  FOR current_tablename IN SELECT tablename FROM pg_tables WHERE schemaname = 'public' LOOP
-    EXECUTE format('ALTER TABLE %I REPLICA IDENTITY FULL', current_tablename);
-  END LOOP;
-END $$ LANGUAGE plpgsql;
--- Call the created procedure
-CALL _bemi_set_replica_identity();
--- Create a trigger function that calls the created procedure
-CREATE OR REPLACE FUNCTION _bemi_set_replica_identity_func() RETURNS event_trigger AS $$
-BEGIN CALL _bemi_set_replica_identity(); END $$ LANGUAGE plpgsql;
--- Create a trigger to set REPLICA IDENTITY FULL for all new created tables
-CREATE EVENT TRIGGER _bemi_set_replica_identity_trigger ON ddl_command_end WHEN TAG IN ('CREATE TABLE')
-EXECUTE FUNCTION _bemi_set_replica_identity_func();
-```
-
-#### Supabase
-
-You can't create read-only credentials with `REPLICATION` permissions in Supabase, see [this discussion](https://github.com/orgs/supabase/discussions/9314).
-You have to use the [existing credentials](#existing-credentials) instead.
-
-### Read-only credentials with manually managed permissions for each table
+#### Read-only credentials with manually managed permissions for each table
 
 Run the following queries if you want to isolate read access only to logical replication for certain tables and manage permissions manually
 instead of relying on our robust built-in selective tracking manageable through our UI.
-
-#### AWS RDS
 
 ```sql
 -- Create read-only user
@@ -148,7 +113,54 @@ ALTER PUBLICATION bemi DROP TABLE [table3];
 ALTER TABLE [table3] REPLICA IDENTITY DEFAULT;
 ```
 
-#### Self-managed PostgreSQL
+### Self-managed PostgreSQL
+
+#### Existing credentials
+
+You can specify the same regular database credentials you use to connect to PostgreSQL from your code.
+And that's it, everything should just work!
+
+#### Read-only credentials
+
+Alternatively, you can manually create read-only PostgreSQL database credentials to connect to the primary instance's WAL.
+At a high level, you need to run these commands that are safe to execute without any downtime or performance issues:
+
+* `CREATE ROLE` creates a new read-only user for Bemi to read database changes.
+* `CREATE PUBLICATION` creates a "channel" that we'll subscribe to and track changes in real-time.
+* `REPLICA IDENTITY FULL` enhances records stored in WAL to record the previous state (“before”) in addition to the tracked by default new state (“after”).
+
+```sql
+-- Create read-only user with REPLICATION permission
+CREATE ROLE [username] WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE REPLICATION PASSWORD '[password]';
+-- Grant SELECT access to tables for selective tracking
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO [username];
+-- Grant SELECT access to new tables created in the future for selective tracking
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO [username];
+
+-- Create "bemi" PUBLICATION to enable logical replication
+CREATE PUBLICATION bemi FOR ALL TABLES;
+
+-- Create a procedure to set REPLICA IDENTITY FULL for tables to track the "before" state on DB row changes
+CREATE OR REPLACE PROCEDURE _bemi_set_replica_identity() AS $$ DECLARE current_tablename TEXT;
+BEGIN
+  FOR current_tablename IN SELECT tablename FROM pg_tables WHERE schemaname = 'public' LOOP
+    EXECUTE format('ALTER TABLE %I REPLICA IDENTITY FULL', current_tablename);
+  END LOOP;
+END $$ LANGUAGE plpgsql;
+-- Call the created procedure
+CALL _bemi_set_replica_identity();
+-- Create a trigger function that calls the created procedure
+CREATE OR REPLACE FUNCTION _bemi_set_replica_identity_func() RETURNS event_trigger AS $$
+BEGIN CALL _bemi_set_replica_identity(); END $$ LANGUAGE plpgsql;
+-- Create a trigger to set REPLICA IDENTITY FULL for all new created tables
+CREATE EVENT TRIGGER _bemi_set_replica_identity_trigger ON ddl_command_end WHEN TAG IN ('CREATE TABLE')
+EXECUTE FUNCTION _bemi_set_replica_identity_func();
+```
+
+#### Read-only credentials with manually managed permissions for each table
+
+Run the following queries if you want to isolate read access only to logical replication for certain tables and manage permissions manually
+instead of relying on our robust built-in selective tracking manageable through our UI.
 
 ```sql
 -- Create read-only user with REPLICATION permission
@@ -176,11 +188,6 @@ ALTER PUBLICATION bemi DROP TABLE [table3];
 ALTER TABLE [table3] REPLICA IDENTITY DEFAULT;
 ```
 
-#### Supabase
-
-You can't create read-only credentials with `REPLICATION` permissions in Supabase, see [this discussion](https://github.com/orgs/supabase/discussions/9314).
-You have to use the [existing credentials](#existing-credentials) instead.
-
 ## WAL Level
 
 Bemi relies on logical replication that allows ingesting changes row-by-row, unlike physical replication that sends disk block changes.
@@ -195,20 +202,14 @@ SHOW wal_level;
 +-------------+
 ```
 
-### Setting WAL level to logical
-
 If your current WAL level is set to `replica`, you need to update it to `logical` and restart your PostgreSQL instance.
 Updating this value won't break replication, it will just slightly increase the WAL volume (disk space and network traffic if there are replicas).
 
-#### Self-managed PostgreSQL
+### Supabase
 
-Run the following SQL command to change the WAL level to `logical` and restart your database:
+[Supabase](https://supabase.com/) provisions PostgreSQL with the WAL level already set to `logical`. So, it is ready to be used.
 
-```sql
-ALTER SYSTEM SET wal_level = logical;
-```
-
-#### AWS RDS
+### AWS RDS
 
 At a high level, these are the steps necessary to update the WAL level from `replica` to `logical`
 
@@ -245,11 +246,20 @@ The Reader endpoint will continue to be available without downtime.
 
 See the [AWS RDS user guides](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithParamGroups.html) to learn more about parameter groups.
 
-#### Supabase
+### Neon
 
-[Supabase](https://supabase.com/) provisions PostgreSQL with the WAL level already set to `logical`. So, it is ready to be used.
+If you have access to [Neon](https://neon.tech/)'s [Logical Replication Beta program](https://neon.tech/docs/guides/logical-replication-postgres),
+you can set WAL level to `logical` by enabling the feature in your project settings.
 
-#### Unsupported managed PostgreSQL options
+### Self-managed PostgreSQL
+
+Run the following SQL command to change the WAL level from `replica` to `logical` and restart your database:
+
+```sql
+ALTER SYSTEM SET wal_level = logical;
+```
+
+### Unsupported managed hosting options
 
 * [Render](https://render.com/). It doesn't allow enabling logical replication, see [this discussion](https://community.render.com/t/changing-postgres-wal-level-and-max-slot-wal-keep-size/4954).
 
