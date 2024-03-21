@@ -1,5 +1,7 @@
 import { connect, JSONCodec } from "nats";
 
+import { logger } from './logger'
+
 const JSON_CODEC = JSONCodec()
 
 export interface Message {
@@ -18,13 +20,27 @@ export const connectJetstream = (host: string) => {
 
 export const buildConsumer = async (
   { connection, stream, options }:
-  { connection: any, stream: string, options: object }
+  { connection: any, stream: string, options: any }
 ) => {
   const jetstream = connection.jetstream();
   const jetstreamManager = await connection.jetstreamManager();
+  let consumer;
 
-  const consumerInfo = await jetstreamManager.consumers.add(stream, options);
-  return jetstream.consumers.get(stream, consumerInfo.name);
+  try {
+    consumer = await jetstream.consumers.get(stream, options.durable_name);
+    const { config } = await consumer.info();
+    if (Object.keys(options).some(key => options[key] !== config[key])) {
+      logger.info('Updating consumer...');
+      await jetstreamManager.consumers.update(stream, options.durable_name, options);
+    }
+  } catch (e: any) {
+    if (e.message !== "consumer not found") throw e;
+    logger.info('Creating consumer...');
+    await jetstreamManager.consumers.add(stream, options);
+    consumer = await jetstream.consumers.get(stream, options.durable_name);
+  }
+
+  return consumer;
 }
 
 export const decodeData = (data: any) => {
