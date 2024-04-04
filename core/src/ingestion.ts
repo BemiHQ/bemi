@@ -9,6 +9,7 @@ import { ChangeMessagesBuffer } from './change-message-buffer'
 import { stitchChangeMessages } from './stitching'
 
 const INSERT_INTERVAL_MS = 1000 // 1 second to avoid overwhelming the database
+const FETCH_EXPIRES_MS = 30_000 // 30 seconds, default
 
 const sleep = (ms: number) => (
   new Promise(resolve => setTimeout(resolve, ms))
@@ -20,7 +21,7 @@ const chunk = <T>(array: T[], size: number): T[][] => (
   )
 )
 
-const persistChangeMessages = async (
+const persistChangeMessages = (
   { orm, changeMessages, insertBatchSize }:
   { orm: MikroORM<PostgreSqlDriver>, changeMessages: ChangeMessage[], insertBatchSize: number }
 ) => {
@@ -39,11 +40,11 @@ const fetchMessages = async (
   const messageBySequence: { [sequence: number]: Message } = {}
   let pendingMessageCount = 0
 
-  const iterator = await consumer.fetch({ max_messages: fetchBatchSize });
+  const iterator = await consumer.fetch({ max_messages: fetchBatchSize, expires: FETCH_EXPIRES_MS });
 
   for await (const message of iterator) {
     const { streamSequence, pending } = message.info;
-    logger.debug(`Stream sequence: ${streamSequence}, pending: ${pending}`)
+    logger.debug(`Fetched stream sequence: ${streamSequence}, pending: ${pending}`)
 
     pendingMessageCount = pending
 
@@ -51,9 +52,6 @@ const fetchMessages = async (
     if (!lastStreamSequence || lastStreamSequence < streamSequence) {
       messageBySequence[streamSequence] = message
     }
-
-    // Exhausted the batch
-    if (pendingMessageCount === 0) break;
   }
 
   return { messageBySequence, pendingMessageCount }
@@ -113,8 +111,13 @@ export const runIngestionLoop = async (
 
     // Persisting and acking
     if (stitchedChangeMessages.length) {
-      await persistChangeMessages({ orm, changeMessages: stitchedChangeMessages, insertBatchSize })
-      await orm.em.flush()
+      persistChangeMessages({ orm, changeMessages: stitchedChangeMessages, insertBatchSize })
+      try {
+        await orm.em.flush()
+      } catch (e) {
+        logger.info(`Error while flushing: ${e}`)
+        throw e
+      }
     }
     if (ackStreamSequence) {
       logger.debug(`Acking ${ackStreamSequence}...`)

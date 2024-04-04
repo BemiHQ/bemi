@@ -28,7 +28,7 @@ Changes performed by creating, updating, or deleting each row are stored in a ta
 | `committed_at`   | `timestamptz(0)` | When the record was changed                                  |
 | `queued_at`      | `timestamptz(0)` | When the changed record was ingested from WAL                |
 | `created_at`     | `timestamptz(0)` | When the change record was stored in the database            |
-| `transaction_id` | `integer`        | PostgreSQL transaction ID                                    |
+| `transaction_id` | `bigint`         | PostgreSQL transaction ID                                    |
 | `position`       | `bigint`         | PostgreSQL WAL position                                      |
 
 ## Querying Changes

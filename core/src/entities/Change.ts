@@ -12,12 +12,15 @@ export enum Operation {
 
 @Entity({ tableName: 'changes' })
 
-@Index({ properties: ['primaryKey'] })
 @Index({ properties: ['committedAt'] })
+@Index({ properties: ['table'] })
+@Index({ properties: ['primaryKey'] })
+@Index({ properties: ['operation'] })
 @Index({ properties: ['context'], type: 'GIN' })
 @Index({ properties: ['before'], type: 'GIN' })
 @Index({ properties: ['after'], type: 'GIN' })
-@Unique({ properties: ['position', 'operation', 'table', 'schema', 'database'] })
+// There could be CREATE and DELETE changes with the same position without primary key
+@Unique({ properties: ['position', 'table', 'schema', 'database', 'operation'] })
 
 export class Change extends BaseEntity {
   @Property({ nullable: true })
@@ -50,7 +53,7 @@ export class Change extends BaseEntity {
   @Property()
   queuedAt: Date;
 
-  @Property({ type: 'integer' })
+  @Property({ type: 'bigint' })
   transactionId: number;
 
   @Property({ type: 'bigint' })

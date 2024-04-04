@@ -35,6 +35,16 @@
           "nullable": true,
           "mappedType": "string"
         },
+        "before": {
+          "name": "before",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'{}'",
+          "mappedType": "json"
+        },
         "after": {
           "name": "after",
           "type": "jsonb",
@@ -120,12 +130,12 @@
         },
         "transaction_id": {
           "name": "transaction_id",
-          "type": "int",
+          "type": "bigint",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "mappedType": "integer"
+          "mappedType": "bigint"
         },
         "position": {
           "name": "position",
@@ -135,16 +145,6 @@
           "primary": false,
           "nullable": false,
           "mappedType": "bigint"
-        },
-        "before": {
-          "name": "before",
-          "type": "jsonb",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "default": "'{}'",
-          "mappedType": "json"
         }
       },
       "name": "changes",
@@ -181,9 +181,9 @@
           "type": "GIN"
         },
         {
-          "keyName": "changes_committed_at_index",
+          "keyName": "changes_operation_index",
           "columnNames": [
-            "committed_at"
+            "operation"
           ],
           "composite": false,
           "primary": false,
@@ -199,13 +199,31 @@
           "unique": false
         },
         {
-          "keyName": "changes_position_operation_table_schema_database_unique",
+          "keyName": "changes_table_index",
+          "columnNames": [
+            "table"
+          ],
+          "composite": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "changes_committed_at_index",
+          "columnNames": [
+            "committed_at"
+          ],
+          "composite": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "changes_position_table_schema_database_operation_unique",
           "columnNames": [
             "position",
-            "operation",
             "table",
             "schema",
-            "database"
+            "database",
+            "operation"
           ],
           "composite": true,
           "primary": false,
