@@ -18,12 +18,12 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamptz(0)",
+          "type": "timestamptz",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "length": 0,
+          "length": 6,
           "mappedType": "datetime"
         },
         "primary_key": {
@@ -110,22 +110,22 @@
         },
         "committed_at": {
           "name": "committed_at",
-          "type": "timestamptz(0)",
+          "type": "timestamptz",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "length": 0,
+          "length": 6,
           "mappedType": "datetime"
         },
         "queued_at": {
           "name": "queued_at",
-          "type": "timestamptz(0)",
+          "type": "timestamptz",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "length": 0,
+          "length": 6,
           "mappedType": "datetime"
         },
         "transaction_id": {
@@ -156,6 +156,7 @@
             "after"
           ],
           "composite": false,
+          "constraint": false,
           "primary": false,
           "unique": false,
           "type": "GIN"
@@ -166,6 +167,7 @@
             "before"
           ],
           "composite": false,
+          "constraint": false,
           "primary": false,
           "unique": false,
           "type": "GIN"
@@ -176,6 +178,7 @@
             "context"
           ],
           "composite": false,
+          "constraint": false,
           "primary": false,
           "unique": false,
           "type": "GIN"
@@ -186,6 +189,7 @@
             "operation"
           ],
           "composite": false,
+          "constraint": false,
           "primary": false,
           "unique": false
         },
@@ -195,6 +199,7 @@
             "primary_key"
           ],
           "composite": false,
+          "constraint": false,
           "primary": false,
           "unique": false
         },
@@ -204,6 +209,7 @@
             "table"
           ],
           "composite": false,
+          "constraint": false,
           "primary": false,
           "unique": false
         },
@@ -213,6 +219,7 @@
             "committed_at"
           ],
           "composite": false,
+          "constraint": false,
           "primary": false,
           "unique": false
         },
@@ -226,6 +233,7 @@
             "operation"
           ],
           "composite": true,
+          "constraint": true,
           "primary": false,
           "unique": true
         },
@@ -235,12 +243,15 @@
             "id"
           ],
           "composite": false,
+          "constraint": true,
           "primary": true,
           "unique": true
         }
       ],
       "checks": [],
-      "foreignKeys": {}
+      "foreignKeys": {},
+      "nativeEnums": {}
     }
-  ]
+  ],
+  "nativeEnums": {}
 }

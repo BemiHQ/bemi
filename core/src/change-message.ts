@@ -1,4 +1,4 @@
-import { RequiredEntityData } from '@mikro-orm/core';
+import { RequiredEntityData } from '@mikro-orm/postgresql';
 
 import { Change, Operation } from "./entities/Change"
 import { Message, decodeData } from './nats'

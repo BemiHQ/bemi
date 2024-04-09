@@ -1,6 +1,5 @@
 import { AckPolicy, DeliverPolicy } from 'nats';
-import { MikroORM } from '@mikro-orm/core';
-import type { PostgreSqlDriver } from '@mikro-orm/postgresql'
+import { MikroORM } from '@mikro-orm/postgresql';
 
 import { connectJetstream, buildConsumer } from '../../core/src/nats'
 import { runIngestionLoop } from '../../core/src/ingestion'
@@ -21,7 +20,7 @@ const main = (async () => {
     },
   });
 
-  const orm = await MikroORM.init<PostgreSqlDriver>(mikroOrmConfig)
+  const orm = await MikroORM.init(mikroOrmConfig)
   await orm.getMigrator().up();
 
   await runIngestionLoop({ orm, consumer })

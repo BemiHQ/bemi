@@ -1,4 +1,4 @@
-import { PrimaryKey, Property } from "@mikro-orm/core";
+import { PrimaryKey, Property } from "@mikro-orm/postgresql";
 
 export abstract class BaseEntity {
   @PrimaryKey({ type: 'uuid', defaultRaw: 'uuid_generate_v4()' })

@@ -1,5 +1,4 @@
-import { MikroORM } from '@mikro-orm/core';
-import type { PostgreSqlDriver } from '@mikro-orm/postgresql'
+import { MikroORM } from '@mikro-orm/postgresql';
 
 import { logger } from './logger'
 import { Message } from './nats'
@@ -23,7 +22,7 @@ const chunk = <T>(array: T[], size: number): T[][] => (
 
 const persistChangeMessages = (
   { orm, changeMessages, insertBatchSize }:
-  { orm: MikroORM<PostgreSqlDriver>, changeMessages: ChangeMessage[], insertBatchSize: number }
+  { orm: MikroORM, changeMessages: ChangeMessage[], insertBatchSize: number }
 ) => {
   logger.info(`Persisting ${changeMessages.length} change message(s)...`)
   chunk(changeMessages, insertBatchSize).forEach((changeMsgs) => {
@@ -65,7 +64,7 @@ export const runIngestionLoop = async (
     insertBatchSize = 100,
     useBuffer = false,
   }: {
-    orm: MikroORM<PostgreSqlDriver>,
+    orm: MikroORM,
     consumer: any,
     fetchBatchSize?: number,
     insertBatchSize?: number,

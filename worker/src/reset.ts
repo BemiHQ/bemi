@@ -1,11 +1,10 @@
 import fs from 'fs'
-import { MikroORM } from '@mikro-orm/core';
-import type { PostgreSqlDriver } from '@mikro-orm/postgresql'
+import { MikroORM } from '@mikro-orm/postgresql';
 
 import mikroOrmConfig from "../mikro-orm.config"
 
 const main = (async () => {
-  const orm = await MikroORM.init<PostgreSqlDriver>(mikroOrmConfig)
+  const orm = await MikroORM.init(mikroOrmConfig)
   await orm.em.getConnection().execute(`
     DO $$
     BEGIN

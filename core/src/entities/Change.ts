@@ -1,4 +1,4 @@
-import { Entity, Property, Index, Unique, Enum, JsonType } from '@mikro-orm/core';
+import { Entity, Property, Index, Unique, Enum, JsonType } from '@mikro-orm/postgresql';
 
 import { BaseEntity } from './BaseEntity';
 
