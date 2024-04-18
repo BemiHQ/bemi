@@ -12,7 +12,7 @@ It operates in the background, empowering you with data change tracking features
 
 ## Demo
 
-<iframe width="560" height="315" src="https://www.loom.com/embed/eb624f9537994d2fa855b1d1aea61360?sid=ad6cec36-29ed-4b49-b197-de1fc6336bad" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen style={{aspectRatio: '16 / 9', width: '100%', height: '100%'}}></iframe>
+<iframe width="560" height="315" src="https://www.loom.com/embed/ae21a4e3356c414b817f482d30ac1246?sid=f774982c-2b22-42c8-80fd-a41c5612e713" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen style={{aspectRatio: '16 / 9', width: '100%', height: '100%'}}></iframe>
 
 ## Highlights
 
