@@ -35,6 +35,7 @@ const sidebars: SidebarsConfig = {
     },
     'alternatives',
     'self-hosting',
+    'changelog',
   ],
 };
 
