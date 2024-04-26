@@ -64,7 +64,7 @@ Application context:
 * Is used only with `INSERT`, `UPDATE`, `DELETE` SQL queries performed via TypeORM. Otherwise, it is a no-op.
 * Is passed directly into PG [Write-Ahead Log](https://www.postgresql.org/docs/current/wal-intro.html) with data changes without affecting the structure of the database and SQL queries.
 
-## Data change tracking
+## Database connection
 
 Connect your PostgreSQL source database on [bemi.io](https://bemi.io) to start ingesting and storing all data changes stitched together with application-specific context.
 The database connection details can be securely configured through the [dashboard UI](https://dashboard.bemi.io/log-in?ref=typeorm) in a few seconds.
@@ -74,7 +74,7 @@ The database connection details can be securely configured through the [dashboar
 Once your destination PostgreSQL database has been fully provisioned, you'll see a "Connected" status. You can now test the connection after making database changes in your connected source database:
 
 ```
-psql -h [HOSTNAME] -U [USERNAME] -d [DATABASE] -c 'SELECT "primary_key", "table", "operation", "before", "after", "context", "committed_at" FROM changes;'
+psql postgres://[USERNAME]:[PASSWORD]@[HOSTNAME]:5432/[DATABASE] -c 'SELECT "primary_key", "table", "operation", "before", "after", "context", "committed_at" FROM changes;'
 
  primary_key | table | operation |                       before                      |                       after                        |                                context                                                      |      committed_at
 -------------+-------+-----------+---------------------------------------------------+----------------------------------------------------+---------------------------------------------------------------------------------------------+------------------------

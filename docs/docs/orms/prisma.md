@@ -169,7 +169,7 @@ postgresql://USER:PASSWORD@HOST:PORT/DATABASE?sslmode=verify-full&sslrootcert=./
 
 The `sslrootcert` argument can be a relative or an absolute path pointing to your self-signed SSL certificate.
 
-## Data change tracking
+## Database connection
 
 Connect your PostgreSQL source database on [bemi.io](https://bemi.io) to start ingesting and storing all data changes stitched together with application-specific context. The database connection details can be securely configured through the [dashboard UI](https://dashboard.bemi.io/log-in?ref=prisma) in a few seconds.
 
@@ -178,7 +178,7 @@ Connect your PostgreSQL source database on [bemi.io](https://bemi.io) to start i
 Once your destination PostgreSQL database has been fully provisioned, you'll see a "Connected" status. You can now test the connection after making database changes in your connected source database:
 
 ```
-psql -h [HOSTNAME] -U [USERNAME] -d [DATABASE] -c 'SELECT "primary_key", "table", "operation", "before", "after", "context", "committed_at" FROM changes;'
+psql postgres://[USERNAME]:[PASSWORD]@[HOSTNAME]:5432/[DATABASE] -c 'SELECT "primary_key", "table", "operation", "before", "after", "context", "committed_at" FROM changes;'
 
  primary_key | table | operation |                       before                      |                       after                        |                        context                                                                                        |      committed_at
 -------------+-------+-----------+---------------------------------------------------+----------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------+------------------------

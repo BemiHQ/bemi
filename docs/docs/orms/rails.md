@@ -61,7 +61,7 @@ Application context:
 
 See this [example repo](https://github.com/BemiHQ/bemi-rails-example) as a Ruby on Rails Todo app that automatically tracks all changes.
 
-## Data change tracking
+## Database connection
 
 Connect your PostgreSQL source database on [bemi.io](https://bemi.io) to start ingesting and storing all data changes stitched together with application-specific context. The database connection details can be securely configured through the [dashboard UI](https://dashboard.bemi.io/log-in?ref=rails) in a few seconds.
 
@@ -70,7 +70,7 @@ Connect your PostgreSQL source database on [bemi.io](https://bemi.io) to start i
 Once your destination PostgreSQL database has been fully provisioned, you'll see a "Connected" status. You can now test the connection after making database changes in your connected source database:
 
 ```
-psql -h [HOSTNAME] -U [USERNAME] -d [DATABASE] -c 'SELECT "primary_key", "table", "operation", "before", "after", "context", "committed_at" FROM changes;'
+psql postgres://[USERNAME]:[PASSWORD]@[HOSTNAME]:5432/[DATABASE] -c 'SELECT "primary_key", "table", "operation", "before", "after", "context", "committed_at" FROM changes;'
 
  primary_key | table  | operation |                       before                    |                       after                      |                                context                                                   |      committed_at
 -------------+--------+-----------+-------------------------------------------------+--------------------------------------------------+------------------------------------------------------------------------------------------+------------------------
@@ -117,22 +117,105 @@ class BemiRecord < ApplicationRecord
 end
 ```
 
-Create a new `Change` model to access all data changes:
+Create a new `BemiChange` model to access all data changes:
 
-```rb title="app/models/change.rb"
+```rb title="app/models/bemi_change.rb"
 # frozen_string_literal: true
 
-class Change < BemiRecord
+class BemiChange < BemiRecord
+  include Bemi::ChangeQueryHelpers
+  self.table_name = 'changes'
 end
 ```
 
-Query changes from the destination database:
+Add a helper module to the tracked models or your main `ApplicationRecord` and set `bemi_change_class`:
+
+```rb title="app/models/application_record.rb"
+class ApplicationRecord < ActiveRecord::Base
+  include Bemi::RecordQueryHelpers
+  bemi_change_class 'BemiChange'
+  # ...
+end
+```
+
+### Query changes
 
 ```rb
-changes = Change.where(table: 'todos')
-  .where('context @> ?', { user_id: 1}.to_json)
-  .order(committed_at: :desc)
-  .limit(1)
+BemiChange.take
+# => #<BemiChange:0x000000012f7fab40
+#  id: "fe85c5e2-489c-4172-83dd-b58f25edb412",
+#  committed_at: Tue, 25 Apr 2024 22:15:50.890000000 UTC +00:00,
+#  table: "todos",
+#  primary_key: "27",
+#  operation: "UPDATE",
+#  before: {"id"=>27, "task"=>"Walk", "is_completed"=>false}>
+#  after: {"id"=>27, "task"=>"Run", "is_completed"=>true},
+#  context:
+#   {"SQL"=> "UPDATE \"public\".\"todos\" SET \"task\" = $1, \"is_completed\" = $2 WHERE \"public\".\"todos\".\"id\" = $3",
+#    "user_id"=>1,
+#    "api_endpoint"=>"/todos/complete"},
+#  ...
+```
+
+### Diff changed values
+
+```rb
+BemiChange.take.diff
+# => { "task" => ["Walk", "Run"], "completed" => [false, true] }
+```
+
+### Query change by record
+
+```
+record = Todo.find(...)
+record.bemi_changes.limit(10)
+```
+
+### Filter by values
+
+```rb
+# Query by the previous values
+record.bemi_changes.before(task: 'Walk')
+record.bemi_changes.before(task: 'Walk', completed: false)
+record.bemi_changes.before_not(task: 'Run')
+
+# Query by the new values
+record.bemi_changes.after(task: 'Run')
+record.bemi_changes.after(task: 'Run', completed: true)
+record.bemi_changes.after_not(task: 'Walk')
+
+# Query by the context values
+record.bemi_changes.context(user_id: 1)
+record.bemi_changes.context(user_id: 1, api_endpoint: '/tasks/complete')
+record.bemi_changes.context_not(user_id: 123)
+
+# Chain methods
+record.bemi_changes.before(task: 'Walk').after(task: 'Run')
+```
+
+### Filter by operation
+
+```rb
+record.bemi_changes.created
+record.bemi_changes.updated
+record.bemi_changes.deleted
+```
+
+### Sort changes
+
+```rb
+record.bemi_changes.asc
+record.bemi_changes.desc
+```
+
+### Build a custom query
+
+```rb
+changes = BemiChange.
+  where(table: 'todos', operation: 'UPDATE').
+  where('context @> ?', { user_id: 1 }.to_json).
+  order(committed_at: :desc).
+  limit(10)
 ```
 
 ## Alternative gems
