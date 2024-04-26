@@ -346,6 +346,20 @@ ALTER SYSTEM SET wal_level = logical;
 
 If you have issues in other PostgreSQL hosting environments, please [reach out](mailto:hi@bemi.io) to us and we will send you detailed instructions on how to set it up.
 
+## Selective tracking
+
+### Tracking by Tables
+
+During the Source Database connection setup or any time after, you can configure what tables you want to track:
+
+![](/img/tracked-tables.png)
+
+### Ignoring by Columns
+
+Bemi allows to configure ignore-change columns, such as `myTable.updatedAt`. This prevents the creation of a new audit trail entry (called "change") for a record in `myTable` if `updatedAt` was the only value that was updated.
+
+In other words, `myTable.updatedAt` is used to determine whether an audit trail entry should be recorded or not. But this column will always be persisted if there were other columns that were updated.
+
 ## SSH Tunnel
 
 If your PostgreSQL source database is not accessible over the internet, you can specify SSH credentials to enable an SSH tunnel via a jump host.
@@ -362,6 +376,6 @@ echo 'ssh-ed25519 AAAAC3Nz...' >> ~/.ssh/authorized_keys
 
 If you need a public SSH Key before you know the SSH host address, just specify any address and later reach out to us to update it.
 
-## Static IPs
+## Bemi Static IPs
 
 If you restrict access to your databases by IP addresses, [contact us](mailto:hi@bemi.io). We will share our static IP addresses, which you can add to an allowlist, so we can connect to your Source PostgreSQL database.

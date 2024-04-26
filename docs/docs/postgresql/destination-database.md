@@ -51,3 +51,11 @@ The JSONB columns are indexed with [GIN Index](https://www.postgresql.org/docs/c
 
 * `jsonb @> '{"key": value}'`  to check if a key/value pair matches JSONB
 * `jsonb @? '$.key'` to check if a key exists in JSONB
+
+## IP-Based Access Control
+
+It is possible to restrict access to a provisioned database by IP addresses in [CIDR notation](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing).
+This feature allows you to limit access to the database to specific IP addresses, such as those associated with your applications' servers,
+VPN network, office or home network, etc.
+
+By default, a database has a single `0.0.0.0/0` CIDR notation and is accessible from any IP address.
