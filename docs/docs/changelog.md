@@ -3,6 +3,7 @@
 ## 2024-04
 
 * Dashboard
+  * Implement custom views and data clusters (opt in beta)
   * Show data usage across all environments in a new chart
   * Improve the UX for updating [Tracked Tables](https://docs.bemi.io/postgresql/source-database#tracking-by-tables) by warning about unsaved changes
   * Allow viewing full table & primary key values and copy them on click
