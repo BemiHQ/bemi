@@ -52,6 +52,17 @@ The JSONB columns are indexed with [GIN Index](https://www.postgresql.org/docs/c
 * `jsonb @> '{"key": value}'`  to check if a key/value pair matches JSONB
 * `jsonb @? '$.key'` to check if a key exists in JSONB
 
+## Connection pooling
+
+PostgreSQL databases have a fixed maximum number of connections. Once that limit is hit, additional clients can’t connect.
+The reason is that PostgreSQL has to fork a separate process to handle each client's connection concurrently, which is very resource-intensive.
+
+Modern frameworks and database drivers use a connection pool on an application level to reduce the number of consumed database connections.
+They maintain a "pool" of open connections that can be passed from one session to another session as needed.
+
+However, if you run multiple instances of your application, then the number of direct database connections will still keep growing.
+That is why a destination database comes with an automatically provisioned highly scalable connection pooler that can handle hundreds of connections.
+
 ## IP-Based Access Control
 
 It is possible to restrict access to a provisioned database by IP addresses in [CIDR notation](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing).
@@ -59,3 +70,8 @@ This feature allows you to limit access to the database to specific IP addresses
 VPN network, office or home network, etc.
 
 By default, a database has a single `0.0.0.0/0` CIDR notation and is accessible from any IP address.
+
+## TLS/SSL certificates
+
+A destination database uses TLS/SSL certificates for both encryption in transit and authentication on the server and client sides.
+The database comes with a certification authority (CA) and uses it for both client and server certificates, which are managed and renewed automatically.

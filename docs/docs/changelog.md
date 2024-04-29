@@ -5,10 +5,11 @@
 * Dashboard
   * Show data usage across all environments in a new chart
   * Improve the UX for updating [Tracked Tables](https://docs.bemi.io/postgresql/source-database#tracking-by-tables) by warning about unsaved changes
+  * Allow viewing full table & primary key values and copy them on click
   * Add an easy-to-copy PSQL command example
 * Platform
   * Allow setting rules for [ignoring changes](https://docs.bemi.io/postgresql/source-database#ignoring-by-columns)
-  * Add connection pooling to destination databases
+  * Add [connection pooling](https://docs.bemi.io/postgresql/destination-database#connection-pooling) to destination databases
   * Implement monitoring and alerting for customers' usage volumes
 * Security
   * Implement [IP-based access control](https://docs.bemi.io/destination-database#ip-based-access-control) to destination databases
