@@ -1,3 +1,12 @@
+---
+title: Bemi vs. PaperTrail, Audited, Logidze - Advanced Rails Audit Trails
+sidebar_label: Rails
+hide_title: true
+description: Discover why Bemi is the preferred choice over PaperTrail, Audited, and Logidze for tracking database changes in Ruby on Rails. Learn how Bemi integrates with ActiveRecord and PostgreSQL to offer reliable, scalable audit trails with minimal performance impact.
+image: 'img/rails-gems-comparison.png'
+keywords: [Bemi, PaperTrail, Audited, Logidze, Rails audit trails, ActiveRecord tracking, database change logging, Rails data auditing, Rails model changes tracking]
+---
+
 # Ruby on Rails
 
 <a class="github-button" href="https://github.com/BemiHQ/bemi-rails" data-size="large" data-show-count="true" aria-label="Star BemiHQ/bemi-rails on GitHub">BemiHQ/bemi-rails</a>

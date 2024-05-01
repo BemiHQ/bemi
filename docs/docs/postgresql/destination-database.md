@@ -1,3 +1,12 @@
+---
+title: Bemi Destination Database Overview - Autoscaled and optimized Cloud PostgreSQL Audit Trails
+sidebar_label: Destination Database
+hide_title: true
+description: Explore the features of Bemi's cloud-hosted PostgreSQL destination database, including autoscaling, failover, backups, and query capabilities. Bemi simplifies data retention, version upgrades, and offers enhanced performance and security.
+image: 'img/social-card.png'
+keywords: [Bemi, destination database, PostgreSQL, autoscaling, high availability, query changes, cloud data audit trails]
+---
+
 # Destination Database
 
 Bemi automatically provisions a cloud-hosted PostgreSQL destination database to store all changes made in a source database.

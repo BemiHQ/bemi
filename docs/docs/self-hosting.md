@@ -1,3 +1,12 @@
+---
+title: 'Self-Hosted Automatic Audit Trail for PostgreSQL'
+hide_title: true
+sidebar_label: Self-Hosting
+description: 'Self-host a 100% reliable database change tracking solution for troubleshooting, reporting, data recovery, and audit purposes.'
+image: 'img/social-card.png'
+keywords: ['Open source', 'Database Tracking', 'Postgres Audit Trails', 'Change Data Capture', 'Database Changes']
+---
+
 # Self-Hosting
 
 <a class="github-button" href="https://github.com/BemiHQ/bemi" data-size="large" data-show-count="true" aria-label="Star BemiHQ/bemi on GitHub">BemiHQ/bemi</a>

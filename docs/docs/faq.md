@@ -1,3 +1,12 @@
+---
+title: Bemi FAQ - Automatic Audit Trails for Postgres
+hide_title: true
+sidebar_label: FAQ
+description: Get answers to common questions about Bemi, including how it uses Change Data Capture (CDC) to track database changes, the security of stored data, and how Bemi compares to other ORM and logging solutions. Learn about Bemi's approach to data integrity and ease of integration.
+image: 'img/social-card.png'
+keywords: [Bemi, database tracking, Change Data Capture, secure data storage, data integrity, real-time data tracking, Bemi FAQ, database audit trails, Bemi data security]
+---
+
 # FAQ
 
 ### What does Bemi do when connecting to a database?

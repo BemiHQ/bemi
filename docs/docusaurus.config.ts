@@ -51,6 +51,12 @@ const config: Config = {
   ],
 
   themeConfig: {
+    metadata: [
+      {name: 'title', content: 'Bemi Docs - Automatic Audit Trail as a Service for PostgreSQL'},
+      {name: 'description', content: 'Bemi: Your automatic, reliable audit trail for PostgreSQL. Securely connect to your databases, enrich data changes, and maintain an immutable record of data modifications with military-grade encryption. Perfect for troubleshooting, reporting, data recovery, and audit purposes'},
+      {name: 'keywords', content: 'Bemi, PostgreSQL audit trail, database tracking, data compliance, PostgreSQL data changes, automated audit, change data capture, data observability, pgaudit'},
+      {name: 'image', content: 'img/social-card.png'},
+    ],
     image: "img/social-card.png",
     navbar: {
       title: "Bemi",

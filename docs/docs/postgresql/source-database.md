@@ -1,3 +1,12 @@
+---
+title: Bemi Source Database Configuration Guide - Real-Time Data Tracking with CDC
+sidebar_label: Source Database
+hide_title: true
+description: Learn how to configure your PostgreSQL source database with Bemi for real-time data tracking using Change Data Capture (CDC). Includes detailed setup instructions for WAL levels, connections, and hosting platforms like AWS, GCP, Supabase, and Render.
+keywords: [PostgreSQL, Change Data Capture, Bemi, real-time data tracking, database replication, WAL, logical replication]
+image: 'img/social-card.png'
+---
+
 # Source Database
 
 Bemi tracks changes made in a primary PostgreSQL database (source database) by implementing a design pattern called Change Data Capture (CDC),

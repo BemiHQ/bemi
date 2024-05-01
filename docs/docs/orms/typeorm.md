@@ -1,3 +1,12 @@
+---
+title: Bemi TypeORM Integration - Automatic Database Change Tracking for PostgreSQL
+sidebar_label: TypeORM
+hide_title: true
+description: Discover how Bemi integrates with TypeORM and PostgreSQL to automatically track database changes. This guide covers the installation and use of Bemi with TypeORM to enable context-aware audit trails in your application.
+image: 'img/social-card.png'
+keywords: [Bemi, TypeORM integration, PostgreSQL change tracking, database auditing, application context, audit trails, TypeORM PostgreSQL, database change monitoring]
+---
+
 # TypeORM
 
 <a class="github-button" href="https://github.com/BemiHQ/bemi-typeorm" data-size="large" data-show-count="true" aria-label="Star BemiHQ/bemi-typeorm on GitHub">BemiHQ/bemi-typeorm</a>

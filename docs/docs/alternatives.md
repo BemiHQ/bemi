@@ -1,3 +1,12 @@
+---
+title: 'PostgreSQL Data Change Tracking Alternatives'
+hide_title: true
+sidebar_label: Alternatives
+description: 'Comparison of all options for data change tracking in Postgres.'
+image: 'img/data-tracking.png'
+keywords: ['Postgres data change tracking', 'pgaudit', 'Postgres triggers', 'Change Data Capture', 'app data tracking']
+---
+
 # Alternatives
 
 ## PostgreSQL data change tracking

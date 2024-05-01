@@ -1,3 +1,12 @@
+---
+title: 'Bemi Changelog: Automatic Audit Trail for PostgreSQL'
+hide_title: true
+sidebar_label: Changelog
+description: 'Recently released features and improvements for Bemi. Database change tracking for troubleshooting, reporting, data recovery, and audit purposes.'
+image: 'img/social-card.png'
+keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Change Data Capture', 'Database Changes']
+---
+
 # Changelog
 
 ## 2024-04

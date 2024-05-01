@@ -1,3 +1,12 @@
+---
+title: Bemi Prisma Integration - Automate Context-Aware Audit Trails with PostgreSQL
+sidebar_label: Prisma
+hide_title: true
+description: Discover how Bemi integrates with Prisma and PostgreSQL to automatically track database changes, providing robust audit trails for your applications. Learn how to install and use the Bemi Prisma package for enhanced data tracking.
+image: 'img/bemi-prisma.png'
+keywords: [Bemi, Prisma, PostgreSQL, database auditing, data tracking, context-aware audit, application context, database actions, database prisma activity]
+---
+
 # Prisma
 
 <a class="github-button" href="https://github.com/BemiHQ/bemi-prisma" data-size="large" data-show-count="true" aria-label="Star BemiHQ/bemi-prisma on GitHub">BemiHQ/bemi-prisma</a>
