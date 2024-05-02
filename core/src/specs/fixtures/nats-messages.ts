@@ -1,4 +1,4 @@
-import { Message, encodeData } from '../../nats'
+import { NatsMessage, encodeData } from '../../nats'
 
 export const POSITIONS = {
   CREATE: 35878528,
@@ -6,6 +6,7 @@ export const POSITIONS = {
   DELETE: 35878952,
   TRUNCATE: 35909944,
   HEARTBEAT_MESSAGE: 371211568,
+  HEARTBEAT_CHANGE: 371211569,
 }
 
 export const MESSAGE_DATA = {
@@ -168,13 +169,34 @@ export const MESSAGE_DATA = {
       xmin: null
     },
     message: { prefix: '_bemi_heartbeat', content: '' }
+  },
+  HEARTBEAT_CHANGE: {
+    before: null,
+    after: { id: 1, last_heartbeat_at: "2024-04-18T20:40:29.086091Z" },
+    source: {
+      version: "2.5.0-SNAPSHOT",
+      connector: "postgresql",
+      name: "prefix",
+      ts_ms: 1713472829086,
+      snapshot: "false",
+      db: "bemi_dev_source",
+      sequence: "[\"24830282128\",\"24897389232\"]",
+      schema: "_bemi",
+      table: "heartbeats",
+      txId: 3497,
+      lsn: 371211569,
+      xmin: null,
+    },
+    op: "u",
+    ts_ms: 1713472829090,
+    transaction: null,
   }
 }
 
-export const buildMessage = (
+export const buildNatsMessage = (
   { subject, data, streamSequence }:
   { subject: string, data: any, streamSequence: number }
-): Message => ({
+): NatsMessage => ({
   subject,
   info: {
     streamSequence,

@@ -1,17 +1,17 @@
 process.env.LOG_LEVEL = 'INFO'
 
-import { stitchChangeMessages } from '../stitching';
-import { ChangeMessage, MESSAGE_PREFIX_CONTEXT, MESSAGE_PREFIX_HEARTBEAT } from '../change-message';
-import { ChangeMessagesBuffer } from '../change-message-buffer';
+import { stitchFetchedRecords } from '../stitching';
+import { FetchedRecord, MESSAGE_PREFIX_CONTEXT, MESSAGE_PREFIX_HEARTBEAT } from '../fetched-record';
+import { FetchedRecordBuffer } from '../fetched-record-buffer';
 
 import { POSITIONS } from './fixtures/nats-messages';
-import { MOCKED_DATE, CHANGE_ATTRIBUTES } from './fixtures/change-messages';
+import { MOCKED_DATE, CHANGE_ATTRIBUTES } from './fixtures/fetched-records';
 
-const findChangeMessage = (changeMessages: ChangeMessage[], streamSequence: number) => (
-  changeMessages.find((changeMessage) => changeMessage.streamSequence === streamSequence) as ChangeMessage
+const findFetchedRecord = (fetchedRecords: FetchedRecord[], streamSequence: number) => (
+  fetchedRecords.find((fetchedMessage) => fetchedMessage.streamSequence === streamSequence) as FetchedRecord
 )
 
-describe('stitchChangeMessages', () => {
+describe('stitchFetchedRecords', () => {
   beforeAll(() => {
     jest.spyOn(global, 'Date').mockImplementation(() => MOCKED_DATE)
   })
@@ -19,50 +19,72 @@ describe('stitchChangeMessages', () => {
   describe('when messages in the same batch', () => {
     test('stitches context if it is first, ignores a heartbeat message', () => {
       const subject = 'bemi-subject'
-      const changeMessages = [
-        new ChangeMessage({ subject, streamSequence: 1, changeAttributes: CHANGE_ATTRIBUTES.CREATE_MESSAGE, messagePrefix: MESSAGE_PREFIX_CONTEXT }),
-        new ChangeMessage({ subject, streamSequence: 2, changeAttributes: CHANGE_ATTRIBUTES.CREATE }),
-        new ChangeMessage({ subject, streamSequence: 3, changeAttributes: CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE, messagePrefix: MESSAGE_PREFIX_HEARTBEAT }),
+      const fetchedRecords = [
+        new FetchedRecord({ subject, streamSequence: 1, changeAttributes: CHANGE_ATTRIBUTES.CREATE_MESSAGE, messagePrefix: MESSAGE_PREFIX_CONTEXT }),
+        new FetchedRecord({ subject, streamSequence: 2, changeAttributes: CHANGE_ATTRIBUTES.CREATE }),
+        new FetchedRecord({ subject, streamSequence: 3, changeAttributes: CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE, messagePrefix: MESSAGE_PREFIX_HEARTBEAT }),
       ]
 
-      const result = stitchChangeMessages({
-        changeMessagesBuffer: new ChangeMessagesBuffer().addChangeMessages(changeMessages),
+      const result = stitchFetchedRecords({
+        fetchedRecordBuffer: new FetchedRecordBuffer().addFetchedRecords(fetchedRecords),
         useBuffer: true,
       })
 
       expect(result).toStrictEqual({
-        stitchedChangeMessages: [
-          findChangeMessage(changeMessages, 2).setContext(findChangeMessage(changeMessages, 1).context()),
+        stitchedFetchedRecords: [
+          findFetchedRecord(fetchedRecords, 2).setContext(findFetchedRecord(fetchedRecords, 1).context()),
         ],
         ackStreamSequence: 3,
-        newChangeMessagesBuffer: ChangeMessagesBuffer.fromStore({}),
+        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({}),
+      })
+    })
+
+    test('stitches context if it is first, ignores a heartbeat change', () => {
+      const subject = 'bemi-subject'
+      const fetchedRecords = [
+        new FetchedRecord({ subject, streamSequence: 1, changeAttributes: CHANGE_ATTRIBUTES.CREATE_MESSAGE, messagePrefix: MESSAGE_PREFIX_CONTEXT }),
+        new FetchedRecord({ subject, streamSequence: 2, changeAttributes: CHANGE_ATTRIBUTES.CREATE }),
+        new FetchedRecord({ subject, streamSequence: 3, changeAttributes: CHANGE_ATTRIBUTES.HEARTBEAT_CHANGE }),
+      ]
+
+      const result = stitchFetchedRecords({
+        fetchedRecordBuffer: new FetchedRecordBuffer().addFetchedRecords(fetchedRecords),
+        useBuffer: true,
+      })
+
+      expect(result).toStrictEqual({
+        stitchedFetchedRecords: [
+          findFetchedRecord(fetchedRecords, 2).setContext(findFetchedRecord(fetchedRecords, 1).context()),
+        ],
+        ackStreamSequence: 3,
+        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({}),
       })
     })
 
     test('stitches context if it is second and pauses on the one before last position', () => {
       const subject = 'bemi-subject'
-      const changeMessages = [
-        new ChangeMessage({ subject, streamSequence: 1, changeAttributes: CHANGE_ATTRIBUTES.CREATE }),
-        new ChangeMessage({ subject, streamSequence: 2, changeAttributes: CHANGE_ATTRIBUTES.CREATE_MESSAGE, messagePrefix: MESSAGE_PREFIX_CONTEXT }),
-        new ChangeMessage({ subject, streamSequence: 3, changeAttributes: CHANGE_ATTRIBUTES.UPDATE }),
-        new ChangeMessage({ subject, streamSequence: 4, changeAttributes: CHANGE_ATTRIBUTES.DELETE }),
+      const fetchedRecords = [
+        new FetchedRecord({ subject, streamSequence: 1, changeAttributes: CHANGE_ATTRIBUTES.CREATE }),
+        new FetchedRecord({ subject, streamSequence: 2, changeAttributes: CHANGE_ATTRIBUTES.CREATE_MESSAGE, messagePrefix: MESSAGE_PREFIX_CONTEXT }),
+        new FetchedRecord({ subject, streamSequence: 3, changeAttributes: CHANGE_ATTRIBUTES.UPDATE }),
+        new FetchedRecord({ subject, streamSequence: 4, changeAttributes: CHANGE_ATTRIBUTES.DELETE }),
       ]
 
-      const result = stitchChangeMessages({
-        changeMessagesBuffer: new ChangeMessagesBuffer().addChangeMessages(changeMessages),
+      const result = stitchFetchedRecords({
+        fetchedRecordBuffer: new FetchedRecordBuffer().addFetchedRecords(fetchedRecords),
         useBuffer: true,
       })
 
       expect(result).toStrictEqual({
-        stitchedChangeMessages: [
-          findChangeMessage(changeMessages, 1).setContext(findChangeMessage(changeMessages, 2).context()),
-          findChangeMessage(changeMessages, 3),
+        stitchedFetchedRecords: [
+          findFetchedRecord(fetchedRecords, 1).setContext(findFetchedRecord(fetchedRecords, 2).context()),
+          findFetchedRecord(fetchedRecords, 3),
         ],
         ackStreamSequence: 3,
-        newChangeMessagesBuffer: ChangeMessagesBuffer.fromStore({
+        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({
           [subject]: {
             [POSITIONS.DELETE]: [
-              findChangeMessage(changeMessages, 4),
+              findFetchedRecord(fetchedRecords, 4),
             ],
           }
         }),
@@ -71,21 +93,108 @@ describe('stitchChangeMessages', () => {
 
     test('acks the last heartbeat message if the buffer is empty', () => {
       const subject = 'bemi-subject'
-      const changeMessages = [
-        new ChangeMessage({ subject, streamSequence: 1, changeAttributes: { ...CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE, position: 1 }, messagePrefix: MESSAGE_PREFIX_HEARTBEAT }),
-        new ChangeMessage({ subject, streamSequence: 3, changeAttributes: { ...CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE, position: 3 }, messagePrefix: MESSAGE_PREFIX_HEARTBEAT }),
-        new ChangeMessage({ subject, streamSequence: 2, changeAttributes: { ...CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE, position: 2 }, messagePrefix: MESSAGE_PREFIX_HEARTBEAT }),
+      const fetchedRecords = [
+        new FetchedRecord({ subject, streamSequence: 1, changeAttributes: { ...CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE, position: 1 }, messagePrefix: MESSAGE_PREFIX_HEARTBEAT }),
+        new FetchedRecord({ subject, streamSequence: 3, changeAttributes: { ...CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE, position: 3 }, messagePrefix: MESSAGE_PREFIX_HEARTBEAT }),
+        new FetchedRecord({ subject, streamSequence: 2, changeAttributes: { ...CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE, position: 2 }, messagePrefix: MESSAGE_PREFIX_HEARTBEAT }),
       ]
 
-      const result = stitchChangeMessages({
-        changeMessagesBuffer: new ChangeMessagesBuffer().addChangeMessages(changeMessages),
+      const result = stitchFetchedRecords({
+        fetchedRecordBuffer: new FetchedRecordBuffer().addFetchedRecords(fetchedRecords),
         useBuffer: true,
       })
 
       expect(result).toStrictEqual({
-        stitchedChangeMessages: [],
+        stitchedFetchedRecords: [],
         ackStreamSequence: 3,
-        newChangeMessagesBuffer: ChangeMessagesBuffer.fromStore({}),
+        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({}),
+      })
+    })
+  })
+
+  describe('when messages from separate subjects', () => {
+    test('stitches context across multiple subjects with a heartbeat change and pending context', () => {
+      const subject1 = 'bemi-subject-1'
+      const subject2 = 'bemi-subject-2'
+      const updateMessagePosition = CHANGE_ATTRIBUTES.HEARTBEAT_CHANGE.position + 1
+      const fetchedRecords = [
+        new FetchedRecord({ subject: subject1, streamSequence: 1, changeAttributes: CHANGE_ATTRIBUTES.CREATE_MESSAGE, messagePrefix: MESSAGE_PREFIX_CONTEXT }),
+        new FetchedRecord({ subject: subject1, streamSequence: 2, changeAttributes: CHANGE_ATTRIBUTES.CREATE }),
+        new FetchedRecord({ subject: subject2, streamSequence: 3, changeAttributes: CHANGE_ATTRIBUTES.HEARTBEAT_CHANGE }),
+        new FetchedRecord({ subject: subject2, streamSequence: 4, changeAttributes: { ...CHANGE_ATTRIBUTES.UPDATE_MESSAGE, position: updateMessagePosition }, messagePrefix: MESSAGE_PREFIX_CONTEXT }),
+      ]
+
+      const result = stitchFetchedRecords({
+        fetchedRecordBuffer: new FetchedRecordBuffer().addFetchedRecords(fetchedRecords),
+        useBuffer: true,
+      })
+
+      expect(result).toStrictEqual({
+        stitchedFetchedRecords: [
+          findFetchedRecord(fetchedRecords, 2).setContext(findFetchedRecord(fetchedRecords, 1).context()),
+        ],
+        ackStreamSequence: 3,
+        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({
+          [subject2]: {
+            [updateMessagePosition]: [
+              findFetchedRecord(fetchedRecords, 4),
+            ],
+          },
+        }),
+      })
+    })
+
+    test('stitches context across multiple subjects with a heartbeat change and pending change', () => {
+      const subject1 = 'bemi-subject-1'
+      const subject2 = 'bemi-subject-2'
+      const updatePosition = CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE.position + 1
+      const fetchedRecords = [
+        new FetchedRecord({ subject: subject1, streamSequence: 1, changeAttributes: CHANGE_ATTRIBUTES.CREATE_MESSAGE, messagePrefix: MESSAGE_PREFIX_CONTEXT }),
+        new FetchedRecord({ subject: subject1, streamSequence: 2, changeAttributes: CHANGE_ATTRIBUTES.CREATE }),
+        new FetchedRecord({ subject: subject2, streamSequence: 3, changeAttributes: CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE, messagePrefix: MESSAGE_PREFIX_HEARTBEAT }),
+        new FetchedRecord({ subject: subject2, streamSequence: 4, changeAttributes: { ...CHANGE_ATTRIBUTES.UPDATE, position: updatePosition }}),
+      ]
+
+      const result = stitchFetchedRecords({
+        fetchedRecordBuffer: new FetchedRecordBuffer().addFetchedRecords(fetchedRecords),
+        useBuffer: true,
+      })
+
+      expect(result).toStrictEqual({
+        stitchedFetchedRecords: [
+          findFetchedRecord(fetchedRecords, 2).setContext(findFetchedRecord(fetchedRecords, 1).context()),
+        ],
+        ackStreamSequence: 3,
+        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({
+          [subject2]: {
+            [updatePosition]: [
+              findFetchedRecord(fetchedRecords, 4),
+            ],
+          },
+        }),
+      })
+    })
+
+    test('stitches context across multiple subjects with a single heartbeat change in one of them', () => {
+      const subject1 = 'bemi-subject-1'
+      const subject2 = 'bemi-subject-2'
+      const fetchedRecords = [
+        new FetchedRecord({ subject: subject1, streamSequence: 1, changeAttributes: CHANGE_ATTRIBUTES.CREATE_MESSAGE, messagePrefix: MESSAGE_PREFIX_CONTEXT }),
+        new FetchedRecord({ subject: subject1, streamSequence: 2, changeAttributes: CHANGE_ATTRIBUTES.CREATE }),
+        new FetchedRecord({ subject: subject2, streamSequence: 3, changeAttributes: CHANGE_ATTRIBUTES.HEARTBEAT_CHANGE }),
+      ]
+
+      const result = stitchFetchedRecords({
+        fetchedRecordBuffer: new FetchedRecordBuffer().addFetchedRecords(fetchedRecords),
+        useBuffer: true,
+      })
+
+      expect(result).toStrictEqual({
+        stitchedFetchedRecords: [
+          findFetchedRecord(fetchedRecords, 2).setContext(findFetchedRecord(fetchedRecords, 1).context()),
+        ],
+        ackStreamSequence: 3,
+        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({}),
       })
     })
   })
@@ -93,48 +202,48 @@ describe('stitchChangeMessages', () => {
   describe('when messages in separate batches', () => {
     test('stitches context for messages within the same shard after processing all batches', () => {
       const subject = 'bemi-subject'
-      const changeMessages1 = [
-        new ChangeMessage({ subject, streamSequence: 1, changeAttributes: CHANGE_ATTRIBUTES.CREATE }),
-        new ChangeMessage({ subject, streamSequence: 2, changeAttributes: CHANGE_ATTRIBUTES.CREATE_MESSAGE, messagePrefix: MESSAGE_PREFIX_CONTEXT }),
-        new ChangeMessage({ subject, streamSequence: 3, changeAttributes: CHANGE_ATTRIBUTES.UPDATE }),
+      const fetchedRecords1 = [
+        new FetchedRecord({ subject, streamSequence: 1, changeAttributes: CHANGE_ATTRIBUTES.CREATE }),
+        new FetchedRecord({ subject, streamSequence: 2, changeAttributes: CHANGE_ATTRIBUTES.CREATE_MESSAGE, messagePrefix: MESSAGE_PREFIX_CONTEXT }),
+        new FetchedRecord({ subject, streamSequence: 3, changeAttributes: CHANGE_ATTRIBUTES.UPDATE }),
       ]
 
-      const result1 = stitchChangeMessages({
-        changeMessagesBuffer: new ChangeMessagesBuffer().addChangeMessages(changeMessages1),
+      const result1 = stitchFetchedRecords({
+        fetchedRecordBuffer: new FetchedRecordBuffer().addFetchedRecords(fetchedRecords1),
         useBuffer: true,
       })
       expect(result1).toStrictEqual({
-        stitchedChangeMessages: [
-          findChangeMessage(changeMessages1, 1).setContext(findChangeMessage(changeMessages1, 2).context()),
+        stitchedFetchedRecords: [
+          findFetchedRecord(fetchedRecords1, 1).setContext(findFetchedRecord(fetchedRecords1, 2).context()),
         ],
         ackStreamSequence: 1,
-        newChangeMessagesBuffer: ChangeMessagesBuffer.fromStore({
+        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({
           [subject]: {
             [POSITIONS.UPDATE]: [
-              findChangeMessage(changeMessages1, 3),
+              findFetchedRecord(fetchedRecords1, 3),
             ],
           },
         }),
       })
 
-      const changeMessages2 = [
-        new ChangeMessage({ subject, streamSequence: 4, changeAttributes: CHANGE_ATTRIBUTES.UPDATE_MESSAGE, messagePrefix: MESSAGE_PREFIX_CONTEXT }),
-        new ChangeMessage({ subject, streamSequence: 5, changeAttributes: CHANGE_ATTRIBUTES.DELETE_MESSAGE, messagePrefix: MESSAGE_PREFIX_CONTEXT }),
+      const fetchedRecords2 = [
+        new FetchedRecord({ subject, streamSequence: 4, changeAttributes: CHANGE_ATTRIBUTES.UPDATE_MESSAGE, messagePrefix: MESSAGE_PREFIX_CONTEXT }),
+        new FetchedRecord({ subject, streamSequence: 5, changeAttributes: CHANGE_ATTRIBUTES.DELETE_MESSAGE, messagePrefix: MESSAGE_PREFIX_CONTEXT }),
       ]
 
-      const result2 = stitchChangeMessages({
-        changeMessagesBuffer: result1.newChangeMessagesBuffer.addChangeMessages(changeMessages2),
+      const result2 = stitchFetchedRecords({
+        fetchedRecordBuffer: result1.newFetchedRecordBuffer.addFetchedRecords(fetchedRecords2),
         useBuffer: true,
       })
       expect(result2).toStrictEqual({
-        stitchedChangeMessages: [
-          findChangeMessage(changeMessages1, 3).setContext(findChangeMessage(changeMessages2, 4).context()),
+        stitchedFetchedRecords: [
+          findFetchedRecord(fetchedRecords1, 3).setContext(findFetchedRecord(fetchedRecords2, 4).context()),
         ],
         ackStreamSequence: 3,
-        newChangeMessagesBuffer: ChangeMessagesBuffer.fromStore({
+        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({
           [subject]: {
             [POSITIONS.DELETE]: [
-              findChangeMessage(changeMessages2, 5),
+              findFetchedRecord(fetchedRecords2, 5),
             ],
           },
         }),
@@ -143,86 +252,86 @@ describe('stitchChangeMessages', () => {
 
     test('leaves only one before last pending record without context after processing all batches', () => {
       const subject = 'bemi-subject'
-      const changeMessages1 = [
-        new ChangeMessage({ subject, streamSequence: 1, changeAttributes: CHANGE_ATTRIBUTES.CREATE }),
+      const fetchedRecords1 = [
+        new FetchedRecord({ subject, streamSequence: 1, changeAttributes: CHANGE_ATTRIBUTES.CREATE }),
       ]
 
-      const result1 = stitchChangeMessages({
-        changeMessagesBuffer: new ChangeMessagesBuffer().addChangeMessages(changeMessages1),
+      const result1 = stitchFetchedRecords({
+        fetchedRecordBuffer: new FetchedRecordBuffer().addFetchedRecords(fetchedRecords1),
         useBuffer: true,
       })
       expect(result1).toStrictEqual({
-        stitchedChangeMessages: [],
+        stitchedFetchedRecords: [],
         ackStreamSequence: undefined,
-        newChangeMessagesBuffer: ChangeMessagesBuffer.fromStore({
+        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({
           [subject]: {
             [POSITIONS.CREATE]: [
-              findChangeMessage(changeMessages1, 1),
+              findFetchedRecord(fetchedRecords1, 1),
             ],
           },
         }),
       })
 
-      const changeMessages2 = [
-        new ChangeMessage({ subject, streamSequence: 2, changeAttributes: CHANGE_ATTRIBUTES.CREATE_MESSAGE, messagePrefix: MESSAGE_PREFIX_CONTEXT }),
-        new ChangeMessage({ subject, streamSequence: 3, changeAttributes: CHANGE_ATTRIBUTES.UPDATE }),
-        new ChangeMessage({ subject, streamSequence: 4, changeAttributes: CHANGE_ATTRIBUTES.DELETE }),
+      const fetchedRecords2 = [
+        new FetchedRecord({ subject, streamSequence: 2, changeAttributes: CHANGE_ATTRIBUTES.CREATE_MESSAGE, messagePrefix: MESSAGE_PREFIX_CONTEXT }),
+        new FetchedRecord({ subject, streamSequence: 3, changeAttributes: CHANGE_ATTRIBUTES.UPDATE }),
+        new FetchedRecord({ subject, streamSequence: 4, changeAttributes: CHANGE_ATTRIBUTES.DELETE }),
       ]
 
-      const result2 = stitchChangeMessages({
-        changeMessagesBuffer: result1.newChangeMessagesBuffer.addChangeMessages(changeMessages2),
+      const result2 = stitchFetchedRecords({
+        fetchedRecordBuffer: result1.newFetchedRecordBuffer.addFetchedRecords(fetchedRecords2),
         useBuffer: true,
       })
       expect(result2).toStrictEqual({
-        stitchedChangeMessages: [
-          findChangeMessage(changeMessages1, 1).setContext(findChangeMessage(changeMessages2, 2).context()),
-          findChangeMessage(changeMessages2, 3),
+        stitchedFetchedRecords: [
+          findFetchedRecord(fetchedRecords1, 1).setContext(findFetchedRecord(fetchedRecords2, 2).context()),
+          findFetchedRecord(fetchedRecords2, 3),
         ],
         ackStreamSequence: 3,
-        newChangeMessagesBuffer: ChangeMessagesBuffer.fromStore({
+        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({
           [subject]: {
-            [POSITIONS.DELETE]: [findChangeMessage(changeMessages2, 4)],
+            [POSITIONS.DELETE]: [findFetchedRecord(fetchedRecords2, 4)],
           },
         }),
       })
     })
 
-    test('saves pending change messages after receiving a heartbeat with a greater position', () => {
+    test('saves pending change messages after receiving a heartbeat message with a greater position', () => {
       const subject = 'bemi-subject'
-      const changeMessages1 = [
-        new ChangeMessage({ subject, streamSequence: 1, changeAttributes: CHANGE_ATTRIBUTES.CREATE }),
+      const fetchedRecords1 = [
+        new FetchedRecord({ subject, streamSequence: 1, changeAttributes: CHANGE_ATTRIBUTES.CREATE }),
       ]
 
-      const result1 = stitchChangeMessages({
-        changeMessagesBuffer: new ChangeMessagesBuffer().addChangeMessages(changeMessages1),
+      const result1 = stitchFetchedRecords({
+        fetchedRecordBuffer: new FetchedRecordBuffer().addFetchedRecords(fetchedRecords1),
         useBuffer: true,
       })
       expect(result1).toStrictEqual({
-        stitchedChangeMessages: [],
+        stitchedFetchedRecords: [],
         ackStreamSequence: undefined,
-        newChangeMessagesBuffer: ChangeMessagesBuffer.fromStore({
+        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({
           [subject]: {
             [POSITIONS.CREATE]: [
-              findChangeMessage(changeMessages1, 1),
+              findFetchedRecord(fetchedRecords1, 1),
             ],
           },
         }),
       })
 
-      const changeMessages2 = [
-        new ChangeMessage({ subject, streamSequence: 2, changeAttributes: CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE, messagePrefix: MESSAGE_PREFIX_HEARTBEAT }),
+      const fetchedRecords2 = [
+        new FetchedRecord({ subject, streamSequence: 2, changeAttributes: CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE, messagePrefix: MESSAGE_PREFIX_HEARTBEAT }),
       ]
 
-      const result2 = stitchChangeMessages({
-        changeMessagesBuffer: result1.newChangeMessagesBuffer.addChangeMessages(changeMessages2),
+      const result2 = stitchFetchedRecords({
+        fetchedRecordBuffer: result1.newFetchedRecordBuffer.addFetchedRecords(fetchedRecords2),
         useBuffer: true,
       })
       expect(result2).toStrictEqual({
-        stitchedChangeMessages: [
-          findChangeMessage(changeMessages1, 1),
+        stitchedFetchedRecords: [
+          findFetchedRecord(fetchedRecords1, 1),
         ],
         ackStreamSequence: 2,
-        newChangeMessagesBuffer: ChangeMessagesBuffer.fromStore({}),
+        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({}),
       })
     })
   })

@@ -1,11 +1,11 @@
 import { MikroORM } from '@mikro-orm/postgresql';
 
 import { logger } from './logger'
-import { Message } from './nats'
+import { NatsMessage } from './nats'
 import { Change } from "./entities/Change"
-import { ChangeMessage } from './change-message'
-import { ChangeMessagesBuffer } from './change-message-buffer'
-import { stitchChangeMessages } from './stitching'
+import { FetchedRecord } from './fetched-record'
+import { FetchedRecordBuffer } from './fetched-record-buffer'
+import { stitchFetchedRecords } from './stitching'
 
 const INSERT_INTERVAL_MS = 1000 // 1 second to avoid overwhelming the database
 const FETCH_EXPIRES_MS = 30_000 // 30 seconds, default
@@ -20,40 +20,40 @@ const chunk = <T>(array: T[], size: number): T[][] => (
   )
 )
 
-const persistChangeMessages = (
-  { orm, changeMessages, insertBatchSize }:
-  { orm: MikroORM, changeMessages: ChangeMessage[], insertBatchSize: number }
+const persistFetchedRecords = (
+  { orm, fetchedRecords, insertBatchSize }:
+  { orm: MikroORM, fetchedRecords: FetchedRecord[], insertBatchSize: number }
 ) => {
-  logger.info(`Persisting ${changeMessages.length} change message(s)...`)
-  chunk(changeMessages, insertBatchSize).forEach((changeMsgs) => {
-    const changesAttributes = changeMsgs.map(({ changeAttributes }) => changeAttributes)
+  logger.info(`Persisting ${fetchedRecords.length} change message(s)...`)
+  chunk(fetchedRecords, insertBatchSize).forEach((fetchedRecs) => {
+    const changesAttributes = fetchedRecs.map(({ changeAttributes }) => changeAttributes)
     const queryBuilder = orm.em.createQueryBuilder(Change).insert(changesAttributes).onConflict().ignore();
     queryBuilder.execute()
   })
 }
 
-const fetchMessages = async (
+const fetchNatsMessages = async (
   { consumer, fetchBatchSize, lastStreamSequence }:
   { consumer: any, fetchBatchSize: number, lastStreamSequence: number | null }
 ) => {
-  const messageBySequence: { [sequence: number]: Message } = {}
+  const natsMessageBySequence: { [sequence: number]: NatsMessage } = {}
   let pendingMessageCount = 0
 
   const iterator = await consumer.fetch({ max_messages: fetchBatchSize, expires: FETCH_EXPIRES_MS });
 
-  for await (const message of iterator) {
-    const { streamSequence, pending } = message.info;
+  for await (const natsMessage of iterator) {
+    const { streamSequence, pending } = natsMessage.info;
     logger.debug(`Fetched stream sequence: ${streamSequence}, pending: ${pending}`)
 
     pendingMessageCount = pending
 
     // Accumulate the batch
     if (!lastStreamSequence || lastStreamSequence < streamSequence) {
-      messageBySequence[streamSequence] = message
+      natsMessageBySequence[streamSequence] = natsMessage
     }
   }
 
-  return { messageBySequence, pendingMessageCount }
+  return { natsMessageBySequence, pendingMessageCount }
 }
 
 export const runIngestionLoop = async (
@@ -72,16 +72,19 @@ export const runIngestionLoop = async (
   }
 ) => {
   let lastStreamSequence: number | null = null
-  let changeMessagesBuffer = new ChangeMessagesBuffer()
+  let fetchedRecordBuffer = new FetchedRecordBuffer()
 
   while (true) {
     // Fetching
     logger.info('Fetching...')
-    const fetchedMessages = await fetchMessages({ consumer, fetchBatchSize, lastStreamSequence })
-    const { messageBySequence, pendingMessageCount } = fetchedMessages
+    const { natsMessageBySequence, pendingMessageCount } = await fetchNatsMessages({
+      consumer,
+      fetchBatchSize,
+      lastStreamSequence,
+    })
 
     // Last sequence tracking
-    const sequences = Object.keys(messageBySequence).sort((a, b) => Number(b) - Number(a)) // reverse sort
+    const sequences = Object.keys(natsMessageBySequence).sort((a, b) => Number(b) - Number(a)) // reverse sort
     if (sequences.length) {
       const lastBatchSequence = Number(sequences[0])
       if (!lastStreamSequence || lastBatchSequence > lastStreamSequence) {
@@ -91,26 +94,26 @@ export const runIngestionLoop = async (
 
     // Stitching
     const now = new Date()
-    const messages = Object.values(messageBySequence)
-    const changeMessages = messages.map((message: Message) => ChangeMessage.fromMessage(message, now))
-    const { stitchedChangeMessages, newChangeMessagesBuffer, ackStreamSequence } = stitchChangeMessages({
-      changeMessagesBuffer: changeMessagesBuffer.addChangeMessages(changeMessages),
+    const natsMessages = Object.values(natsMessageBySequence)
+    const fetchedRecords = natsMessages.map((m: NatsMessage) => FetchedRecord.fromNatsMessage(m, now))
+    const { stitchedFetchedRecords, newFetchedRecordBuffer, ackStreamSequence } = stitchFetchedRecords({
+      fetchedRecordBuffer: fetchedRecordBuffer.addFetchedRecords(fetchedRecords),
       useBuffer,
     })
-    changeMessagesBuffer = newChangeMessagesBuffer
+    fetchedRecordBuffer = newFetchedRecordBuffer
 
     logger.info([
-      `Fetched: ${messages.length}`,
-      `Saving: ${stitchedChangeMessages.length}`,
-      `Pending in buffer: ${changeMessagesBuffer.size()}`,
+      `Fetched: ${natsMessages.length}`,
+      `Saving: ${stitchedFetchedRecords.length}`,
+      `Pending in buffer: ${fetchedRecordBuffer.size()}`,
       `Pending in stream: ${pendingMessageCount}`,
       `Ack sequence: ${ackStreamSequence ? `#${ackStreamSequence}` : 'none'}`,
       `Last sequence: #${lastStreamSequence}`,
     ].join('. '))
 
     // Persisting and acking
-    if (stitchedChangeMessages.length) {
-      persistChangeMessages({ orm, changeMessages: stitchedChangeMessages, insertBatchSize })
+    if (stitchedFetchedRecords.length) {
+      persistFetchedRecords({ orm, fetchedRecords: stitchedFetchedRecords, insertBatchSize })
       try {
         await orm.em.flush()
       } catch (e) {
@@ -120,10 +123,10 @@ export const runIngestionLoop = async (
     }
     if (ackStreamSequence) {
       logger.debug(`Acking ${ackStreamSequence}...`)
-      messageBySequence[ackStreamSequence]?.ack()
+      natsMessageBySequence[ackStreamSequence]?.ack()
     }
 
-    if (stitchedChangeMessages.length) {
+    if (stitchedFetchedRecords.length) {
       logger.debug('Sleeping...')
       await sleep(INSERT_INTERVAL_MS)
     }

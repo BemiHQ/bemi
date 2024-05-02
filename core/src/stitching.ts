@@ -1,93 +1,108 @@
 import { logger } from './logger'
-import { ChangeMessage } from './change-message'
-import { ChangeMessagesBuffer } from './change-message-buffer'
+import { FetchedRecord } from './fetched-record'
+import { FetchedRecordBuffer } from './fetched-record-buffer'
 
-export const stitchChangeMessages = (
-  { changeMessagesBuffer, useBuffer = false }:
-  { changeMessagesBuffer: ChangeMessagesBuffer, useBuffer: boolean }
+export const stitchFetchedRecords = (
+  { fetchedRecordBuffer, useBuffer = false }:
+  { fetchedRecordBuffer: FetchedRecordBuffer, useBuffer: boolean }
 ) => {
-  let stitchedChangeMessages: ChangeMessage[] = []
+  let stitchedFetchedRecords: FetchedRecord[] = []
   let maxSequence: number | undefined = undefined
-  let maxStitchedSequenceBySubject: { [key: string]: string | undefined } = {}
-  let newChangeMessagesBuffer = new ChangeMessagesBuffer()
+  let maxSequenceBySubject: { [key: string]: number } = {}
+  let newFetchedRecordBuffer = new FetchedRecordBuffer()
 
-  changeMessagesBuffer.forEach((subject, sortedChangeMessages) => {
-    if (sortedChangeMessages.length && (!maxSequence || sortedChangeMessages[sortedChangeMessages.length - 1].streamSequence > maxSequence)) {
-      maxSequence = sortedChangeMessages[sortedChangeMessages.length - 1].streamSequence
+  fetchedRecordBuffer.forEach((subject, sortedFetchedRecords) => {
+    if (sortedFetchedRecords.length && (!maxSequence || sortedFetchedRecords[sortedFetchedRecords.length - 1].streamSequence > maxSequence)) {
+      maxSequence = sortedFetchedRecords[sortedFetchedRecords.length - 1].streamSequence
     }
 
-    let maxStitchedSequence: number | undefined = undefined
+    let maxSubjectSequence: number | undefined = undefined
 
-    sortedChangeMessages.forEach((changeMessage) => {
-      const position = changeMessage.changeAttributes.position.toString()
-      const changeMessages = changeMessagesBuffer.changeMessagesByPosition(subject, position)
-      const contextMessageChangeMessage = changeMessages.find(cm => cm.isContextMessage())
+    sortedFetchedRecords.forEach((fetchedRecord) => {
+      const position = fetchedRecord.changeAttributes.position.toString()
+      const samePositionFetchedRecords = fetchedRecordBuffer.fetchedRecordsByPosition(subject, position)
+      const contextFetchedRecord = samePositionFetchedRecords.find(r => r.isContextMessage())
 
-      // Last message without a pair - skip it
-      if (
-        useBuffer &&
-        changeMessage === sortedChangeMessages[sortedChangeMessages.length - 1] &&
-        changeMessages.length === 1
-      ) {
-        // Add it to the pending list if it's not a heartbeat message change message
-        if (changeMessage.isHeartbeatMessage()) {
-          logger.debug(`Ignoring heartbeat message`)
-        } else {
-          newChangeMessagesBuffer = newChangeMessagesBuffer.addChangeMessage(changeMessage)
+      // If it's a heartbeat message/change, use its sequence number
+      if (fetchedRecord.isHeartbeat()) {
+        logger.debug(`Ignoring heartbeat message`)
+        if (!maxSubjectSequence || maxSubjectSequence < fetchedRecord.streamSequence) {
+          maxSubjectSequence = fetchedRecord.streamSequence
+          maxSequenceBySubject = { ...maxSequenceBySubject, [subject]: maxSubjectSequence }
         }
         return
       }
 
-      // Message change message (non-mutation) - skip it
-      if (changeMessage.isMessage()) {
+      // Last message without a pair - add it to the buffer
+      if (
+        useBuffer &&
+        samePositionFetchedRecords.length === 1 && // No-pair change or context
+        fetchedRecord === sortedFetchedRecords[sortedFetchedRecords.length - 1] // Last message
+      ) {
+        newFetchedRecordBuffer = newFetchedRecordBuffer.addFetchedRecord(fetchedRecord)
+        return
+      }
+
+      // Context message (non-mutation) - skip it, it'll be used later
+      if (fetchedRecord.isContextMessage()) {
         return
       }
 
       //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       // Update ack sequence number
-      if (!maxStitchedSequence || maxStitchedSequence < changeMessage.streamSequence) {
-        maxStitchedSequence = changeMessage.streamSequence
+      if (!maxSubjectSequence || maxSubjectSequence < fetchedRecord.streamSequence) {
+        maxSubjectSequence = fetchedRecord.streamSequence
+        maxSequenceBySubject = { ...maxSequenceBySubject, [subject]: maxSubjectSequence }
       }
 
-      if (contextMessageChangeMessage) {
+      if (contextFetchedRecord) {
         // Stitch with context message change message if it exists
-        stitchedChangeMessages = [
-          ...stitchedChangeMessages,
-          changeMessage.setContext(contextMessageChangeMessage.context()),
+        stitchedFetchedRecords = [
+          ...stitchedFetchedRecords,
+          fetchedRecord.setContext(contextFetchedRecord.context()),
         ]
       } else {
         // Return mutation change message as is without stitching
-        stitchedChangeMessages = [
-          ...stitchedChangeMessages,
-          changeMessage,
+        stitchedFetchedRecords = [
+          ...stitchedFetchedRecords,
+          fetchedRecord,
         ]
       }
     })
-
-    if (maxStitchedSequence) {
-      maxStitchedSequenceBySubject = {
-        ...maxStitchedSequenceBySubject,
-        [subject]: maxStitchedSequence,
-      }
-    }
   })
 
-  const maxStitchedSequence = Object.values(maxStitchedSequenceBySubject).filter(Boolean).reduce((min, streamSequence) => (
-    !min || streamSequence! < min ? streamSequence : min
-  ), undefined) as undefined | number
-
-  const ackStreamSequence = newChangeMessagesBuffer.size() ? maxStitchedSequence : maxSequence
+  let ackStreamSequence
+  if (newFetchedRecordBuffer.size()) {
+    let subjectWithMaxSequence: string | undefined = undefined
+    Object.keys(maxSequenceBySubject).forEach((subject) => {
+      // Set an initial subject
+      if (!subjectWithMaxSequence) {
+        subjectWithMaxSequence = subject
+        return
+      }
+      // If the previous subject has a lower sequence number and it doesn't have any messages in the buffer, use the new subject
+      if (
+        maxSequenceBySubject[subject] > maxSequenceBySubject[subjectWithMaxSequence] &&
+        newFetchedRecordBuffer.sizeBySubject(subjectWithMaxSequence) === 0
+      ) {
+        subjectWithMaxSequence = subject
+      }
+    })
+    ackStreamSequence = maxSequenceBySubject[subjectWithMaxSequence!]
+  } else {
+    ackStreamSequence = maxSequence
+  }
 
   logger.debug({
-    stitched: stitchedChangeMessages,
-    buffer: newChangeMessagesBuffer.store,
+    stitched: stitchedFetchedRecords,
+    buffer: newFetchedRecordBuffer.store,
     ackStreamSequence,
   })
 
   return {
-    stitchedChangeMessages,
-    newChangeMessagesBuffer,
+    stitchedFetchedRecords,
+    newFetchedRecordBuffer,
     ackStreamSequence,
   }
 }

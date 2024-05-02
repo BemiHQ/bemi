@@ -4,7 +4,7 @@ import { logger } from './logger'
 
 const JSON_CODEC = JSONCodec()
 
-export interface Message {
+export interface NatsMessage {
   subject: string,
   info: {
     streamSequence: number,
