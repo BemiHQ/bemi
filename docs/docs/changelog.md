@@ -9,6 +9,11 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
 
 # Changelog
 
+## 2024-05
+
+* [Bemi Core](https://github.com/BemiHQ/bemi)
+  * Add support for ingesting [PostgreSQL TOAST](https://www.postgresql.org/docs/current/storage-toast.html) values
+
 ## 2024-04
 
 * Dashboard

@@ -79,4 +79,25 @@ describe('fromNatsMessage', () => {
       }),
     ])
   })
+
+  test('normalizes the values with unavailable placeholder', () => {
+    const subject = 'bemi-subject'
+    const natsMessages = [
+      buildNatsMessage({
+        subject,
+        streamSequence: 1,
+        data: { ...MESSAGE_DATA.UPDATE, before: { id: 2, names: ['Alice', 'Bob'] }, after: { id: 2, names: ['__bemi_unavailable_value'] } },
+      }),
+    ]
+
+    const result = natsMessages.map((m) => FetchedRecord.fromNatsMessage(m))
+
+    expect(result).toStrictEqual([
+      new FetchedRecord({
+        subject,
+        streamSequence: 1,
+        changeAttributes: { ...CHANGE_ATTRIBUTES.UPDATE, before: { id: 2, names: ['Alice', 'Bob'] }, after: { id: 2, names: ['Alice', 'Bob'] } },
+      }),
+    ])
+  })
 })

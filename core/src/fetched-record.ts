@@ -7,12 +7,13 @@ export const MESSAGE_PREFIX_CONTEXT = '_bemi'
 export const MESSAGE_PREFIX_HEARTBEAT = '_bemi_heartbeat'
 export const HEARTBEAT_CHANGE_SCHEMA = '_bemi'
 export const HEARTBEAT_CHANGE_TABLE = 'heartbeats'
+const UNAVAILABLE_VALUE_PLACEHOLDER = '__bemi_unavailable_value'
 
 const parseDebeziumData = (debeziumChange: any, now: Date) => {
   const {
     op,
-    before,
-    after,
+    before: beforeRaw,
+    after: afterRaw,
     ts_ms: queueAtMs,
     message,
     source: { db: database, schema, table, txId: transactionId, lsn: position, ts_ms: committedAtMs },
@@ -26,14 +27,28 @@ const parseDebeziumData = (debeziumChange: any, now: Date) => {
   else if (op === 'm') operation = Operation.MESSAGE
   else throw new Error(`Unknown operation: ${op}`)
 
+  const before = beforeRaw || {}
+  const after = afterRaw || {}
+  const primaryKey = (operation === Operation.DELETE ? before : after).id?.toString()
+  // Normalize by copying the value from the other side if it's unavailable
+  Object.keys(beforeRaw || {}).forEach((key) => {
+    if (Array.isArray(before[key]) && before[key].includes(UNAVAILABLE_VALUE_PLACEHOLDER)) {
+      before[key] = after[key]
+    } else if (Array.isArray(after[key]) && after[key].includes(UNAVAILABLE_VALUE_PLACEHOLDER)) {
+      after[key] = before[key]
+    } else if (before[key] === UNAVAILABLE_VALUE_PLACEHOLDER || after[key] === UNAVAILABLE_VALUE_PLACEHOLDER) {
+      throw new Error(`Before or after values are unavailable for: ${table}#${primaryKey} (${key})`)
+    }
+  })
+
   const context = message?.prefix === MESSAGE_PREFIX_CONTEXT ?
     (JSON.parse(Buffer.from(message?.content, 'base64').toString('utf-8')) || {}) : // Fallback to '{}' from 'null' if it's passed explicitly as a context
     {}
 
   return {
-    primaryKey: (operation === Operation.DELETE ? before : after)?.id?.toString(),
-    before: before || {},
-    after: after || {},
+    primaryKey,
+    before,
+    after,
     context,
     database,
     schema,
