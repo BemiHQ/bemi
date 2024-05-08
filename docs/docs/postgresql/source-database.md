@@ -131,7 +131,7 @@ CREATE PUBLICATION bemi FOR ALL TABLES;
 -- Create a procedure to set REPLICA IDENTITY FULL for tables to track the "before" state on DB row changes
 CREATE OR REPLACE PROCEDURE _bemi_set_replica_identity() AS $$ DECLARE current_tablename TEXT;
 BEGIN
-  FOR current_tablename IN SELECT tablename FROM pg_tables WHERE schemaname = 'public' LOOP
+  FOR current_tablename IN SELECT tablename FROM pg_tables LEFT JOIN pg_class ON relname = tablename WHERE schemaname = 'public' AND relreplident != 'f' LOOP
     EXECUTE format('ALTER TABLE %I REPLICA IDENTITY FULL', current_tablename);
   END LOOP;
 END $$ LANGUAGE plpgsql;
@@ -186,7 +186,7 @@ CREATE PUBLICATION bemi FOR ALL TABLES;
 -- Create a procedure to set REPLICA IDENTITY FULL for tables to track the "before" state on DB row changes
 CREATE OR REPLACE PROCEDURE _bemi_set_replica_identity() AS $$ DECLARE current_tablename TEXT;
 BEGIN
-  FOR current_tablename IN SELECT tablename FROM pg_tables WHERE schemaname = 'public' LOOP
+  FOR current_tablename IN SELECT tablename FROM pg_tables LEFT JOIN pg_class ON relname = tablename WHERE schemaname = 'public' AND relreplident != 'f' LOOP
     EXECUTE format('ALTER TABLE %I REPLICA IDENTITY FULL', current_tablename);
   END LOOP;
 END $$ LANGUAGE plpgsql;
@@ -300,7 +300,7 @@ CREATE PUBLICATION bemi FOR ALL TABLES;
 -- Create a procedure to set REPLICA IDENTITY FULL for tables to track the "before" state on DB row changes
 CREATE OR REPLACE PROCEDURE _bemi_set_replica_identity() AS $$ DECLARE current_tablename TEXT;
 BEGIN
-  FOR current_tablename IN SELECT tablename FROM pg_tables WHERE schemaname = 'public' LOOP
+  FOR current_tablename IN SELECT tablename FROM pg_tables LEFT JOIN pg_class ON relname = tablename WHERE schemaname = 'public' AND relreplident != 'f' LOOP
     EXECUTE format('ALTER TABLE %I REPLICA IDENTITY FULL', current_tablename);
   END LOOP;
 END $$ LANGUAGE plpgsql;
