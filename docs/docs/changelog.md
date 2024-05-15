@@ -11,8 +11,17 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
 
 ## 2024-05
 
+* Dashboard
+  * Allow copying change values as an SQL query statement to be able to rollback
+  * Improve Browser UI performance for custom views with associations
+* Platform
+  * Upgrade infrastructure to support IPv6 (dual stack)
 * [Bemi Core](https://github.com/BemiHQ/bemi)
+  * Use Well-Known Binary (WKB) representation for tracked PostGIS data
   * Add support for ingesting [PostgreSQL TOAST](https://www.postgresql.org/docs/current/storage-toast.html) values
+  * Allow saving information about a PostgreSQL user who made data changes in the app context
+* Integrations
+  * [GCP Cloud SQL](https://docs.bemi.io/postgresql/source-database#gcp-cloud-sql): describe how to enable logical decoding and connect
 
 ## 2024-04
 
