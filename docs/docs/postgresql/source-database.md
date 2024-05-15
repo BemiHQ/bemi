@@ -273,10 +273,12 @@ See the [AWS RDS user guides](https://docs.aws.amazon.com/AmazonRDS/latest/UserG
 ### GCP Cloud SQL
 
 #### WAL level {#gcp-wal-level}
-Logical replication is turned off by default. To turn it on, you have to update the [cloud flag](https://cloud.google.com/sql/docs/postgres/replication/configure-logical-replication#configure-your-postgresql-instance): `cloudsql.logical_decoding` = `on`. This will need a restart of your instance before `SHOW wal_level;` returns `logical`. 
+
+Logical replication is turned off by default. To turn it on, you have to update the [cloud flag](https://cloud.google.com/sql/docs/postgres/replication/configure-logical-replication#configure-your-postgresql-instance): `cloudsql.logical_decoding` = `on`. This will need a restart of your instance before `SHOW wal_level;` returns `logical`.
 
 #### Connection {#gcp-connection}
-Run the below command and then you can connect with the same credentials on the Bemi dashboard! 
+
+Run the below command and then you can connect with the same credentials on the Bemi dashboard!
 ```sql
 -- Grant replication permission to allow using replication slots
 ALTER USER [user] WITH REPLICATION;
@@ -400,3 +402,31 @@ If you need a public SSH Key before you know the SSH host address, just specify 
 ## Bemi Static IPs
 
 If you restrict access to your databases by IP addresses, [contact us](mailto:hi@bemi.io). We will share our static IP addresses, which you can add to an allowlist, so we can connect to your Source PostgreSQL database.
+
+## Disconnecting
+
+To disconnect from Bemi, you can to execute the following queries to remove the triggers that set `REPLICA IDENTITY FULL` for tracking the previous state:
+
+```sql
+DROP EVENT TRIGGER _bemi_set_replica_identity_trigger;
+DROP FUNCTION _bemi_set_replica_identity_func;
+DROP PROCEDURE _bemi_set_replica_identity;
+```
+
+If you used Bemi packages for the [Supported ORMs](https://docs.bemi.io/#supported-orms), you can execute the following queries to remove the lightweight triggers used for passing application context:
+
+```sql
+DROP EVENT TRIGGER _bemi_create_table_trigger;
+DROP FUNCTION _bemi_create_table_trigger_func;
+DROP PROCEDURE _bemi_create_triggers;
+DROP FUNCTION _bemi_row_trigger_func CASCADE;
+```
+
+To completely disable logical replication, run the following queries:
+
+> (!!!) If you later decide to resume Bemi, we won't be able to recover and ingest data changes after this point.
+
+```sql
+SELECT pg_drop_replication_slot('bemi');
+DROP PUBLICATION bemi;
+```
