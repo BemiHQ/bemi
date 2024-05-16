@@ -50,15 +50,10 @@ Updating this value won't break replication, it will just slightly increase the 
 
 #### Connection {#supabase-connection}
 
-To connect a [Supabase](https://supabase.com/) database, you need to go to your Supabase project settings and:
-
-1. Purchase a [dedicated IPv4](https://supabase.com/docs/guides/platform/ipv4-address) for $4/mo to resolve to the IPv4 address instead of the default IPv6
-2. Untoggle "Use connection pooling" and use these connection details on Bemi to connect to the replication log
+To connect a [Supabase](https://supabase.com/) database, you need to go to your Supabase project settings, untoggle "Use connection pooling",
+and use these connection details on Bemi to connect to the replication log
 
 ![](/img/perm-supabase.png)
-
-Supabase recently [deprecated free IPv4](https://github.com/orgs/supabase/discussions/17817).
-So you might see some IPv4 removal warnings on their dashboard, even after purchasing the IPv4 add-on, which should work fine.
 
 *Note that you can't create new credentials with `REPLICATION` permissions in Supabase, see [this discussion](https://github.com/orgs/supabase/discussions/9314).*
 
