@@ -100,4 +100,16 @@ describe('fromNatsMessage', () => {
       }),
     ])
   })
+
+  test('ignores non-Bemi messages', () => {
+    const natsMessage = buildNatsMessage({
+      subject: 'bemi-subject',
+      streamSequence: 1,
+      data: MESSAGE_DATA.NON_BEMI_MESSAGE,
+    })
+
+    const result = FetchedRecord.fromNatsMessage(natsMessage)
+
+    expect(result).toStrictEqual(null)
+  })
 })

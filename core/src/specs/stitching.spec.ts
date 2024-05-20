@@ -39,28 +39,6 @@ describe('stitchFetchedRecords', () => {
       })
     })
 
-    test('stitches context if it is first, ignores a heartbeat change', () => {
-      const subject = 'bemi-subject'
-      const fetchedRecords = [
-        new FetchedRecord({ subject, streamSequence: 1, changeAttributes: CHANGE_ATTRIBUTES.CREATE_MESSAGE, messagePrefix: MESSAGE_PREFIX_CONTEXT }),
-        new FetchedRecord({ subject, streamSequence: 2, changeAttributes: CHANGE_ATTRIBUTES.CREATE }),
-        new FetchedRecord({ subject, streamSequence: 3, changeAttributes: CHANGE_ATTRIBUTES.HEARTBEAT_CHANGE }),
-      ]
-
-      const result = stitchFetchedRecords({
-        fetchedRecordBuffer: new FetchedRecordBuffer().addFetchedRecords(fetchedRecords),
-        useBuffer: true,
-      })
-
-      expect(result).toStrictEqual({
-        stitchedFetchedRecords: [
-          findFetchedRecord(fetchedRecords, 2).setContext(findFetchedRecord(fetchedRecords, 1).context()),
-        ],
-        ackStreamSequence: 3,
-        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({}),
-      })
-    })
-
     test('stitches context if it is second and pauses on the one before last position', () => {
       const subject = 'bemi-subject'
       const fetchedRecords = [
@@ -113,14 +91,14 @@ describe('stitchFetchedRecords', () => {
   })
 
   describe('when messages from separate subjects', () => {
-    test('stitches context across multiple subjects with a heartbeat change and pending context', () => {
+    test('stitches context across multiple subjects with a heartbeat message and pending context', () => {
       const subject1 = 'bemi-subject-1'
       const subject2 = 'bemi-subject-2'
-      const updateMessagePosition = CHANGE_ATTRIBUTES.HEARTBEAT_CHANGE.position + 1
+      const updateMessagePosition = CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE.position + 1
       const fetchedRecords = [
         new FetchedRecord({ subject: subject1, streamSequence: 1, changeAttributes: CHANGE_ATTRIBUTES.CREATE_MESSAGE, messagePrefix: MESSAGE_PREFIX_CONTEXT }),
         new FetchedRecord({ subject: subject1, streamSequence: 2, changeAttributes: CHANGE_ATTRIBUTES.CREATE }),
-        new FetchedRecord({ subject: subject2, streamSequence: 3, changeAttributes: CHANGE_ATTRIBUTES.HEARTBEAT_CHANGE }),
+        new FetchedRecord({ subject: subject2, streamSequence: 3, changeAttributes: CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE, messagePrefix: MESSAGE_PREFIX_HEARTBEAT }),
         new FetchedRecord({ subject: subject2, streamSequence: 4, changeAttributes: { ...CHANGE_ATTRIBUTES.UPDATE_MESSAGE, position: updateMessagePosition }, messagePrefix: MESSAGE_PREFIX_CONTEXT }),
       ]
 
@@ -144,7 +122,7 @@ describe('stitchFetchedRecords', () => {
       })
     })
 
-    test('stitches context across multiple subjects with a heartbeat change and pending change', () => {
+    test('stitches context across multiple subjects with a heartbeat message and pending change', () => {
       const subject1 = 'bemi-subject-1'
       const subject2 = 'bemi-subject-2'
       const updatePosition = CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE.position + 1
@@ -175,13 +153,13 @@ describe('stitchFetchedRecords', () => {
       })
     })
 
-    test('stitches context across multiple subjects with a single heartbeat change in one of them', () => {
+    test('stitches context across multiple subjects with a single heartbeat message in one of them', () => {
       const subject1 = 'bemi-subject-1'
       const subject2 = 'bemi-subject-2'
       const fetchedRecords = [
         new FetchedRecord({ subject: subject1, streamSequence: 1, changeAttributes: CHANGE_ATTRIBUTES.CREATE_MESSAGE, messagePrefix: MESSAGE_PREFIX_CONTEXT }),
         new FetchedRecord({ subject: subject1, streamSequence: 2, changeAttributes: CHANGE_ATTRIBUTES.CREATE }),
-        new FetchedRecord({ subject: subject2, streamSequence: 3, changeAttributes: CHANGE_ATTRIBUTES.HEARTBEAT_CHANGE }),
+        new FetchedRecord({ subject: subject2, streamSequence: 3, changeAttributes: CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE, messagePrefix: MESSAGE_PREFIX_HEARTBEAT }),
       ]
 
       const result = stitchFetchedRecords({

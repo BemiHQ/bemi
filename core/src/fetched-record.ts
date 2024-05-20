@@ -5,8 +5,6 @@ import { NatsMessage, decodeData } from './nats'
 
 export const MESSAGE_PREFIX_CONTEXT = '_bemi'
 export const MESSAGE_PREFIX_HEARTBEAT = '_bemi_heartbeat'
-export const HEARTBEAT_CHANGE_SCHEMA = '_bemi'
-export const HEARTBEAT_CHANGE_TABLE = 'heartbeats'
 const UNAVAILABLE_VALUE_PLACEHOLDER = '__bemi_unavailable_value'
 
 const parseDebeziumData = (debeziumChange: any, now: Date) => {
@@ -81,11 +79,17 @@ export class FetchedRecord {
   static fromNatsMessage(natsMessage: NatsMessage, now = new Date()) {
     const debeziumData = decodeData(natsMessage.data) as any
 
+    const messagePrefix = debeziumData.message?.prefix
+    if (messagePrefix && messagePrefix !== MESSAGE_PREFIX_CONTEXT && messagePrefix !== MESSAGE_PREFIX_HEARTBEAT) {
+      // Ignore non-Bemi message prefixes
+      return null
+    }
+
     return new FetchedRecord({
       changeAttributes: parseDebeziumData(debeziumData, now),
       subject: natsMessage.subject,
       streamSequence: natsMessage.info.streamSequence,
-      messagePrefix: debeziumData.message?.prefix,
+      messagePrefix,
     })
   }
 
@@ -93,8 +97,8 @@ export class FetchedRecord {
     return this.isMessage() && this.messagePrefix === MESSAGE_PREFIX_CONTEXT
   }
 
-  isHeartbeat() {
-    return this.isHeartbeatMessage() || this.isHeartbeatChange()
+  isHeartbeatMessage() {
+    return this.isMessage() && this.messagePrefix === MESSAGE_PREFIX_HEARTBEAT
   }
 
   context() {
@@ -109,13 +113,5 @@ export class FetchedRecord {
 
   private isMessage() {
     return this.changeAttributes.operation === Operation.MESSAGE
-  }
-
-  private isHeartbeatMessage() {
-    return this.isMessage() && this.messagePrefix === MESSAGE_PREFIX_HEARTBEAT
-  }
-
-  private isHeartbeatChange() {
-    return this.changeAttributes.schema === HEARTBEAT_CHANGE_SCHEMA && this.changeAttributes.table === HEARTBEAT_CHANGE_TABLE
   }
 }

@@ -1,4 +1,3 @@
-import { HEARTBEAT_CHANGE_SCHEMA, HEARTBEAT_CHANGE_TABLE } from '../../fetched-record'
 import { Operation } from '../../entities/Change'
 
 import { POSITIONS } from './nats-messages'
@@ -110,21 +109,6 @@ export const CHANGE_ATTRIBUTES = {
     transactionId: 769,
     before: {},
     after: {},
-  },
-  HEARTBEAT_CHANGE: {
-    committedAt: MOCKED_DATE,
-    createdAt: MOCKED_DATE,
-    database: "bemi_dev_source",
-    context: {},
-    operation: Operation.UPDATE,
-    position: POSITIONS.HEARTBEAT_CHANGE,
-    primaryKey: "1",
-    queuedAt: MOCKED_DATE,
-    schema: HEARTBEAT_CHANGE_SCHEMA,
-    table: HEARTBEAT_CHANGE_TABLE,
-    transactionId: 770,
-    before: null,
-    after: { id: 1, last_heartbeat_at: "2024-04-18T20:40:29.086091Z" },
   },
   TRUNCATE: {
     committedAt: MOCKED_DATE,

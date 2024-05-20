@@ -95,7 +95,7 @@ export const runIngestionLoop = async (
     // Stitching
     const now = new Date()
     const natsMessages = Object.values(natsMessageBySequence)
-    const fetchedRecords = natsMessages.map((m: NatsMessage) => FetchedRecord.fromNatsMessage(m, now))
+    const fetchedRecords = natsMessages.map((m: NatsMessage) => FetchedRecord.fromNatsMessage(m, now)).filter(r => r) as FetchedRecord[]
     const { stitchedFetchedRecords, newFetchedRecordBuffer, ackStreamSequence } = stitchFetchedRecords({
       fetchedRecordBuffer: fetchedRecordBuffer.addFetchedRecords(fetchedRecords),
       useBuffer,

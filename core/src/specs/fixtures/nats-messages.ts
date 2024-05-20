@@ -190,7 +190,26 @@ export const MESSAGE_DATA = {
     op: "u",
     ts_ms: 1713472829090,
     transaction: null,
-  }
+  },
+  NON_BEMI_MESSAGE: {
+    op: 'm',
+    ts_ms: 1706128742602,
+    source: {
+      version: '2.5.0-SNAPSHOT',
+      connector: 'postgresql',
+      name: 'us-west-1-bemi-dev',
+      ts_ms: 1706128742600,
+      snapshot: 'false',
+      db: 'bemi_dev_source',
+      sequence: '["371211440","371211568"]',
+      schema: '',
+      table: '',
+      txId: null,
+      lsn: 94229520,
+      xmin: null
+    },
+    message: { prefix: 'something-else', content: 'cGluZw==' }
+  },
 }
 
 export const buildNatsMessage = (

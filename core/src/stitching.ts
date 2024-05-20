@@ -24,7 +24,7 @@ export const stitchFetchedRecords = (
       const contextFetchedRecord = samePositionFetchedRecords.find(r => r.isContextMessage())
 
       // If it's a heartbeat message/change, use its sequence number
-      if (fetchedRecord.isHeartbeat()) {
+      if (fetchedRecord.isHeartbeatMessage()) {
         logger.debug(`Ignoring heartbeat message`)
         if (!maxSubjectSequence || maxSubjectSequence < fetchedRecord.streamSequence) {
           maxSubjectSequence = fetchedRecord.streamSequence
