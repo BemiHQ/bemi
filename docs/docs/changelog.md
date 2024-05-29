@@ -21,6 +21,7 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
   * Add support for ingesting [PostgreSQL TOAST](https://www.postgresql.org/docs/current/storage-toast.html) values
   * Allow saving information about a PostgreSQL user who made data changes in the app context
 * Integrations
+  * [Supabase](https://supabase.com/partners/integrations/bemi): new partnership integration
   * [GCP Cloud SQL](https://docs.bemi.io/postgresql/source-database#gcp-cloud-sql): describe how to enable logical decoding and connect
   * [PowerSync](https://www.powersync.com): make ingestion worker compatible with a separate PostgreSQL replication
 
