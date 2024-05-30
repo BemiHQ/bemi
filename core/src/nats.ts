@@ -1,4 +1,4 @@
-import { connect, JSONCodec } from "nats";
+import { connect, ConsumerConfig, JSONCodec, NatsConnection } from "nats";
 
 import { logger } from './logger'
 
@@ -20,7 +20,7 @@ export const connectJetstream = (host: string) => {
 
 export const buildConsumer = async (
   { connection, stream, options }:
-  { connection: any, stream: string, options: any }
+  { connection: NatsConnection, stream: string, options: Partial<ConsumerConfig> }
 ) => {
   const jetstream = connection.jetstream();
   const jetstreamManager = await connection.jetstreamManager();
@@ -29,12 +29,18 @@ export const buildConsumer = async (
   try {
     consumer = await jetstream.consumers.get(stream, options.durable_name);
     const { config } = await consumer.info();
-    if (Object.keys(options).some(key => options[key] !== config[key])) {
+    const hasDifferentValue = Object
+      .keys(options)
+      .some(key => {
+          const keyAsOptionsKeyType = key as keyof typeof options;
+          return options[keyAsOptionsKeyType] !== config[keyAsOptionsKeyType]
+      });
+    if (hasDifferentValue && options.durable_name) {
       logger.info('Updating consumer...');
       await jetstreamManager.consumers.update(stream, options.durable_name, options);
     }
-  } catch (e: any) {
-    if (e.message !== "consumer not found") throw e;
+  } catch (e) {
+    if (e instanceof Error && e.message !== "consumer not found") throw e;
     logger.info('Creating consumer...');
     await jetstreamManager.consumers.add(stream, options);
     consumer = await jetstream.consumers.get(stream, options.durable_name);
