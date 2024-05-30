@@ -11,7 +11,6 @@ const main = (async () => {
 
   const consumer = await buildConsumer({
     connection: jetstreamConnection,
-    stream: 'DebeziumStream',
     options: {
       durable_name: 'bemi-worker-local',
       filter_subject: 'bemi',
