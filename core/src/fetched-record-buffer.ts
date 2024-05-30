@@ -1,20 +1,23 @@
 import { FetchedRecord } from './fetched-record'
 
+type PositionRecords = { [position: string]: FetchedRecord[] }
+type SubjectRecords = { [subject: string]: PositionRecords }
+
 export class FetchedRecordBuffer {
-  store: { [subject: string]: { [position: string]: FetchedRecord[] } }
+  store: SubjectRecords
 
   constructor() {
     this.store = {}
   }
 
-  static fromStore(store: { [subject: string]: { [position: string]: FetchedRecord[] } }) {
+  static fromStore(store: SubjectRecords) {
     const buffer = new FetchedRecordBuffer()
     buffer.store = store
     return buffer
   }
 
   addFetchedRecord(fetchedRecord: FetchedRecord) {
-    const newBuffer = Object.assign(Object.create(this), this)
+    const newBuffer: FetchedRecordBuffer = Object.assign(Object.create(this), this)
     const { subject, changeAttributes } = fetchedRecord
     const position = changeAttributes.position.toString()
     const existingFetchedRecords = this.store[subject]?.[position]
@@ -35,7 +38,7 @@ export class FetchedRecordBuffer {
   }
 
   addFetchedRecords(fetchedRecords: FetchedRecord[]) {
-    let newBuffer = this
+    let newBuffer: FetchedRecordBuffer = this
 
     fetchedRecords.forEach((fetchedRecord: FetchedRecord) => {
       newBuffer = newBuffer.addFetchedRecord(fetchedRecord)
