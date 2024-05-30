@@ -6,6 +6,7 @@ import { Change } from "./entities/Change"
 import { FetchedRecord } from './fetched-record'
 import { FetchedRecordBuffer } from './fetched-record-buffer'
 import { stitchFetchedRecords } from './stitching'
+import { Consumer } from 'nats';
 
 const INSERT_INTERVAL_MS = 1000 // 1 second to avoid overwhelming the database
 const FETCH_EXPIRES_MS = 30_000 // 30 seconds, default
@@ -34,7 +35,7 @@ const persistFetchedRecords = (
 
 const fetchNatsMessages = async (
   { consumer, fetchBatchSize, lastStreamSequence }:
-  { consumer: any, fetchBatchSize: number, lastStreamSequence: number | null }
+  { consumer: Consumer, fetchBatchSize: number, lastStreamSequence: number | null }
 ) => {
   const natsMessageBySequence: { [sequence: number]: NatsMessage } = {}
   let pendingMessageCount = 0
@@ -65,7 +66,7 @@ export const runIngestionLoop = async (
     useBuffer = false,
   }: {
     orm: MikroORM,
-    consumer: any,
+    consumer: Consumer,
     fetchBatchSize?: number,
     insertBatchSize?: number,
     useBuffer?: boolean,
