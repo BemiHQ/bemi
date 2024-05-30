@@ -19,10 +19,9 @@ export const connectJetstream = (host: string) => {
 }
 
 export const buildConsumer = async (
-  { connection, options }:
-  { connection: NatsConnection, options: Partial<ConsumerConfig> }
+  { connection, stream, options }:
+  { connection: NatsConnection, stream: string, options: Partial<ConsumerConfig> }
 ) => {
-  const stream = "DebeziumStream";
   const jetstream = connection.jetstream();
   const jetstreamManager = await connection.jetstreamManager();
   let consumer;
