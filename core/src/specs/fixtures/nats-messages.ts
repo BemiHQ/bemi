@@ -1,4 +1,5 @@
-import { NatsMessage, encodeData } from '../../nats'
+import { JsMsg } from 'nats'
+import { encodeData } from '../../nats'
 
 export const POSITIONS = {
   CREATE: 35878528,
@@ -215,12 +216,30 @@ export const MESSAGE_DATA = {
 export const buildNatsMessage = (
   { subject, data, streamSequence }:
   { subject: string, data: any, streamSequence: number }
-): NatsMessage => ({
+): JsMsg => ({
+  redelivered: false,
+  headers: undefined,
+  seq: 0,
+  sid: 0,
   subject,
-  info: {
+  info:  {
     streamSequence,
     pending: 0,
+    domain: "",
+    stream: "",
+    consumer: "",
+    redeliveryCount: 0,
+    deliverySequence: 0,
+    timestampNanos: 0,
+    redelivered: false
   },
   data: encodeData(data),
   ack: () => {},
+  nak: () => {},
+  working: () => {},
+  next: () => {},
+  term: () => {},
+  ackAck: async () => false,
+  json: <T>() => null as T,
+  string: () => "",
 })

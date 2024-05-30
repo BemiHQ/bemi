@@ -1,7 +1,8 @@
 import { RequiredEntityData } from '@mikro-orm/postgresql';
 
 import { Change, Operation } from "./entities/Change"
-import { NatsMessage, decodeData } from './nats'
+import { decodeData } from './nats'
+import { JsMsg } from 'nats';
 
 export const MESSAGE_PREFIX_CONTEXT = '_bemi'
 export const MESSAGE_PREFIX_HEARTBEAT = '_bemi_heartbeat'
@@ -76,7 +77,7 @@ export class FetchedRecord {
     this.messagePrefix = messagePrefix
   }
 
-  static fromNatsMessage(natsMessage: NatsMessage, now = new Date()) {
+  static fromNatsMessage(natsMessage: JsMsg, now = new Date()) {
     const debeziumData = decodeData(natsMessage.data) as any
 
     const messagePrefix = debeziumData.message?.prefix
