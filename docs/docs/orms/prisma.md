@@ -17,6 +17,8 @@ keywords: [Bemi, Prisma, PostgreSQL, database auditing, data tracking, context-a
 
 This package is a recommended Prisma integration, enabling you to pass application-specific context when performing database changes. This can include context such as the 'where' (API endpoint, worker, etc.), 'who' (user, cron job, etc.), and 'how' behind a change, thereby enriching the information captured by Bemi.
 
+See this [example repo](https://github.com/BemiHQ/bemi-prisma-example) as an Todo app example with Prisma that automatically tracks and contextualizes all changes.
+
 ## Prerequisites
 
 - PostgreSQL 14+
@@ -62,7 +64,9 @@ import { PrismaClient } from '@prisma/client';
 const prisma = withPgAdapter(new PrismaClient());
 ```
 
-Now you can specify custom application context that will be automatically passed with all data changes by following the code examples below. Application context:
+Now you can specify custom application context that will be automatically passed with all data changes by following the code examples below.
+
+Application context:
 
 * Is bound to the current asynchronous runtime execution context, for example, an HTTP request.
 * Is used only with `INSERT`, `UPDATE`, `DELETE` SQL queries performed via Prisma. Otherwise, it is a no-op.
@@ -72,7 +76,7 @@ Application context will automatically include the original SQL query that perfo
 
 ### Express.js
 
-Add the `setContext` [Express.js](https://expressjs.com/) middleware to pass application context with all underlying data changes within made an HTTP request:
+Add the `setContext` [Express.js](https://expressjs.com/) middleware to pass application context with all underlying data changes made within an HTTP request:
 
 ```ts title="src/index.ts"
 import { setContext } from "@bemi-db/prisma";
@@ -165,8 +169,6 @@ const MyWorker = () => {
   // ...
 }
 ```
-
-See this [example repo](https://github.com/BemiHQ/bemi-prisma-example) as an Todo app example with Prisma that automatically tracks all changes.
 
 ### SSL
 

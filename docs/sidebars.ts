@@ -31,6 +31,7 @@ const sidebars: SidebarsConfig = {
         'orms/prisma',
         'orms/typeorm',
         'orms/rails',
+        'orms/sqlalchemy',
       ],
     },
     'alternatives',

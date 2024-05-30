@@ -107,6 +107,10 @@ const config: Config = {
               label: "Ruby on Rails",
               href: "https://github.com/BemiHQ/bemi-rails",
             },
+            {
+              label: "SQLAlchemy",
+              href: "https://github.com/BemiHQ/bemi-sqlalchemy",
+            },
           ],
         },
         {

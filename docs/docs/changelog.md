@@ -14,6 +14,8 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
 * Platform
   * Enable tracking changes from non-`public` PostgreSQL schemas
   * Allow setting ignore-change column rules across all tables (e.g., `*.updatedAt`)
+* [Bemi SQLAlchemy](https://github.com/BemiHQ/bemi-sqlalchemy)
+  * Create a new Python package to allow passing application context with data changes
 
 ## 2024-05
 

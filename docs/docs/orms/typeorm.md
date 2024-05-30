@@ -17,7 +17,7 @@ keywords: [Bemi, TypeORM integration, PostgreSQL change tracking, database audit
 
 This package is a recommended TypeORM integration, enabling you to pass application-specific context when performing database changes. This can include context such as the 'where' (API endpoint, worker, etc.), 'who' (user, cron job, etc.), and 'how' behind a change, thereby enriching the information captured by Bemi.
 
-See this [example repo](https://github.com/BemiHQ/bemi-typeorm-example) as an Todo app example with TypeORM that automatically tracks all changes.
+See this [example repo](https://github.com/BemiHQ/bemi-typeorm-example) as an Todo app example with TypeORM that automatically tracks and contextualizes all changes.
 
 ## Prerequisites
 

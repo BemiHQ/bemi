@@ -1,6 +1,6 @@
 ---
 title: Bemi vs. PaperTrail, Audited, Logidze - Advanced Rails Audit Trails
-sidebar_label: Rails
+sidebar_label: Ruby on Rails
 hide_title: true
 description: Discover why Bemi is the preferred choice over PaperTrail, Audited, and Logidze for tracking database changes in Ruby on Rails. Learn how Bemi integrates with ActiveRecord and PostgreSQL to offer reliable, scalable audit trails with minimal performance impact.
 image: 'img/rails-gems-comparison.png'
@@ -16,6 +16,8 @@ keywords: [Bemi, PaperTrail, Audited, Logidze, Rails audit trails, ActiveRecord 
 [Bemi](https://bemi.io) plugs into [Ruby on Rails](https://github.com/rails/rails) with Active Record and PostgreSQL to track database changes automatically. It unlocks robust context-aware audit trails and time travel querying inside your application.
 
 This Ruby gem is a recommended Ruby on Rails integration, enabling you to pass application-specific context when performing database changes. This can include context such as the 'where' (API endpoint, worker, etc.), 'who' (user, cron job, etc.), and 'how' behind a change, thereby enriching the information captured by Bemi.
+
+See this [example repo](https://github.com/BemiHQ/bemi-rails-example) as a Ruby on Rails Todo app that automatically tracks and contextualizes all changes.
 
 ## Prerequisites
 
@@ -68,7 +70,7 @@ Application context:
 * Is used only with `INSERT`, `UPDATE`, `DELETE` SQL queries performed via Active Record. Otherwise, it is a no-op.
 * Is passed directly into PG [Write-Ahead Log](https://www.postgresql.org/docs/current/wal-intro.html) with data changes without affecting the structure of the database and SQL queries.
 
-See this [example repo](https://github.com/BemiHQ/bemi-rails-example) as a Ruby on Rails Todo app that automatically tracks all changes.
+Application context will automatically include the original SQL query that performed data changes, which is generally useful for troubleshooting purposes.
 
 ## Database connection
 

@@ -59,6 +59,10 @@ This allows automatically enhancing low-level database changes with application-
 
 * **[Ruby on Rails](/orms/rails)**
 
+#### Python
+
+* **[SQLAlchemy](/orms/sqlalchemy)**
+
 ## Architecture overview
 
 Bemi is designed to be lightweight and secure. It takes a practical approach to achieving the benefits of [event sourcing](https://martinfowler.com/eaaDev/EventSourcing.html) without requiring rearchitecting existing code, switching to highly specialized databases, or using unnecessary git-like abstractions on top of databases. We want your system to work the way it already does with your existing database to allow keeping things as simple as possible.
