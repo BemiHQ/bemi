@@ -35,7 +35,7 @@ export const buildConsumer = async (
           const keyAsOptionsKeyType = key as keyof typeof options;
           return options[keyAsOptionsKeyType] !== config[keyAsOptionsKeyType]
       });
-    if (hasDifferentValue && options.durable_name != null) {
+    if (hasDifferentValue && options.durable_name) {
       logger.info('Updating consumer...');
       await jetstreamManager.consumers.update(stream, options.durable_name, options);
     }
