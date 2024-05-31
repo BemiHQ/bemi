@@ -222,7 +222,7 @@ export const buildNatsMessage = (
   seq: 0,
   sid: 0,
   subject,
-  info:  {
+  info: {
     streamSequence,
     pending: 0,
     domain: "",
