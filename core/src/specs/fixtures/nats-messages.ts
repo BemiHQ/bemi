@@ -1,4 +1,5 @@
 import { JsMsg } from 'nats'
+
 import { encodeData } from '../../nats'
 
 export const POSITIONS = {

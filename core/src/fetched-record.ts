@@ -1,8 +1,8 @@
 import { RequiredEntityData } from '@mikro-orm/postgresql';
+import { JsMsg } from 'nats';
 
 import { Change, Operation } from "./entities/Change"
 import { decodeData } from './nats'
-import { JsMsg } from 'nats';
 
 export const MESSAGE_PREFIX_CONTEXT = '_bemi'
 export const MESSAGE_PREFIX_HEARTBEAT = '_bemi_heartbeat'
