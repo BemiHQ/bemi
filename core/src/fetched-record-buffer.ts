@@ -1,17 +1,13 @@
 import { FetchedRecord } from './fetched-record'
 
-type PositionRecords = { [position: string]: FetchedRecord[] }
-type SubjectRecords = { [subject: string]: PositionRecords }
-
 export class FetchedRecordBuffer {
-  store: SubjectRecords
+  store: { [subject: string]: { [position: string]: FetchedRecord[] } }
 
   constructor() {
     this.store = {}
   }
 
-  static fromStore(store: SubjectRecords) {
-    const buffer = new FetchedRecordBuffer()
+  static fromStore(store: { [subject: string]: { [position: string]: FetchedRecord[] } }) {    const buffer = new FetchedRecordBuffer()
     buffer.store = store
     return buffer
   }
