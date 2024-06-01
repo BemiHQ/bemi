@@ -1,4 +1,5 @@
 import { MikroORM } from '@mikro-orm/postgresql';
+import { Consumer } from 'nats';
 
 import { logger } from './logger'
 import { NatsMessage } from './nats'
@@ -6,7 +7,6 @@ import { Change } from "./entities/Change"
 import { FetchedRecord } from './fetched-record'
 import { FetchedRecordBuffer } from './fetched-record-buffer'
 import { stitchFetchedRecords } from './stitching'
-import { Consumer } from 'nats';
 
 const INSERT_INTERVAL_MS = 1000 // 1 second to avoid overwhelming the database
 const FETCH_EXPIRES_MS = 30_000 // 30 seconds, default
