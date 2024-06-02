@@ -65,7 +65,7 @@ export const runIngestionLoop = async (
     useBuffer = false,
   }: {
     orm: MikroORM,
-    consumer: any,
+    consumer: Consumer,
     fetchBatchSize?: number,
     insertBatchSize?: number,
     useBuffer?: boolean,

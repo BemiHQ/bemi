@@ -1,7 +1,7 @@
 core-install:
 	@devbox run "cd core && pnpm install"
 core-test:
-	@devbox run "cd core && pnpm test"
+	@devbox run "cd core && pnpm tsc --noEmit --skipLibCheck && pnpm test"
 
 worker-setup:
 	@cd worker && \
