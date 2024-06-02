@@ -7,7 +7,8 @@ export class FetchedRecordBuffer {
     this.store = {}
   }
 
-  static fromStore(store: { [subject: string]: { [position: string]: FetchedRecord[] } }) {    const buffer = new FetchedRecordBuffer()
+  static fromStore(store: { [subject: string]: { [position: string]: FetchedRecord[] } }) {
+    const buffer = new FetchedRecordBuffer()
     buffer.store = store
     return buffer
   }
