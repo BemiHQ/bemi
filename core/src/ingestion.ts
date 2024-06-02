@@ -1,4 +1,5 @@
 import { MikroORM } from '@mikro-orm/postgresql';
+import { Consumer } from 'nats';
 
 import { logger } from './logger'
 import { NatsMessage } from './nats'
@@ -34,7 +35,7 @@ const persistFetchedRecords = (
 
 const fetchNatsMessages = async (
   { consumer, fetchBatchSize, lastStreamSequence }:
-  { consumer: any, fetchBatchSize: number, lastStreamSequence: number | null }
+  { consumer: Consumer, fetchBatchSize: number, lastStreamSequence: number | null }
 ) => {
   const natsMessageBySequence: { [sequence: number]: NatsMessage } = {}
   let pendingMessageCount = 0
@@ -65,7 +66,7 @@ export const runIngestionLoop = async (
     useBuffer = false,
   }: {
     orm: MikroORM,
-    consumer: any,
+    consumer: Consumer,
     fetchBatchSize?: number,
     insertBatchSize?: number,
     useBuffer?: boolean,
