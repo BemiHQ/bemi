@@ -35,6 +35,7 @@ export class FetchedRecordBuffer {
   }
 
   addFetchedRecords(fetchedRecords: FetchedRecord[]) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     let newBuffer = this
 
     fetchedRecords.forEach((fetchedRecord: FetchedRecord) => {

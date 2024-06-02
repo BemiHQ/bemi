@@ -8,6 +8,7 @@ export const MESSAGE_PREFIX_CONTEXT = '_bemi'
 export const MESSAGE_PREFIX_HEARTBEAT = '_bemi_heartbeat'
 const UNAVAILABLE_VALUE_PLACEHOLDER = '__bemi_unavailable_value'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const parseDebeziumData = (debeziumChange: any, now: Date) => {
   const {
     op,
@@ -86,6 +87,7 @@ export class FetchedRecord {
   }
 
   static fromNatsMessage(natsMessage: JsMsg, now = new Date()) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const debeziumData = decodeData(natsMessage.data) as any
 
     const messagePrefix = debeziumData.message?.prefix

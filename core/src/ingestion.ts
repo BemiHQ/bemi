@@ -77,6 +77,7 @@ export const runIngestionLoop = async ({
   let lastStreamSequence: number | null = null
   let fetchedRecordBuffer = new FetchedRecordBuffer()
 
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     // Fetching
     logger.info('Fetching...')

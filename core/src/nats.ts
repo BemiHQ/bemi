@@ -42,10 +42,10 @@ export const buildConsumer = async ({
   return consumer
 }
 
-export const decodeData = (data: any) => {
+export const decodeData = (data: Uint8Array) => {
   return JSON_CODEC.decode(data)
 }
 
-export const encodeData = (data: any) => {
+export const encodeData = (data: Uint8Array) => {
   return JSON_CODEC.encode(data)
 }
