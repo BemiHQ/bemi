@@ -1,8 +1,7 @@
 import { MikroORM } from '@mikro-orm/postgresql';
-import { Consumer } from 'nats';
+import { Consumer, JsMsg } from 'nats';
 
 import { logger } from './logger'
-import { NatsMessage } from './nats'
 import { Change } from "./entities/Change"
 import { FetchedRecord } from './fetched-record'
 import { FetchedRecordBuffer } from './fetched-record-buffer'
@@ -37,7 +36,7 @@ const fetchNatsMessages = async (
   { consumer, fetchBatchSize, lastStreamSequence }:
   { consumer: Consumer, fetchBatchSize: number, lastStreamSequence: number | null }
 ) => {
-  const natsMessageBySequence: { [sequence: number]: NatsMessage } = {}
+  const natsMessageBySequence: { [sequence: number]: JsMsg } = {}
   let pendingMessageCount = 0
 
   const iterator = await consumer.fetch({ max_messages: fetchBatchSize, expires: FETCH_EXPIRES_MS });
@@ -96,7 +95,7 @@ export const runIngestionLoop = async (
     // Stitching
     const now = new Date()
     const natsMessages = Object.values(natsMessageBySequence)
-    const fetchedRecords = natsMessages.map((m: NatsMessage) => FetchedRecord.fromNatsMessage(m, now)).filter(r => r) as FetchedRecord[]
+    const fetchedRecords = natsMessages.map((m: JsMsg) => FetchedRecord.fromNatsMessage(m, now)).filter(r => r) as FetchedRecord[]
     const { stitchedFetchedRecords, newFetchedRecordBuffer, ackStreamSequence } = stitchFetchedRecords({
       fetchedRecordBuffer: fetchedRecordBuffer.addFetchedRecords(fetchedRecords),
       useBuffer,

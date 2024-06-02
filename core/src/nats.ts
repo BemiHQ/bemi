@@ -4,16 +4,6 @@ import { logger } from './logger'
 
 const JSON_CODEC = JSONCodec()
 
-export interface NatsMessage {
-  subject: string,
-  info: {
-    streamSequence: number,
-    pending: number,
-  },
-  data: any,
-  ack: () => void,
-}
-
 export const connectJetstream = (host: string) => {
   return connect({ servers: host });
 }
