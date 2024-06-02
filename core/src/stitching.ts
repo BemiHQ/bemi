@@ -2,17 +2,23 @@ import { logger } from './logger'
 import { FetchedRecord } from './fetched-record'
 import { FetchedRecordBuffer } from './fetched-record-buffer'
 
-export const stitchFetchedRecords = (
-  { fetchedRecordBuffer, useBuffer = false }:
-  { fetchedRecordBuffer: FetchedRecordBuffer, useBuffer: boolean }
-) => {
+export const stitchFetchedRecords = ({
+  fetchedRecordBuffer,
+  useBuffer = false
+}: {
+  fetchedRecordBuffer: FetchedRecordBuffer
+  useBuffer: boolean
+}) => {
   let stitchedFetchedRecords: FetchedRecord[] = []
   let maxSequence: number | undefined = undefined
   let maxSequenceBySubject: { [key: string]: number } = {}
   let newFetchedRecordBuffer = new FetchedRecordBuffer()
 
   fetchedRecordBuffer.forEach((subject, sortedFetchedRecords) => {
-    if (sortedFetchedRecords.length && (!maxSequence || sortedFetchedRecords[sortedFetchedRecords.length - 1].streamSequence > maxSequence)) {
+    if (
+      sortedFetchedRecords.length &&
+      (!maxSequence || sortedFetchedRecords[sortedFetchedRecords.length - 1].streamSequence > maxSequence)
+    ) {
       maxSequence = sortedFetchedRecords[sortedFetchedRecords.length - 1].streamSequence
     }
 
@@ -21,7 +27,7 @@ export const stitchFetchedRecords = (
     sortedFetchedRecords.forEach((fetchedRecord) => {
       const position = fetchedRecord.changeAttributes.position.toString()
       const samePositionFetchedRecords = fetchedRecordBuffer.fetchedRecordsByPosition(subject, position)
-      const contextFetchedRecord = samePositionFetchedRecords.find(r => r.isContextMessage())
+      const contextFetchedRecord = samePositionFetchedRecords.find((r) => r.isContextMessage())
 
       // If it's a heartbeat message/change, use its sequence number
       if (fetchedRecord.isHeartbeatMessage()) {
@@ -58,16 +64,10 @@ export const stitchFetchedRecords = (
 
       if (contextFetchedRecord) {
         // Stitch with context message change message if it exists
-        stitchedFetchedRecords = [
-          ...stitchedFetchedRecords,
-          fetchedRecord.setContext(contextFetchedRecord.context()),
-        ]
+        stitchedFetchedRecords = [...stitchedFetchedRecords, fetchedRecord.setContext(contextFetchedRecord.context())]
       } else {
         // Return mutation change message as is without stitching
-        stitchedFetchedRecords = [
-          ...stitchedFetchedRecords,
-          fetchedRecord,
-        ]
+        stitchedFetchedRecords = [...stitchedFetchedRecords, fetchedRecord]
       }
     })
   })
@@ -97,12 +97,12 @@ export const stitchFetchedRecords = (
   logger.debug({
     stitched: stitchedFetchedRecords,
     buffer: newFetchedRecordBuffer.store,
-    ackStreamSequence,
+    ackStreamSequence
   })
 
   return {
     stitchedFetchedRecords,
     newFetchedRecordBuffer,
-    ackStreamSequence,
+    ackStreamSequence
   }
 }

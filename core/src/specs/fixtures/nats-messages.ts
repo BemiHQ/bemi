@@ -8,7 +8,7 @@ export const POSITIONS = {
   DELETE: 35878952,
   TRUNCATE: 35909944,
   HEARTBEAT_MESSAGE: 371211568,
-  HEARTBEAT_CHANGE: 371211569,
+  HEARTBEAT_CHANGE: 371211569
 }
 
 export const MESSAGE_DATA = {
@@ -50,7 +50,7 @@ export const MESSAGE_DATA = {
       lsn: POSITIONS.CREATE.toString(),
       xmin: null
     },
-    message: { prefix: '_bemi', content: 'eyJvcCI6ICJjIn0=' },
+    message: { prefix: '_bemi', content: 'eyJvcCI6ICJjIn0=' }
   },
   UPDATE: {
     before: { id: 2, task: 'Test', isCompleted: false },
@@ -71,7 +71,7 @@ export const MESSAGE_DATA = {
     },
     op: 'u',
     ts_ms: 1701191182946,
-    transaction: null,
+    transaction: null
   },
   UPDATE_MESSAGE: {
     op: 'm',
@@ -90,7 +90,7 @@ export const MESSAGE_DATA = {
       lsn: POSITIONS.UPDATE.toString(),
       xmin: null
     },
-    message: { prefix: '_bemi', content: 'eyJvcCI6ICJ1In0=' },
+    message: { prefix: '_bemi', content: 'eyJvcCI6ICJ1In0=' }
   },
   DELETE: {
     before: { id: 2, task: 'Test', isCompleted: true },
@@ -111,7 +111,7 @@ export const MESSAGE_DATA = {
     },
     op: 'd',
     ts_ms: 1701191177309,
-    transaction: null,
+    transaction: null
   },
   DELETE_MESSAGE: {
     op: 'm',
@@ -130,7 +130,7 @@ export const MESSAGE_DATA = {
       lsn: POSITIONS.DELETE,
       xmin: null
     },
-    message: { prefix: '_bemi', content: 'eyJvcCI6ICJkIn0=' },
+    message: { prefix: '_bemi', content: 'eyJvcCI6ICJkIn0=' }
   },
   TRUNCATE: {
     before: null,
@@ -151,7 +151,7 @@ export const MESSAGE_DATA = {
     },
     op: 't',
     ts_ms: 1701192064622,
-    transaction: null,
+    transaction: null
   },
   HEARTBEAT_MESSAGE: {
     op: 'm',
@@ -174,24 +174,24 @@ export const MESSAGE_DATA = {
   },
   HEARTBEAT_CHANGE: {
     before: null,
-    after: { id: 1, last_heartbeat_at: "2024-04-18T20:40:29.086091Z" },
+    after: { id: 1, last_heartbeat_at: '2024-04-18T20:40:29.086091Z' },
     source: {
-      version: "2.5.0-SNAPSHOT",
-      connector: "postgresql",
-      name: "prefix",
+      version: '2.5.0-SNAPSHOT',
+      connector: 'postgresql',
+      name: 'prefix',
       ts_ms: 1713472829086,
-      snapshot: "false",
-      db: "bemi_dev_source",
-      sequence: "[\"24830282128\",\"24897389232\"]",
-      schema: "_bemi",
-      table: "heartbeats",
+      snapshot: 'false',
+      db: 'bemi_dev_source',
+      sequence: '["24830282128","24897389232"]',
+      schema: '_bemi',
+      table: 'heartbeats',
       txId: 3497,
       lsn: 371211569,
-      xmin: null,
+      xmin: null
     },
-    op: "u",
+    op: 'u',
     ts_ms: 1713472829090,
-    transaction: null,
+    transaction: null
   },
   NON_BEMI_MESSAGE: {
     op: 'm',
@@ -211,13 +211,18 @@ export const MESSAGE_DATA = {
       xmin: null
     },
     message: { prefix: 'something-else', content: 'cGluZw==' }
-  },
+  }
 }
 
-export const buildNatsMessage = (
-  { subject, data, streamSequence }:
-  { subject: string, data: any, streamSequence: number }
-): JsMsg => ({
+export const buildNatsMessage = ({
+  subject,
+  data,
+  streamSequence
+}: {
+  subject: string
+  data: any
+  streamSequence: number
+}): JsMsg => ({
   redelivered: false,
   headers: undefined,
   seq: 0,
@@ -226,9 +231,9 @@ export const buildNatsMessage = (
   info: {
     streamSequence,
     pending: 0,
-    domain: "",
-    stream: "",
-    consumer: "",
+    domain: '',
+    stream: '',
+    consumer: '',
     redeliveryCount: 0,
     deliverySequence: 0,
     timestampNanos: 0,
@@ -242,5 +247,5 @@ export const buildNatsMessage = (
   term: () => {},
   ackAck: async () => false,
   json: <T>() => null as T,
-  string: () => "",
+  string: () => ''
 })

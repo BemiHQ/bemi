@@ -1,7 +1,7 @@
-import { RequiredEntityData } from '@mikro-orm/postgresql';
-import { JsMsg } from 'nats';
+import { RequiredEntityData } from '@mikro-orm/postgresql'
+import { JsMsg } from 'nats'
 
-import { Change, Operation } from "./entities/Change"
+import { Change, Operation } from './entities/Change'
 import { decodeData } from './nats'
 
 export const MESSAGE_PREFIX_CONTEXT = '_bemi'
@@ -15,7 +15,7 @@ const parseDebeziumData = (debeziumChange: any, now: Date) => {
     after: afterRaw,
     ts_ms: queueAtMs,
     message,
-    source: { db: database, schema, table, txId: transactionId, lsn: position, ts_ms: committedAtMs },
+    source: { db: database, schema, table, txId: transactionId, lsn: position, ts_ms: committedAtMs }
   } = debeziumChange
 
   let operation
@@ -40,9 +40,10 @@ const parseDebeziumData = (debeziumChange: any, now: Date) => {
     }
   })
 
-  const context = message?.prefix === MESSAGE_PREFIX_CONTEXT ?
-    (JSON.parse(Buffer.from(message?.content, 'base64').toString('utf-8')) || {}) : // Fallback to '{}' from 'null' if it's passed explicitly as a context
-    {}
+  const context =
+    message?.prefix === MESSAGE_PREFIX_CONTEXT
+      ? JSON.parse(Buffer.from(message?.content, 'base64').toString('utf-8')) || {} // Fallback to '{}' from 'null' if it's passed explicitly as a context
+      : {}
 
   return {
     primaryKey,
@@ -57,7 +58,7 @@ const parseDebeziumData = (debeziumChange: any, now: Date) => {
     queuedAt: new Date(queueAtMs),
     transactionId,
     position: parseInt(position, 10),
-    createdAt: now,
+    createdAt: now
   }
 }
 
@@ -67,10 +68,17 @@ export class FetchedRecord {
   streamSequence: number
   messagePrefix?: string
 
-  constructor(
-    { changeAttributes, subject, streamSequence, messagePrefix }:
-    { changeAttributes: RequiredEntityData<Change>, subject: string, streamSequence: number, messagePrefix?: string }
-  ) {
+  constructor({
+    changeAttributes,
+    subject,
+    streamSequence,
+    messagePrefix
+  }: {
+    changeAttributes: RequiredEntityData<Change>
+    subject: string
+    streamSequence: number
+    messagePrefix?: string
+  }) {
     this.changeAttributes = changeAttributes
     this.subject = subject
     this.streamSequence = streamSequence
@@ -90,7 +98,7 @@ export class FetchedRecord {
       changeAttributes: parseDebeziumData(debeziumData, now),
       subject: natsMessage.subject,
       streamSequence: natsMessage.info.streamSequence,
-      messagePrefix,
+      messagePrefix
     })
   }
 

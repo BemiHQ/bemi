@@ -16,5 +16,5 @@ export const logger = {
   },
   info: (message: any) => {
     log(message)
-  },
+  }
 }
