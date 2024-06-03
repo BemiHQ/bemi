@@ -18,7 +18,7 @@ export class Migration20240208205640_before_and_after extends Migration {
     // unique constraint
     this.addSql('alter table "changes" drop constraint "changes_position_database_schema_table_values_unique";')
     this.addSql(
-      'alter table "changes" add constraint "changes_position_operation_table_schema_database_unique" unique ("position", "operation", "table", "schema", "database");'
+      'alter table "changes" add constraint "changes_position_operation_table_schema_database_unique" unique ("position", "operation", "table", "schema", "database");',
     )
   }
 
@@ -38,7 +38,7 @@ export class Migration20240208205640_before_and_after extends Migration {
     // unique constraint
     this.addSql('alter table "changes" drop constraint "changes_position_operation_table_schema_database_unique";')
     this.addSql(
-      'alter table "changes" add constraint "changes_position_database_schema_table_values_unique" unique ("position", "database", "schema", "table", "values");'
+      'alter table "changes" add constraint "changes_position_database_schema_table_values_unique" unique ("position", "database", "schema", "table", "values");',
     )
   }
 }

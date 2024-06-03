@@ -7,7 +7,7 @@ export enum Operation {
   UPDATE = 'UPDATE',
   DELETE = 'DELETE',
   TRUNCATE = 'TRUNCATE',
-  MESSAGE = 'MESSAGE'
+  MESSAGE = 'MESSAGE',
 }
 
 @Entity({ tableName: 'changes' })
@@ -69,7 +69,7 @@ export class Change extends BaseEntity {
     committedAt,
     queuedAt,
     transactionId,
-    position
+    position,
   }: {
     primaryKey?: string
     before: object

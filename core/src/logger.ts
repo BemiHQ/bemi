@@ -19,5 +19,5 @@ export const logger = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   info: (message: any) => {
     log(message)
-  }
+  },
 }

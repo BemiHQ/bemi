@@ -18,7 +18,7 @@ const chunk = <T>(array: T[], size: number): T[][] =>
 const persistFetchedRecords = ({
   orm,
   fetchedRecords,
-  insertBatchSize
+  insertBatchSize,
 }: {
   orm: MikroORM
   fetchedRecords: FetchedRecord[]
@@ -35,7 +35,7 @@ const persistFetchedRecords = ({
 const fetchNatsMessages = async ({
   consumer,
   fetchBatchSize,
-  lastStreamSequence
+  lastStreamSequence,
 }: {
   consumer: Consumer
   fetchBatchSize: number
@@ -66,7 +66,7 @@ export const runIngestionLoop = async ({
   consumer,
   fetchBatchSize = 100,
   insertBatchSize = 100,
-  useBuffer = false
+  useBuffer = false,
 }: {
   orm: MikroORM
   consumer: Consumer
@@ -84,7 +84,7 @@ export const runIngestionLoop = async ({
     const { natsMessageBySequence, pendingMessageCount } = await fetchNatsMessages({
       consumer,
       fetchBatchSize,
-      lastStreamSequence
+      lastStreamSequence,
     })
 
     // Last sequence tracking
@@ -104,7 +104,7 @@ export const runIngestionLoop = async ({
       .filter((r) => r) as FetchedRecord[]
     const { stitchedFetchedRecords, newFetchedRecordBuffer, ackStreamSequence } = stitchFetchedRecords({
       fetchedRecordBuffer: fetchedRecordBuffer.addFetchedRecords(fetchedRecords),
-      useBuffer
+      useBuffer,
     })
     fetchedRecordBuffer = newFetchedRecordBuffer
 
@@ -115,8 +115,8 @@ export const runIngestionLoop = async ({
         `Pending in buffer: ${fetchedRecordBuffer.size()}`,
         `Pending in stream: ${pendingMessageCount}`,
         `Ack sequence: ${ackStreamSequence ? `#${ackStreamSequence}` : 'none'}`,
-        `Last sequence: #${lastStreamSequence}`
-      ].join('. ')
+        `Last sequence: #${lastStreamSequence}`,
+      ].join('. '),
     )
 
     // Persisting and acking

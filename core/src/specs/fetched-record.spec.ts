@@ -12,7 +12,7 @@ describe('fromNatsMessage', () => {
     const subject = 'bemi-subject'
     const natsMessages = [
       buildNatsMessage({ subject, streamSequence: 1, data: MESSAGE_DATA.CREATE }),
-      buildNatsMessage({ subject, streamSequence: 2, data: MESSAGE_DATA.CREATE_MESSAGE })
+      buildNatsMessage({ subject, streamSequence: 2, data: MESSAGE_DATA.CREATE_MESSAGE }),
     ]
 
     const result = natsMessages.map((m) => FetchedRecord.fromNatsMessage(m))
@@ -21,14 +21,14 @@ describe('fromNatsMessage', () => {
       new FetchedRecord({
         subject,
         streamSequence: 1,
-        changeAttributes: CHANGE_ATTRIBUTES.CREATE
+        changeAttributes: CHANGE_ATTRIBUTES.CREATE,
       }),
       new FetchedRecord({
         subject,
         streamSequence: 2,
         changeAttributes: CHANGE_ATTRIBUTES.CREATE_MESSAGE,
-        messagePrefix: MESSAGE_PREFIX_CONTEXT
-      })
+        messagePrefix: MESSAGE_PREFIX_CONTEXT,
+      }),
     ])
   })
 
@@ -36,7 +36,7 @@ describe('fromNatsMessage', () => {
     const subject = 'bemi-subject'
     const natsMessages = [
       buildNatsMessage({ subject, streamSequence: 1, data: MESSAGE_DATA.UPDATE }),
-      buildNatsMessage({ subject, streamSequence: 2, data: MESSAGE_DATA.UPDATE_MESSAGE })
+      buildNatsMessage({ subject, streamSequence: 2, data: MESSAGE_DATA.UPDATE_MESSAGE }),
     ]
 
     const result = natsMessages.map((m) => FetchedRecord.fromNatsMessage(m))
@@ -45,14 +45,14 @@ describe('fromNatsMessage', () => {
       new FetchedRecord({
         subject,
         streamSequence: 1,
-        changeAttributes: CHANGE_ATTRIBUTES.UPDATE
+        changeAttributes: CHANGE_ATTRIBUTES.UPDATE,
       }),
       new FetchedRecord({
         subject,
         streamSequence: 2,
         changeAttributes: CHANGE_ATTRIBUTES.UPDATE_MESSAGE,
-        messagePrefix: MESSAGE_PREFIX_CONTEXT
-      })
+        messagePrefix: MESSAGE_PREFIX_CONTEXT,
+      }),
     ])
   })
 
@@ -60,7 +60,7 @@ describe('fromNatsMessage', () => {
     const subject = 'bemi-subject'
     const natsMessages = [
       buildNatsMessage({ subject, streamSequence: 1, data: MESSAGE_DATA.DELETE }),
-      buildNatsMessage({ subject, streamSequence: 2, data: MESSAGE_DATA.DELETE_MESSAGE })
+      buildNatsMessage({ subject, streamSequence: 2, data: MESSAGE_DATA.DELETE_MESSAGE }),
     ]
 
     const result = natsMessages.map((m) => FetchedRecord.fromNatsMessage(m))
@@ -69,14 +69,14 @@ describe('fromNatsMessage', () => {
       new FetchedRecord({
         subject,
         streamSequence: 1,
-        changeAttributes: CHANGE_ATTRIBUTES.DELETE
+        changeAttributes: CHANGE_ATTRIBUTES.DELETE,
       }),
       new FetchedRecord({
         subject,
         streamSequence: 2,
         changeAttributes: CHANGE_ATTRIBUTES.DELETE_MESSAGE,
-        messagePrefix: MESSAGE_PREFIX_CONTEXT
-      })
+        messagePrefix: MESSAGE_PREFIX_CONTEXT,
+      }),
     ])
   })
 
@@ -89,9 +89,9 @@ describe('fromNatsMessage', () => {
         data: {
           ...MESSAGE_DATA.UPDATE,
           before: { id: 2, names: ['Alice', 'Bob'] },
-          after: { id: 2, names: ['__bemi_unavailable_value'] }
-        }
-      })
+          after: { id: 2, names: ['__bemi_unavailable_value'] },
+        },
+      }),
     ]
 
     const result = natsMessages.map((m) => FetchedRecord.fromNatsMessage(m))
@@ -103,9 +103,9 @@ describe('fromNatsMessage', () => {
         changeAttributes: {
           ...CHANGE_ATTRIBUTES.UPDATE,
           before: { id: 2, names: ['Alice', 'Bob'] },
-          after: { id: 2, names: ['Alice', 'Bob'] }
-        }
-      })
+          after: { id: 2, names: ['Alice', 'Bob'] },
+        },
+      }),
     ])
   })
 
@@ -113,7 +113,7 @@ describe('fromNatsMessage', () => {
     const natsMessage = buildNatsMessage({
       subject: 'bemi-subject',
       streamSequence: 1,
-      data: MESSAGE_DATA.NON_BEMI_MESSAGE
+      data: MESSAGE_DATA.NON_BEMI_MESSAGE,
     })
 
     const result = FetchedRecord.fromNatsMessage(natsMessage)

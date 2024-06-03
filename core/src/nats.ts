@@ -11,7 +11,7 @@ export const connectJetstream = (host: string) => {
 export const buildConsumer = async ({
   connection,
   stream,
-  options
+  options,
 }: {
   connection: NatsConnection
   stream: string

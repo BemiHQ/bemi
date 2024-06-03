@@ -8,7 +8,7 @@ export const POSITIONS = {
   DELETE: 35878952,
   TRUNCATE: 35909944,
   HEARTBEAT_MESSAGE: 371211568,
-  HEARTBEAT_CHANGE: 371211569
+  HEARTBEAT_CHANGE: 371211569,
 }
 
 export const MESSAGE_DATA = {
@@ -27,11 +27,11 @@ export const MESSAGE_DATA = {
       table: 'todo',
       txId: 768,
       lsn: POSITIONS.CREATE.toString(),
-      xmin: null
+      xmin: null,
     },
     op: 'c',
     ts_ms: 1701191181391,
-    transaction: null
+    transaction: null,
   },
   CREATE_MESSAGE: {
     op: 'm',
@@ -48,9 +48,9 @@ export const MESSAGE_DATA = {
       table: '',
       txId: 768,
       lsn: POSITIONS.CREATE.toString(),
-      xmin: null
+      xmin: null,
     },
-    message: { prefix: '_bemi', content: 'eyJvcCI6ICJjIn0=' }
+    message: { prefix: '_bemi', content: 'eyJvcCI6ICJjIn0=' },
   },
   UPDATE: {
     before: { id: 2, task: 'Test', isCompleted: false },
@@ -67,11 +67,11 @@ export const MESSAGE_DATA = {
       table: 'todo',
       txId: 769,
       lsn: POSITIONS.UPDATE.toString(),
-      xmin: null
+      xmin: null,
     },
     op: 'u',
     ts_ms: 1701191182946,
-    transaction: null
+    transaction: null,
   },
   UPDATE_MESSAGE: {
     op: 'm',
@@ -88,9 +88,9 @@ export const MESSAGE_DATA = {
       table: '',
       txId: 769,
       lsn: POSITIONS.UPDATE.toString(),
-      xmin: null
+      xmin: null,
     },
-    message: { prefix: '_bemi', content: 'eyJvcCI6ICJ1In0=' }
+    message: { prefix: '_bemi', content: 'eyJvcCI6ICJ1In0=' },
   },
   DELETE: {
     before: { id: 2, task: 'Test', isCompleted: true },
@@ -107,11 +107,11 @@ export const MESSAGE_DATA = {
       table: 'todo',
       txId: 767,
       lsn: POSITIONS.DELETE.toString(),
-      xmin: null
+      xmin: null,
     },
     op: 'd',
     ts_ms: 1701191177309,
-    transaction: null
+    transaction: null,
   },
   DELETE_MESSAGE: {
     op: 'm',
@@ -128,9 +128,9 @@ export const MESSAGE_DATA = {
       table: '',
       txId: 767,
       lsn: POSITIONS.DELETE,
-      xmin: null
+      xmin: null,
     },
-    message: { prefix: '_bemi', content: 'eyJvcCI6ICJkIn0=' }
+    message: { prefix: '_bemi', content: 'eyJvcCI6ICJkIn0=' },
   },
   TRUNCATE: {
     before: null,
@@ -147,11 +147,11 @@ export const MESSAGE_DATA = {
       table: 'todo',
       txId: 770,
       lsn: POSITIONS.TRUNCATE.toString(),
-      xmin: null
+      xmin: null,
     },
     op: 't',
     ts_ms: 1701192064622,
-    transaction: null
+    transaction: null,
   },
   HEARTBEAT_MESSAGE: {
     op: 'm',
@@ -168,9 +168,9 @@ export const MESSAGE_DATA = {
       table: '',
       txId: 4215,
       lsn: POSITIONS.HEARTBEAT_MESSAGE.toString(),
-      xmin: null
+      xmin: null,
     },
-    message: { prefix: '_bemi_heartbeat', content: '' }
+    message: { prefix: '_bemi_heartbeat', content: '' },
   },
   HEARTBEAT_CHANGE: {
     before: null,
@@ -187,11 +187,11 @@ export const MESSAGE_DATA = {
       table: 'heartbeats',
       txId: 3497,
       lsn: 371211569,
-      xmin: null
+      xmin: null,
     },
     op: 'u',
     ts_ms: 1713472829090,
-    transaction: null
+    transaction: null,
   },
   NON_BEMI_MESSAGE: {
     op: 'm',
@@ -208,16 +208,16 @@ export const MESSAGE_DATA = {
       table: '',
       txId: null,
       lsn: 94229520,
-      xmin: null
+      xmin: null,
     },
-    message: { prefix: 'something-else', content: 'cGluZw==' }
-  }
+    message: { prefix: 'something-else', content: 'cGluZw==' },
+  },
 }
 
 export const buildNatsMessage = ({
   subject,
   data,
-  streamSequence
+  streamSequence,
 }: {
   subject: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -238,7 +238,7 @@ export const buildNatsMessage = ({
     redeliveryCount: 0,
     deliverySequence: 0,
     timestampNanos: 0,
-    redelivered: false
+    redelivered: false,
   },
   data: encodeData(data),
   ack: () => {},
@@ -248,5 +248,5 @@ export const buildNatsMessage = ({
   term: () => {},
   ackAck: async () => false,
   json: <T>() => null as T,
-  string: () => ''
+  string: () => '',
 })

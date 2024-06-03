@@ -22,14 +22,14 @@ export class FetchedRecordBuffer {
     if (existingFetchedRecords) {
       newBuffer.store = {
         ...this.store,
-        [subject]: { ...this.store[subject], [position]: [...existingFetchedRecords, fetchedRecord] }
+        [subject]: { ...this.store[subject], [position]: [...existingFetchedRecords, fetchedRecord] },
       }
       return newBuffer
     }
 
     newBuffer.store = {
       ...this.store,
-      [subject]: { ...(this.store[subject] || []), [position]: [fetchedRecord] }
+      [subject]: { ...(this.store[subject] || []), [position]: [fetchedRecord] },
     }
     return newBuffer
   }
@@ -50,7 +50,7 @@ export class FetchedRecordBuffer {
       const fetchedRecords = Object.values(this.store[subject]).flat()
       const sortedFetchedRecords = fetchedRecords.sort(
         (a, b) =>
-          parseInt(a.changeAttributes.position.toString(), 10) - parseInt(b.changeAttributes.position.toString(), 10)
+          parseInt(a.changeAttributes.position.toString(), 10) - parseInt(b.changeAttributes.position.toString(), 10),
       )
 
       callback(subject, sortedFetchedRecords)

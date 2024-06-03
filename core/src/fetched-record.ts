@@ -16,7 +16,7 @@ const parseDebeziumData = (debeziumChange: any, now: Date) => {
     after: afterRaw,
     ts_ms: queueAtMs,
     message,
-    source: { db: database, schema, table, txId: transactionId, lsn: position, ts_ms: committedAtMs }
+    source: { db: database, schema, table, txId: transactionId, lsn: position, ts_ms: committedAtMs },
   } = debeziumChange
 
   let operation
@@ -59,7 +59,7 @@ const parseDebeziumData = (debeziumChange: any, now: Date) => {
     queuedAt: new Date(queueAtMs),
     transactionId,
     position: parseInt(position, 10),
-    createdAt: now
+    createdAt: now,
   }
 }
 
@@ -73,7 +73,7 @@ export class FetchedRecord {
     changeAttributes,
     subject,
     streamSequence,
-    messagePrefix
+    messagePrefix,
   }: {
     changeAttributes: RequiredEntityData<Change>
     subject: string
@@ -100,7 +100,7 @@ export class FetchedRecord {
       changeAttributes: parseDebeziumData(debeziumData, now),
       subject: natsMessage.subject,
       streamSequence: natsMessage.info.streamSequence,
-      messagePrefix
+      messagePrefix,
     })
   }
 

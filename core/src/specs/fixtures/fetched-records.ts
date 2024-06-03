@@ -18,7 +18,7 @@ export const CHANGE_ATTRIBUTES = {
     table: 'todo',
     transactionId: 768,
     before: {},
-    after: { id: 2, isCompleted: false, task: 'Test' }
+    after: { id: 2, isCompleted: false, task: 'Test' },
   },
   CREATE_MESSAGE: {
     committedAt: MOCKED_DATE,
@@ -33,7 +33,7 @@ export const CHANGE_ATTRIBUTES = {
     table: '',
     transactionId: 768,
     before: {},
-    after: {}
+    after: {},
   },
   UPDATE: {
     committedAt: MOCKED_DATE,
@@ -48,7 +48,7 @@ export const CHANGE_ATTRIBUTES = {
     table: 'todo',
     transactionId: 769,
     before: { id: 2, isCompleted: false, task: 'Test' },
-    after: { id: 2, isCompleted: true, task: 'Test' }
+    after: { id: 2, isCompleted: true, task: 'Test' },
   },
   UPDATE_MESSAGE: {
     committedAt: MOCKED_DATE,
@@ -63,7 +63,7 @@ export const CHANGE_ATTRIBUTES = {
     table: '',
     transactionId: 769,
     before: {},
-    after: {}
+    after: {},
   },
   DELETE: {
     committedAt: MOCKED_DATE,
@@ -78,7 +78,7 @@ export const CHANGE_ATTRIBUTES = {
     table: 'todo',
     transactionId: 767,
     before: { id: 2, isCompleted: true, task: 'Test' },
-    after: {}
+    after: {},
   },
   DELETE_MESSAGE: {
     committedAt: MOCKED_DATE,
@@ -93,7 +93,7 @@ export const CHANGE_ATTRIBUTES = {
     table: '',
     transactionId: 767,
     before: {},
-    after: {}
+    after: {},
   },
   HEARTBEAT_MESSAGE: {
     committedAt: MOCKED_DATE,
@@ -108,7 +108,7 @@ export const CHANGE_ATTRIBUTES = {
     table: '',
     transactionId: 769,
     before: {},
-    after: {}
+    after: {},
   },
   TRUNCATE: {
     committedAt: MOCKED_DATE,
@@ -123,6 +123,6 @@ export const CHANGE_ATTRIBUTES = {
     table: 'todo',
     transactionId: 771,
     before: {},
-    after: {}
-  }
+    after: {},
+  },
 }

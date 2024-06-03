@@ -4,7 +4,7 @@ import { FetchedRecordBuffer } from './fetched-record-buffer'
 
 export const stitchFetchedRecords = ({
   fetchedRecordBuffer,
-  useBuffer = false
+  useBuffer = false,
 }: {
   fetchedRecordBuffer: FetchedRecordBuffer
   useBuffer: boolean
@@ -97,12 +97,12 @@ export const stitchFetchedRecords = ({
   logger.debug({
     stitched: stitchedFetchedRecords,
     buffer: newFetchedRecordBuffer.store,
-    ackStreamSequence
+    ackStreamSequence,
   })
 
   return {
     stitchedFetchedRecords,
     newFetchedRecordBuffer,
-    ackStreamSequence
+    ackStreamSequence,
   }
 }
