@@ -14,7 +14,7 @@ export class FetchedRecordBuffer {
   }
 
   addFetchedRecord(fetchedRecord: FetchedRecord) {
-    const newBuffer = Object.assign(Object.create(this), this)
+    const newBuffer: FetchedRecordBuffer = Object.assign(Object.create(this), this)
     const { subject, changeAttributes } = fetchedRecord
     const position = changeAttributes.position.toString()
     const existingFetchedRecords = this.store[subject]?.[position]
@@ -35,7 +35,7 @@ export class FetchedRecordBuffer {
   }
 
   addFetchedRecords(fetchedRecords: FetchedRecord[]) {
-    let newBuffer = this
+    let newBuffer: FetchedRecordBuffer = this
 
     fetchedRecords.forEach((fetchedRecord: FetchedRecord) => {
       newBuffer = newBuffer.addFetchedRecord(fetchedRecord)
