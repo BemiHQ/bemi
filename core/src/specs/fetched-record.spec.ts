@@ -1,7 +1,7 @@
-import { FetchedRecord, MESSAGE_PREFIX_CONTEXT } from '../fetched-record';
+import { FetchedRecord, MESSAGE_PREFIX_CONTEXT } from '../fetched-record'
 
-import { MESSAGE_DATA, buildNatsMessage } from './fixtures/nats-messages';
-import { MOCKED_DATE, CHANGE_ATTRIBUTES } from './fixtures/fetched-records';
+import { MESSAGE_DATA, buildNatsMessage } from './fixtures/nats-messages'
+import { MOCKED_DATE, CHANGE_ATTRIBUTES } from './fixtures/fetched-records'
 
 describe('fromNatsMessage', () => {
   beforeAll(() => {
@@ -86,7 +86,11 @@ describe('fromNatsMessage', () => {
       buildNatsMessage({
         subject,
         streamSequence: 1,
-        data: { ...MESSAGE_DATA.UPDATE, before: { id: 2, names: ['Alice', 'Bob'] }, after: { id: 2, names: ['__bemi_unavailable_value'] } },
+        data: {
+          ...MESSAGE_DATA.UPDATE,
+          before: { id: 2, names: ['Alice', 'Bob'] },
+          after: { id: 2, names: ['__bemi_unavailable_value'] },
+        },
       }),
     ]
 
@@ -96,7 +100,11 @@ describe('fromNatsMessage', () => {
       new FetchedRecord({
         subject,
         streamSequence: 1,
-        changeAttributes: { ...CHANGE_ATTRIBUTES.UPDATE, before: { id: 2, names: ['Alice', 'Bob'] }, after: { id: 2, names: ['Alice', 'Bob'] } },
+        changeAttributes: {
+          ...CHANGE_ATTRIBUTES.UPDATE,
+          before: { id: 2, names: ['Alice', 'Bob'] },
+          after: { id: 2, names: ['Alice', 'Bob'] },
+        },
       }),
     ])
   })

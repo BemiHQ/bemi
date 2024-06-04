@@ -1,13 +1,14 @@
-import { RequiredEntityData } from '@mikro-orm/postgresql';
-import { JsMsg } from 'nats';
+import { RequiredEntityData } from '@mikro-orm/postgresql'
+import { JsMsg } from 'nats'
 
-import { Change, Operation } from "./entities/Change"
+import { Change, Operation } from './entities/Change'
 import { decodeData } from './nats'
 
 export const MESSAGE_PREFIX_CONTEXT = '_bemi'
 export const MESSAGE_PREFIX_HEARTBEAT = '_bemi_heartbeat'
 const UNAVAILABLE_VALUE_PLACEHOLDER = '__bemi_unavailable_value'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const parseDebeziumData = (debeziumChange: any, now: Date) => {
   const {
     op,
@@ -40,9 +41,10 @@ const parseDebeziumData = (debeziumChange: any, now: Date) => {
     }
   })
 
-  const context = message?.prefix === MESSAGE_PREFIX_CONTEXT ?
-    (JSON.parse(Buffer.from(message?.content, 'base64').toString('utf-8')) || {}) : // Fallback to '{}' from 'null' if it's passed explicitly as a context
-    {}
+  const context =
+    message?.prefix === MESSAGE_PREFIX_CONTEXT
+      ? JSON.parse(Buffer.from(message?.content, 'base64').toString('utf-8')) || {} // Fallback to '{}' from 'null' if it's passed explicitly as a context
+      : {}
 
   return {
     primaryKey,
@@ -67,10 +69,17 @@ export class FetchedRecord {
   streamSequence: number
   messagePrefix?: string
 
-  constructor(
-    { changeAttributes, subject, streamSequence, messagePrefix }:
-    { changeAttributes: RequiredEntityData<Change>, subject: string, streamSequence: number, messagePrefix?: string }
-  ) {
+  constructor({
+    changeAttributes,
+    subject,
+    streamSequence,
+    messagePrefix,
+  }: {
+    changeAttributes: RequiredEntityData<Change>
+    subject: string
+    streamSequence: number
+    messagePrefix?: string
+  }) {
     this.changeAttributes = changeAttributes
     this.subject = subject
     this.streamSequence = streamSequence
@@ -78,6 +87,7 @@ export class FetchedRecord {
   }
 
   static fromNatsMessage(natsMessage: JsMsg, now = new Date()) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const debeziumData = decodeData(natsMessage.data) as any
 
     const messagePrefix = debeziumData.message?.prefix

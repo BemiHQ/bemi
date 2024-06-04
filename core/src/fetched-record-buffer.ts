@@ -35,6 +35,7 @@ export class FetchedRecordBuffer {
   }
 
   addFetchedRecords(fetchedRecords: FetchedRecord[]) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     let newBuffer: FetchedRecordBuffer = this
 
     fetchedRecords.forEach((fetchedRecord: FetchedRecord) => {
@@ -47,9 +48,10 @@ export class FetchedRecordBuffer {
   forEach(callback: (subject: string, fetchedRecords: FetchedRecord[]) => void) {
     Object.keys(this.store).forEach((subject) => {
       const fetchedRecords = Object.values(this.store[subject]).flat()
-      const sortedFetchedRecords = fetchedRecords.sort((a, b) => (
-        parseInt(a.changeAttributes.position.toString(), 10) - parseInt(b.changeAttributes.position.toString(), 10)
-      ))
+      const sortedFetchedRecords = fetchedRecords.sort(
+        (a, b) =>
+          parseInt(a.changeAttributes.position.toString(), 10) - parseInt(b.changeAttributes.position.toString(), 10),
+      )
 
       callback(subject, sortedFetchedRecords)
     })
@@ -64,8 +66,8 @@ export class FetchedRecordBuffer {
   }
 
   size() {
-    return Object.values(this.store).map(fetchedRecsByPos => (
-      Object.values(fetchedRecsByPos).flat().length
-    )).reduce((acc, l) => acc + l, 0)
+    return Object.values(this.store)
+      .map((fetchedRecsByPos) => Object.values(fetchedRecsByPos).flat().length)
+      .reduce((acc, l) => acc + l, 0)
   }
 }
