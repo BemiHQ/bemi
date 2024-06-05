@@ -30,3 +30,7 @@ jobs:
     - name: Run tests
       run: pnpm jest
       working-directory: ./core
+
+    - name: Run ESLint
+      run: pnpm lint
+      working-directory: ./core
