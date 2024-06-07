@@ -28,7 +28,7 @@ jobs:
       working-directory: ./core
 
     - name: Run typescript
-      run: pnpm tsc --noEmit --skipLibCheck
+      run: pnpm tsc --noEmit
       working-directory: ./core
 
     - name: Run tests
