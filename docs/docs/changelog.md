@@ -9,6 +9,11 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
 
 # Changelog
 
+## 2024-06
+
+* Platform
+  * Allow setting ignore-change column rules across all tables (e.g., `*.updatedAt`)
+
 ## 2024-05
 
 * Dashboard
