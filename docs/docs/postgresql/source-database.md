@@ -103,6 +103,7 @@ To connect a [Neon](https://neon.tech/) database, specify your database credenti
 
 And that's it, everything should just work!
 
+
 #### Read-only credentials {#neon-read-only}
 
 Alternatively, you can manually create read-only PostgreSQL database credentials to connect to the primary instance's WAL.
@@ -267,10 +268,6 @@ See the [AWS RDS user guides](https://docs.aws.amazon.com/AmazonRDS/latest/UserG
 
 ### GCP Cloud SQL
 
-#### WAL level {#gcp-wal-level}
-
-Logical replication is turned off by default. To turn it on, you have to update the [cloud flag](https://cloud.google.com/sql/docs/postgres/replication/configure-logical-replication#configure-your-postgresql-instance): `cloudsql.logical_decoding` = `on`. This will need a restart of your instance before `SHOW wal_level;` returns `logical`.
-
 #### Connection {#gcp-connection}
 
 Run the below command and then you can connect with the same credentials on the Bemi dashboard!
@@ -278,6 +275,10 @@ Run the below command and then you can connect with the same credentials on the 
 -- Grant replication permission to allow using replication slots
 ALTER USER [user] WITH REPLICATION;
 ```
+
+#### WAL level {#gcp-wal-level}
+
+Logical replication is turned off by default. To turn it on, you have to update the [cloud flag](https://cloud.google.com/sql/docs/postgres/replication/configure-logical-replication#configure-your-postgresql-instance): `cloudsql.logical_decoding` = `on`. This will need a restart of your instance before `SHOW wal_level;` returns `logical`.
 
 ### Self-managed PostgreSQL
 
@@ -372,11 +373,15 @@ During the Source Database connection setup or any time after, you can configure
 
 ![](/img/tracked-tables.png)
 
+Bemi automatically tracks changes in the default `public` schema. If you would like to enable tracking for other schemas in your Bemi organization, please [contact us](mailto:hi@bemi.io).
+
 ### Ignoring by Columns
 
-Bemi allows to configure ignore-change columns, such as `myTable.updatedAt`. This prevents the creation of a new audit trail entry (called "change") for a record in `myTable` if `updatedAt` was the only value that was updated.
+Bemi allows to configure ignore-change columns, such as `myTable.updatedAt`, to ignore meaningless data changes.
+This prevents the creation of a new audit trail entry (called "change") for a record in `myTable` if `updatedAt` was the only column value that was updated.
 
-In other words, `myTable.updatedAt` is used to determine whether an audit trail entry should be recorded or not. But this column will always be persisted if there were other columns that were updated.
+In other words, `myTable.updatedAt` is used to determine whether an audit trail entry should be recorded or not.
+Note that this column will always be recorded if there were updated values in other columns.
 
 ## SSH Tunnel
 

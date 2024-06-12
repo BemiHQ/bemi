@@ -19,6 +19,8 @@ You have full control over this database which comes with additional features:
 * Standard cloud support
 * Control plane and monitoring through Bemi Dashboard (coming soon)
 
+The infrastructure is automatically provisioned in the `us-west-1` region. If you have specific data residency requirements, please [contact us](mailto:hi@bemi.io).
+
 ## Data Structure
 
 Changes performed by creating, updating, or deleting each row are stored in a table called `changes` and have the following structure:

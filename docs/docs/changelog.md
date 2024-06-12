@@ -12,6 +12,7 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
 ## 2024-06
 
 * Platform
+  * Enable tracking changes from non-`public` PostgreSQL schemas
   * Allow setting ignore-change column rules across all tables (e.g., `*.updatedAt`)
 
 ## 2024-05
