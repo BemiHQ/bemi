@@ -46,6 +46,7 @@ Bemi automatically tracks database changes ensuring 100% reliability and a compr
 There's a wide range of use cases that Bemi is built for! The tech was initially built as a compliance engineering system for fintech that supported $15B worth of assets under management, but has since been extracted into a general-purpose utility. Some use cases include:
 
 - **Audit Trails:** Use logs for compliance purposes or surface them to customer support and external customers.
+- **Streaming:** Real-time data stream to an application. 
 - **Time Travel:** Retrieve historical data without implementing event sourcing.
 - **Troubleshooting:** Identify the root cause of application issues.
 - **Change Reversion:** Revert changes made by a user or rollback all data changes within an API request.
