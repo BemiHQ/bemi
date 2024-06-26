@@ -100,6 +100,10 @@ const config: Config = {
               href: "https://github.com/BemiHQ/bemi-prisma",
             },
             {
+              label: "Supabase JS",
+              href: "https://github.com/BemiHQ/supabase-js",
+            },
+            {
               label: "TypeORM",
               href: "https://github.com/BemiHQ/bemi-typeorm",
             },

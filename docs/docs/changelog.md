@@ -13,15 +13,24 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
 
 * Platform
   * Enable tracking changes from non-`public` PostgreSQL schemas
-  * Allow setting ignore-change column rules across all tables (e.g., `*.updatedAt`)
+  * Allow setting ignore-change column rules across all tables, such as `*.updatedAt`
+  * Automatically delete old changes beyond the retention period
+  * Add comprehensive ingestion monitoring
+* [Bemi Core](https://github.com/BemiHQ/bemi)
+  * Run type checks via CI/CD
+* [Bemi Supabase JS](https://github.com/BemiHQ/bemi-supabase-js)
+  * Create a new Supabase JS package to allow passing application context with data changes
 * [Bemi SQLAlchemy](https://github.com/BemiHQ/bemi-sqlalchemy)
   * Create a new Python package to allow passing application context with data changes
+* Integrations
+  * [Neon](https://neon.tech/docs/guides/bemi): new integration guide
 
 ## 2024-05
 
 * Dashboard
   * Allow copying change values as an SQL query statement to be able to rollback
   * Improve Browser UI performance for custom views with associations
+  * Disable autocomplete for inputs by default
 * Platform
   * Upgrade infrastructure to support IPv6 (dual stack)
 * [Bemi Core](https://github.com/BemiHQ/bemi)

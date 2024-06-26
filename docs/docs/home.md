@@ -53,6 +53,7 @@ This allows automatically enhancing low-level database changes with application-
 #### Node.js
 
 * **[Prisma](/orms/prisma)**
+* **[Supabase JS](/orms/supabase-js)**
 * **[TypeORM](/orms/typeorm)**
 
 #### Ruby

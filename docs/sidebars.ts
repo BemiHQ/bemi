@@ -29,6 +29,7 @@ const sidebars: SidebarsConfig = {
       collapsed: false,
       items: [
         'orms/prisma',
+        'orms/supabase-js',
         'orms/typeorm',
         'orms/rails',
         'orms/sqlalchemy',

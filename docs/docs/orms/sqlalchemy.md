@@ -3,7 +3,7 @@ title: Bemi SQLAlchemy Integration - Automate Context-Aware Audit Trails with Po
 sidebar_label: SQLAlchemy
 hide_title: true
 description: Discover how Bemi integrates with SQLAlchemy and PostgreSQL to automatically track database changes, providing robust audit trails for your applications. Learn how to install and use the Bemi SQLAlchemy Python package for enhanced data tracking.
-image: 'img/bemi-sqlalchemy.png'
+image: 'img/social-card.png'
 keywords: [Bemi, SQLAlchemy, PostgreSQL, database auditing, data tracking, context-aware audit, application context, audit log, audit trail, data versioning]
 ---
 
@@ -74,7 +74,7 @@ with engine.connect() as connection:
 
 Application context:
 
-* Is bound to the current database session execution context.
+* Is bound to the current execution thread within an HTTP request.
 * Is used only with `INSERT`, `UPDATE`, `DELETE` SQL queries performed via SQLAlchemy. Otherwise, it is a no-op.
 * Is passed directly into PG [Write-Ahead Log](https://www.postgresql.org/docs/current/wal-intro.html) with data changes without affecting the structure of the database and SQL queries.
 
@@ -102,7 +102,7 @@ app.add_middleware(
 
 ## Database connection
 
-Connect your PostgreSQL source database on [bemi.io](https://bemi.io) to start ingesting and storing all data changes stitched together with application-specific context. The database connection details can be securely configured through the [dashboard UI](https://dashboard.bemi.io/log-in?ref=prisma) in a few seconds.
+Connect your PostgreSQL source database on [bemi.io](https://bemi.io) to start ingesting and storing all data changes stitched together with application-specific context. The database connection details can be securely configured through the [dashboard UI](https://dashboard.bemi.io/log-in?ref=sqlalchemy) in a few seconds.
 
 ![dashboard](/img/dashboard.png)
 
@@ -124,6 +124,6 @@ See [Destination Database](/postgresql/destination-database) for more details.
 
 ## License
 
-Distributed under the terms of the [LGPL-3.0](https://github.com/BemiHQ/bemi-prisma/blob/main/LICENSE).
+Distributed under the terms of the [LGPL-3.0](https://github.com/BemiHQ/bemi-sqlalchemy/blob/main/LICENSE).
 If you need to modify and distribute the code, please release it to contribute back to the open-source community.
 hide_title: true
