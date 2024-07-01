@@ -125,8 +125,8 @@ const config: Config = {
               href: "https://github.com/BemiHQ/bemi",
             },
             {
-              label: "Discord",
-              href: "https://discord.gg/mXeZ6w2tGf",
+              label: "Slack",
+              href: "https://join.slack.com/t/bemi-community/shared_invite/zt-2lv5jlg84-a4d6t7~5Zef~N9FRWgXhbw",
             },
           ],
         },

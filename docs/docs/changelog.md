@@ -11,6 +11,8 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
 
 ## 2024-06
 
+* Dashboard
+  * Collapse diffs hiding unchanged values by default
 * Platform
   * Enable tracking changes from non-`public` PostgreSQL schemas
   * Allow setting ignore-change column rules across all tables, such as `*.updatedAt`

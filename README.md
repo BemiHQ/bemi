@@ -12,7 +12,7 @@
     ·
     <a href="https://github.com/BemiHQ/bemi/issues/new">Request Feature</a>
     ·
-    <a href="https://discord.gg/mXeZ6w2tGf">Discord</a>
+    <a href="https://join.slack.com/t/bemi-community/shared_invite/zt-2lv5jlg84-a4d6t7~5Zef~N9FRWgXhbw">Slack</a>
     ·
     <a href="https://twitter.com/BemiHQ">Twitter</a>
     ·
@@ -46,7 +46,7 @@ Bemi automatically tracks database changes ensuring 100% reliability and a compr
 There's a wide range of use cases that Bemi is built for! The tech was initially built as a compliance engineering system for fintech that supported $15B worth of assets under management, but has since been extracted into a general-purpose utility. Some use cases include:
 
 - **Audit Trails:** Use logs for compliance purposes or surface them to customer support and external customers.
-- **Streaming:** Real-time data stream to an application. 
+- **Streaming:** Real-time data stream to an application.
 - **Time Travel:** Retrieve historical data without implementing event sourcing.
 - **Troubleshooting:** Identify the root cause of application issues.
 - **Change Reversion:** Revert changes made by a user or rollback all data changes within an API request.
