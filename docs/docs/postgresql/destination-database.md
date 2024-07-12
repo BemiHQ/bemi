@@ -9,11 +9,11 @@ keywords: [Bemi, destination database, PostgreSQL, autoscaling, high availabilit
 
 # Destination Database
 
-Bemi automatically provisions a cloud-hosted PostgreSQL destination database to store all changes made in a source database.
+Bemi automatically provisions a cloud-hosted PostgreSQL destination database cluster of three nodes to store all changes made in a source database.
 You have full control over this database which comes with additional features:
 
 * Autoscaling, managed table partitioning and index optimization to improve performance
-* Automatic failover, read-replica, and backups for high availability and fault tolerance
+* Automatic failover, read-replicas, and backups for high availability and read scalability
 * Automatic data retention: 15 days, 30 days, or unlimited
 * Automatic PostgreSQL version upgrades
 * Standard cloud support

@@ -9,6 +9,14 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
 
 # Changelog
 
+## 2024-07
+
+* Dashboard
+  * List ORM integrations for better onboarding experience
+* Platform
+  * Reduce provisioning time with automated workflows
+  * Start SOC 2 security audit
+
 ## 2024-06
 
 * Dashboard
