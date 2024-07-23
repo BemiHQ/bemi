@@ -93,16 +93,26 @@ Configure database for Bemi
 
 ### Neon
 
+#### WAL level {#neon-wal-level}
+
+To enable logical replication in [Neon](https://neon.tech/):
+
+1. Select your project in the Neon Console.
+2. On the Neon **Dashboard**, select **Settings**.
+3. Select **Beta**.
+4. Click **Enable** to enable logical replication. This will set the Postgres `wal_level` setting to `logical`.
+
 #### Connection {#neon-connection}
 
-To connect a [Neon](https://neon.tech/) database, specify your database credentials that can be found on the project's dashboard:
+To connect a [Neon](https://neon.tech/) Postgres database, specify your database credentials, which can be found on your Neon project's dashboard:
 
-* Please use the `Host` name without enabled "Pooled connection"
+**Note:** Please use the `Host` name without enabling the "Pooled connection" option.
 
 ![](/img/perm-neon.png)
 
 And that's it, everything should just work!
 
+For a detailed setup guide, see [Create an automatic audit trail with Bemi and Neon](https://neon.tech/docs/guides/bemi), in the _Neon documentation_.
 
 #### Read-only credentials {#neon-read-only}
 
@@ -134,11 +144,6 @@ END $$ LANGUAGE plpgsql;
 -- Call the created procedure
 CALL _bemi_set_replica_identity();
 ```
-
-#### WAL level {#neon-wal-level}
-
-If you have access to [Neon](https://neon.tech/)'s [Logical Replication Beta program](https://neon.tech/docs/guides/logical-replication-postgres),
-you can set WAL level to `logical` by enabling the feature in your Project settings.
 
 ### AWS RDS
 
