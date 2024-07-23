@@ -140,16 +140,6 @@ CALL _bemi_set_replica_identity();
 If you have access to [Neon](https://neon.tech/)'s [Logical Replication Beta program](https://neon.tech/docs/guides/logical-replication-postgres),
 you can set WAL level to `logical` by enabling the feature in your Project settings.
 
-If the Enrollment is paused for you, just send a support request email:
-
-```
-To: support@neon.tech
-Subject: Enable logical replication
-
-I need to integrate with Bemi.io, which requires logical replication.
-Can you please enable it for my [YOUR-DATABASE-HOST.neon.tech] database?
-```
-
 ### AWS RDS
 
 #### Connection {#aws-connection}
