@@ -12,10 +12,15 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
 ## 2024-07
 
 * Dashboard
+  * Show volume usage for the current and past billing cycles
+  * Allow expanding all changes in Browser UI
   * List ORM integrations for better onboarding experience
 * Platform
-  * Reduce provisioning time with automated workflows
-  * Start SOC 2 security audit
+  * Reduce provisioning time to ~60 seconds with automated workflows
+  * Allow connecting multiple databases from the same instance
+  * Deploy multiple database poolers for redundancy
+  * Start SOC 2 security audit, see [trust.bemi.io](https://trust.bemi.io/) for more details
+  * Create [status.bemi.io](https://status.bemi.io/) for monitoring dashboard and API uptime
 
 ## 2024-06
 
