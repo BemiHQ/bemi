@@ -74,6 +74,18 @@ Application context:
 
 Application context will automatically include the original SQL query that performed data changes, which is generally useful for troubleshooting purposes.
 
+If you want to enable context passing only for specific models, you can specify an `includeModels` list:
+
+```ts title="src/prisma.ts"
+import { withPgAdapter } from "@bemi-db/prisma";
+import { PrismaClient } from '@prisma/client';
+
+const prisma = withPgAdapter(
+  new PrismaClient(),
+  { includeModels: ['User', 'Comment'] },
+);
+```
+
 ### Express.js
 
 Add the `setContext` [Express.js](https://expressjs.com/) middleware to pass application context with all underlying data changes made within an HTTP request:

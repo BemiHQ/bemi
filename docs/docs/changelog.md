@@ -9,6 +9,15 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
 
 # Changelog
 
+## 2024-08
+
+* Platform
+  * Store values from `DECIMAL`, `NUMERIC`, `MONEY` columns as `DOUBLE`
+* [Bemi Prisma](https://github.com/BemiHQ/bemi-prisma)
+  * Allow context passing only for specific models with `includeModels`
+  * Fix compatibility with Prisma v5.15+
+  * Enable SQL comment affix customization
+
 ## 2024-07
 
 * Dashboard
