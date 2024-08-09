@@ -13,6 +13,8 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
 
 * Platform
   * Store values from `DECIMAL`, `NUMERIC`, `MONEY` columns as `DOUBLE`
+* [Bemi Core](https://github.com/BemiHQ/bemi)
+  * Allow running it locally with a docker image
 * [Bemi Prisma](https://github.com/BemiHQ/bemi-prisma)
   * Allow context passing only for specific models with `includeModels`
   * Fix compatibility with Prisma v5.15+

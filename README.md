@@ -28,7 +28,12 @@ Bemi automatically tracks database changes ensuring 100% reliability and a compr
 
 - [Highlights](#highlights)
 - [Use cases](#use-cases)
+- [System dependencies](#system-dependencies)
 - [Quickstart](#quickstart)
+  - [Running with Docker](#running-with-docker)
+  - [Running with Devbox](#running-with-devbox)
+  - [Running natively](#running-natively)
+- [Contextualizing data changes](#contextualizing-data-changes)
 - [Architecture](#architecture)
 - [Testing](#testing)
 - [License](#license)
@@ -54,15 +59,11 @@ There's a wide range of use cases that Bemi is built for! The tech was initially
 - **Testing:** Rollback or roll-forward to different application test states.
 - **Analyzing Trends:** Gain insights into historical trends and changes for informed decision-making.
 
-## Quickstart
+## System dependencies
 
-### System dependencies
-
-- [Node.js](https://github.com/nodejs/node)
+- Node.js
+- Java
 - [NATS server](https://github.com/nats-io/nats-server)
-
-You can install these system dependencies manually or use [Devbox](https://github.com/jetpack-io/devbox) that relies on
-[Nix Packages](https://github.com/NixOS/nixpkgs) for providing isolated shells without containerization.
 
 And of course, you need a PostgreSQL database that you want to connect to to track data changes. Make sure your database has `SHOW wal_level;` returning `logical`. Otherwise, you need to run the following SQL command and restart your PostgreSQL server:
 
@@ -70,34 +71,46 @@ And of course, you need a PostgreSQL database that you want to connect to to tra
 ALTER SYSTEM SET wal_level = logical;
 ```
 
-### Installation
+## Quickstart
 
-After installing all system dependencies, install all project dependencies with Node.js:
+### Running with Docker
+
+Run a Docker container that connects to your local PostgreSQL database:
 
 ```sh
-make worker-setup && cd worker && npm install
+docker run \
+  -e DB_HOST=host.docker.internal \
+  -e DB_PORT=5434 \
+  -e DB_NAME=bemi_dev_source \
+  -e DB_USER=postgres \
+  -e DB_PASSWORD=postgres \
+  public.ecr.aws/u4i4s8t6/bemi-local:latest
 ```
 
-Alternatively, you can use Devbox instead and run a single command that will also install Node.js with pnpm and NATS server:
+`DB_HOST` pointing to `host.docker.internal` allows accessing `127.0.0.1` on your host machine if you run PostgreSQL outside Docker.
+
+Now try making some database changes like:
+
+```sql
+UPDATE _bemi_migrations SET executed_at = NOW() WHERE id = 1;
+```
+
+This will add a new record in the `changes` table within the same database after a few seconds.
+
+### Running with Devbox
+
+You can install all system dependencies manually or use [Devbox](https://github.com/jetpack-io/devbox) that relies on
+[Nix Packages](https://github.com/NixOS/nixpkgs) for providing isolated shells without containerization.
+Run a single command that will install Node.js with pnpm and NATS server:
 
 ```sh
 make worker-install
 ```
 
-### Data change tracking
-
-Set environment variables specifying connection settings for a PostgreSQL database you want to track:
+Set environment variables specifying connection settings for a PostgreSQL database you want to track and run a worker:
 
 ```sh
 export DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=postgres DB_USER=postgres DB_PASSWORD=postgres
-```
-
-Run a worker as a single process with directly installed Node.js:
-
-```sh
-cd worker && npm concurrently -- "npm:up:*"
-
-# Alternatively, with Devbox
 make worker-up
 ```
 
@@ -109,7 +122,33 @@ UPDATE _bemi_migrations SET executed_at = NOW() WHERE id = 1;
 
 This will add a new record in the `changes` table within the same database after a few seconds.
 
-To optionally automatically enhance these low-level database changes with application-specific context (e.g., user ID, API endpoint, etc.), check out our compatible [ORM packages](https://docs.bemi.io/#supported-orms).
+### Running natively
+
+After installing all system dependencies, install all project dependencies with Node.js:
+
+```sh
+make worker-setup && cd worker && npm install
+```
+
+Set environment variables specifying connection settings for a PostgreSQL database you want to track run a worker as a single process with directly installed Node.js:
+
+
+```sh
+export DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=postgres DB_USER=postgres DB_PASSWORD=postgres
+npm concurrently -- "npm:up:*"
+```
+
+Now try making some database changes like:
+
+```sql
+UPDATE _bemi_migrations SET executed_at = NOW() WHERE id = 1;
+```
+
+This will add a new record in the `changes` table within the same database after a few seconds.
+
+## Contextualizing data changes
+
+Optionally, to automatically enhance these low-level database changes with application-specific context (e.g., user ID, API endpoint, etc.), check out our compatible [ORM packages](https://docs.bemi.io/#supported-orms).
 
 ## Architecture
 

@@ -18,10 +18,10 @@ const mikroOrmConfig: Options = {
   highlighter: new SqlHighlighter(),
   debug: true,
   allowGlobalContext: true,
-  entities: ['../core/src/entities/**/*.js'],
+  entities: ['./dist/core/src/entities/**/*.js'],
   entitiesTs: ['../core/src/entities/**/*.ts'],
   migrations: {
-    path: '../core/src/migrations',
+    path: './dist/core/src/migrations',
     pathTs: '../core/src/migrations',
     tableName: '_bemi_migrations',
   },

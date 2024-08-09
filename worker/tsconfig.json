@@ -9,6 +9,7 @@
     "baseUrl": ".",
     "allowJs": true,
     "sourceMap": true,
+    "skipLibCheck": true,
 
     // MikroORM
     "experimentalDecorators": true,
@@ -19,6 +20,6 @@
 
     "sourceRoot": "/"
   },
-  "include": ["mikro-orm.config.ts", "src/index.ts", "core/src"],
-  "exclude": ["node_modules", "core/node_modules", "core/src/specs"]
+  "include": ["mikro-orm.config.ts", "src/index.ts", "src/reset.ts", "../core/src"],
+  "exclude": ["node_modules", "../core/node_modules", "../core/src/specs"]
 }

@@ -10,9 +10,11 @@
   "devDependencies": {
     "@types/node": "^20.11.16",
     "concurrently": "^8.2.2",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
   },
   "scripts": {
+    "build": "pnpm tsc",
     "up:worker": "sleep 5 && LOG_LEVEL=DEBUG pnpm ts-node src/index.ts",
     "up:nats": "nats-server -js",
     "up:debezium": "sleep 1 && pnpm ts-node src/reset.ts && ./debezium.sh"

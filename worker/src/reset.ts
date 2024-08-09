@@ -8,8 +8,8 @@ const main = (async () => {
   await orm.em.getConnection().execute(`
     DO $$
     BEGIN
-      IF EXISTS (SELECT 1 FROM pg_replication_slots WHERE slot_name = 'debezium') THEN
-        PERFORM pg_drop_replication_slot('debezium');
+      IF EXISTS (SELECT 1 FROM pg_replication_slots WHERE slot_name = 'bemi_local') THEN
+        PERFORM pg_drop_replication_slot('bemi_local');
       END IF;
     END $$;
   `)
