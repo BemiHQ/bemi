@@ -12,7 +12,7 @@
     ·
     <a href="https://github.com/BemiHQ/bemi/issues/new">Request Feature</a>
     ·
-    <a href="https://join.slack.com/t/bemi-community/shared_invite/zt-2lv5jlg84-a4d6t7~5Zef~N9FRWgXhbw">Slack</a>
+    <a href="https://discord.gg/mXeZ6w2tGf">Discord</a>
     ·
     <a href="https://twitter.com/BemiHQ">Twitter</a>
     ·
