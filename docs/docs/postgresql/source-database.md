@@ -275,6 +275,12 @@ ALTER USER [user] WITH REPLICATION;
 
 Logical replication is turned off by default. To turn it on, you have to update the [cloud flag](https://cloud.google.com/sql/docs/postgres/replication/configure-logical-replication#configure-your-postgresql-instance): `cloudsql.logical_decoding` = `on`. This will need a restart of your instance before `SHOW wal_level;` returns `logical`.
 
+### DigitalOcean
+
+Navigate to the [DigitalOcean databases](https://cloud.digitalocean.com/databases) tab and specify your database credentials, which can be found in the Connection details:
+
+![](/img/perm-digitalocean.png)
+
 ### Self-managed PostgreSQL
 
 #### Connection {#self-managed-connection}
