@@ -66,8 +66,8 @@ jobs:
     - name: Build, tag, and push image to Amazon ECR
       env:
         REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
-        REGISTRY_ALIAS: u4i4s8t6
-        REPOSITORY: bemi-local
+        REGISTRY_ALIAS: bemi
+        REPOSITORY: dev
         IMAGE_TAG: latest
       run: |
         cd worker

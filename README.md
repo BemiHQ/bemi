@@ -29,7 +29,7 @@ Bemi automatically tracks database changes ensuring 100% reliability and a compr
 - [Highlights](#highlights)
 - [Use cases](#use-cases)
 - [System dependencies](#system-dependencies)
-- [Quickstart](#quickstart)
+- [Quickstart for local development](#quickstart-for-local-development)
   - [Running with Docker](#running-with-docker)
   - [Running with Devbox](#running-with-devbox)
   - [Running natively](#running-natively)
@@ -71,7 +71,7 @@ And of course, you need a PostgreSQL database that you want to connect to to tra
 ALTER SYSTEM SET wal_level = logical;
 ```
 
-## Quickstart
+## Quickstart for local development
 
 ### Running with Docker
 
@@ -84,7 +84,7 @@ docker run \
   -e DB_NAME=bemi_dev_source \
   -e DB_USER=postgres \
   -e DB_PASSWORD=postgres \
-  public.ecr.aws/u4i4s8t6/bemi-local:latest
+  public.ecr.aws/bemi/dev:latest
 ```
 
 `DB_HOST` pointing to `host.docker.internal` allows accessing `127.0.0.1` on your host machine if you run PostgreSQL outside Docker.

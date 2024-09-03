@@ -12,6 +12,7 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
 ## 2024-08
 
 * Platform
+  * Become SOC 2 certified, see [bemi.io/security](https://bemi.io/security) for more details
   * Store values from `DECIMAL`, `NUMERIC`, `MONEY` columns as `DOUBLE`
 * [Bemi Core](https://github.com/BemiHQ/bemi)
   * Allow running it locally with a docker image
