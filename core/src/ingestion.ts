@@ -15,7 +15,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 const chunk = <T>(array: T[], size: number): T[][] =>
   [...Array(Math.ceil(array.length / size))].map((_, i) => array.slice(size * i, size + size * i))
 
-const persistFetchedRecords = ({
+const persistFetchedRecords = async ({
   orm,
   fetchedRecords,
   insertBatchSize,
@@ -25,11 +25,13 @@ const persistFetchedRecords = ({
   insertBatchSize: number
 }) => {
   logger.info(`Persisting ${fetchedRecords.length} change message(s)...`)
-  chunk(fetchedRecords, insertBatchSize).forEach((fetchedRecs) => {
+  const batches = chunk(fetchedRecords, insertBatchSize)
+
+  for (const fetchedRecs of batches) {
     const changesAttributes = fetchedRecs.map(({ changeAttributes }) => changeAttributes)
     const queryBuilder = orm.em.createQueryBuilder(Change).insert(changesAttributes).onConflict().ignore()
-    queryBuilder.execute()
-  })
+    await queryBuilder.execute()
+  }
 }
 
 const fetchNatsMessages = async ({
@@ -121,11 +123,10 @@ export const runIngestionLoop = async ({
 
     // Persisting and acking
     if (stitchedFetchedRecords.length) {
-      persistFetchedRecords({ orm, fetchedRecords: stitchedFetchedRecords, insertBatchSize })
       try {
-        await orm.em.flush()
+        await persistFetchedRecords({ orm, fetchedRecords: stitchedFetchedRecords, insertBatchSize })
       } catch (e) {
-        logger.info(`Error while flushing: ${e}`)
+        logger.info(`Error while saving: ${e}`)
         throw e
       }
     }

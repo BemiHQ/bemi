@@ -9,6 +9,11 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
 
 # Changelog
 
+## 2024-09
+
+* [Bemi Core](https://github.com/BemiHQ/bemi)
+  * Insert records in batches sequentially to avoid overloading the database at scale
+
 ## 2024-08
 
 * Platform
