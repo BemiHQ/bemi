@@ -2,7 +2,7 @@ FROM --platform=linux/amd64 node:21-bookworm AS base
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN npm install -g pnpm@8.8.0
+RUN npm install -g pnpm@8.15.9
 
 WORKDIR /worker
 

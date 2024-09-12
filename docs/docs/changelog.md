@@ -11,8 +11,12 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
 
 ## 2024-09
 
+* Platform
+  * Allow tracking changes across all Postgres schemas
+  * Enable provisioning Destination DBs without public network access
 * [Bemi Core](https://github.com/BemiHQ/bemi)
   * Insert records in batches sequentially to avoid overloading the database at scale
+  * Update local Docker image path
 
 ## 2024-08
 
