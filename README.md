@@ -71,6 +71,12 @@ And of course, you need a PostgreSQL database that you want to connect to to tra
 ALTER SYSTEM SET wal_level = logical;
 ```
 
+To track both the "before" and "after" states on data changes, please run the following SQL command:
+
+```sql
+ALTER TABLE [tracked_table_name] REPLICA IDENTITY FULL;
+```
+
 ## Quickstart for local development
 
 ### Running with Docker

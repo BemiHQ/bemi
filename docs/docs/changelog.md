@@ -17,6 +17,9 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
 * [Bemi Core](https://github.com/BemiHQ/bemi)
   * Insert records in batches sequentially to avoid overloading the database at scale
   * Update local Docker image path
+* [Bemi TypeORM](https://github.com/BemiHQ/bemi-typeorm)
+  * Allow calling `setContext` multiple times
+  * Validate the passed context payload size
 * [Bemi MikroORM](https://github.com/BemiHQ/bemi-mikro-orm)
   * Create a new JS/TS package to allow passing application context with data changes
 
