@@ -78,4 +78,4 @@ Bemi workers then stitch the low-level data with the application context and sto
 
 ![bemi-architechture](/img/architecture.png)
 
-The cloud solution includes worker ingesters, queues for fault tolerance, and an automatically scalable cloud-hosted PostgreSQL. Bemi currently doesn't support a self hosted option, but [contact us](mailto:hi@bemi.io) if this is required.
+The cloud solution includes worker ingesters, queues for fault tolerance, and an automatically scalable cloud-hosted PostgreSQL.

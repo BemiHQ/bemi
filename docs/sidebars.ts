@@ -29,10 +29,11 @@ const sidebars: SidebarsConfig = {
       collapsed: false,
       items: [
         'orms/prisma',
-        'orms/supabase-js',
-        'orms/typeorm',
         'orms/rails',
+        'orms/typeorm',
         'orms/sqlalchemy',
+        'orms/supabase-js',
+        'orms/mikro-orm',
       ],
     },
     'alternatives',

@@ -364,7 +364,7 @@ Run the following SQL command to change the WAL level from `replica` to `logical
 ALTER SYSTEM SET wal_level = logical;
 ```
 
-If you have issues in other PostgreSQL hosting environments, please [reach out](mailto:hi@bemi.io) to us and we will send you detailed instructions on how to set it up.
+If you have issues in other PostgreSQL hosting environments, please [contact us](https://bemi.io/contact-us), and we will send you detailed instructions on how to set it up.
 
 ## Selective tracking
 
@@ -374,7 +374,7 @@ During the Source Database connection setup or any time after, you can configure
 
 ![](/img/tracked-tables.png)
 
-Bemi automatically tracks changes in the default `public` schema. If you would like to enable tracking for other schemas in your Bemi organization, please [contact us](mailto:hi@bemi.io).
+Bemi automatically tracks changes in the default `public` schema. If you would like to enable tracking for other schemas in your Bemi organization, please [contact us](https://bemi.io/contact-us).
 
 ### Ignoring by Columns
 
@@ -402,7 +402,7 @@ If you need a public SSH Key before you know the SSH host address, just specify 
 
 ## Bemi Static IPs
 
-If you restrict access to your databases by IP addresses, [contact us](mailto:hi@bemi.io). We will share our static IP addresses, which you can add to an allowlist, so we can connect to your Source PostgreSQL database.
+If you restrict access to your databases by IP addresses, [contact us](https://bemi.io/contact-us). We will share our static IP addresses, which you can add to an allowlist, so we can connect to your Source PostgreSQL database.
 
 ## Disconnecting
 

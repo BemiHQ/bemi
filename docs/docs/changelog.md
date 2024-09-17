@@ -17,6 +17,8 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
 * [Bemi Core](https://github.com/BemiHQ/bemi)
   * Insert records in batches sequentially to avoid overloading the database at scale
   * Update local Docker image path
+* [Bemi MikroORM](https://github.com/BemiHQ/bemi-mikro-orm)
+  * Create a new JS/TS package to allow passing application context with data changes
 
 ## 2024-08
 
@@ -101,7 +103,6 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
   * Automatically include an original SQL query in the application context
   * Add support for Next.js actions
 * [Bemi Rails](https://github.com/BemiHQ/bemi-rails)
-  * Automatically include an original SQL query in the application context
   * Allow filtering out changes by a record, values, and operations
   * Add new helper methods for diffing and sorting changes
   * Filter out sensitive logs

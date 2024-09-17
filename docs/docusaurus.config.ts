@@ -88,7 +88,7 @@ const config: Config = {
             },
             {
               label: "Contact us",
-              href: "mailto:hi@bemi.io",
+              href: "https://bemi.io/contact-us",
             },
           ],
         },
@@ -100,20 +100,24 @@ const config: Config = {
               href: "https://github.com/BemiHQ/bemi-prisma",
             },
             {
-              label: "Supabase JS",
-              href: "https://github.com/BemiHQ/supabase-js",
+              label: "Ruby on Rails",
+              href: "https://github.com/BemiHQ/bemi-rails",
             },
             {
               label: "TypeORM",
               href: "https://github.com/BemiHQ/bemi-typeorm",
             },
             {
-              label: "Ruby on Rails",
-              href: "https://github.com/BemiHQ/bemi-rails",
-            },
-            {
               label: "SQLAlchemy",
               href: "https://github.com/BemiHQ/bemi-sqlalchemy",
+            },
+            {
+              label: "Supabase JS",
+              href: "https://github.com/BemiHQ/bemi-supabase-js",
+            },
+            {
+              label: "MikroORM",
+              href: "https://github.com/BemiHQ/bemi-mikro-orm",
             },
           ],
         },

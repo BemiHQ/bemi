@@ -13,7 +13,7 @@ keywords: ['Open source', 'Database Tracking', 'Postgres Audit Trails', 'Change 
 <br />
 <br />
 
-When self-hosting Bemi, your data never leaves your premises.  
+When self-hosting Bemi, your data never leaves your premises.
 
 ![Bemi Worker Architecture](/img/worker.png)
 
@@ -23,22 +23,33 @@ Bemi consists of three main parts:
 2. [NATS JetStream](https://github.com/nats-io/nats-server), a cloud-native messaging system written in Go. Debezium is historically designed to send data to Kafka, but it can be also re-configured to send data to NATS JetStream. It is much more lightweight and easy to manage while being very performant and having over 45 clients for different programming languages.
 3. Bemi Worker, a process responsible for stitching data change with app context sent via our open-source [ORM packages](https://docs.bemi.io/#supported-orms) and storing data changes. It is written in TypeScript and uses the [`core`](https://github.com/BemiHQ/bemi) that we rely on for our [Bemi](https://bemi.io/) cloud platform.
 
-If you want to self-host our solution in a production environment, please [contact us](https://bemi.io/contact-us),
-and we'll be happy to provide you with a Docker image and assist with configuring the system in exchange for your feedback :)
+You can try it out locally by using a Docker image:
 
-## Self-Hosting (OSS) vs Bemi Cloud
+```sh
+docker run \
+  -e DB_HOST=host.docker.internal \
+  -e DB_PORT=5434 \
+  -e DB_NAME=bemi_dev_source \
+  -e DB_USER=postgres \
+  -e DB_PASSWORD=postgres \
+  public.ecr.aws/bemi/dev:latest
+```
+
+`DB_HOST` pointing to `host.docker.internal` allows accessing `127.0.0.1` on your host machine if you run PostgreSQL outside Docker. See [github.com/BemiHQ/bemi](https://github.com/BemiHQ/bemi) for more information.
+
 |                                   | Self-Hosting (OSS)  | Bemi Cloud  |
 | --------------------------------- | ------------------- | ----------- |
 | PostgreSQL source database        | ✅                  | ✅          |
 | Automatic data change tracking    | ✅                  | ✅          |
 | Automatic application context     | ✅                  | ✅          |
-| Included support                  | ✅                  | ✅          |
+| Audit Trail UI                    | ❌                  | ✅          |
+| Priority support                  | ❌                  | ✅          |
 | Automatic table partitioning      | ❌                  | ✅          |
 | Automatic data retention          | ❌                  | ✅          |
 | Autoscaling and high availability | ❌                  | ✅          |
+| Column-based filter rules         | ❌                  | ✅          |
+| Automatic updates and backups     | ❌                  | ✅          |
 | Control plane and monitoring      | ❌                  | ✅          |
-| Automatic updates                 | ❌                  | ✅          |
-| Activity Log UI                   | ❌                  | ✅          |
 
 ## Self-Hosting Enterprise
 

@@ -19,7 +19,7 @@ You have full control over this database which comes with additional features:
 * Standard cloud support
 * Control plane and monitoring through Bemi Dashboard (coming soon)
 
-The infrastructure is automatically provisioned in the `us-west-1` region. If you have specific data residency requirements, please [contact us](mailto:hi@bemi.io).
+The infrastructure is automatically provisioned in the `us-west-1` region. If you have specific data residency requirements, please [contact us](https://bemi.io/contact-us).
 
 ## Data Structure
 
