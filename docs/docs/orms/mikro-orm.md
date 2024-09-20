@@ -46,7 +46,9 @@ npx mikro-orm-esm migration:up
 
 ## Usage
 
-Add an [Express](https://expressjs.com/) middleware to pass application context with all underlying data changes within an HTTP request:
+### Express.js
+
+Add the `setContext` [Express](https://expressjs.com/) middleware to pass application context with all underlying data changes within an HTTP request:
 
 ```ts title="src/index.ts"
 import { setContext } from "@bemi-db/mikro-orm";
@@ -69,6 +71,26 @@ Application context:
 * Is bound to the current asynchronous runtime execution context, for example, an HTTP request.
 * Is used only with `INSERT`, `UPDATE`, `DELETE` SQL queries performed via MikroORM. Otherwise, it is a no-op.
 * Is passed directly into PG [Write-Ahead Log](https://www.postgresql.org/docs/current/wal-intro.html) with data changes without affecting the structure of the database and SQL queries.
+
+### Inline context
+
+It is also possible to manually set or override context by using the `bemiContext` function:
+
+```ts title="src/lambda-function.ts"
+import { bemiContext } from "@bemi-db/prisma";
+
+export const handler = async (event) => {
+  const orm = await MikroORM.init(config);
+
+  bemiContext({
+    gqlField: `${event.typeName}.${event.fieldName}`,
+    gqlArguments: event.arguments,
+    origin: event.request.headers.origin,
+  })
+
+  // ...
+}
+```
 
 ## Database connection
 
