@@ -80,7 +80,7 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
   * Allow saving information about a PostgreSQL user who made data changes in the app context
 * Integrations
   * [Supabase](https://supabase.com/partners/integrations/bemi): new partnership integration
-  * [GCP Cloud SQL](https://docs.bemi.io/postgresql/source-database#gcp-cloud-sql): describe how to enable logical decoding and connect
+  * [GCP Cloud SQL](/hosting/gcp): describe how to enable logical decoding and connect
   * [PowerSync](https://www.powersync.com): make ingestion worker compatible with a separate PostgreSQL replication
 
 ## 2024-04
@@ -110,7 +110,7 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
   * Add new helper methods for diffing and sorting changes
   * Filter out sensitive logs
 * Integrations
-  * [Render](https://docs.bemi.io/postgresql/source-database#render): create a dedicated integration runbook with their support
-  * [Neon](https://docs.bemi.io/postgresql/source-database#neon): describe how to integrate by using their new Logical Replication beta feature
-  * [Supabase](https://docs.bemi.io/postgresql/source-database#supabase): improve IPv6 error handling
+  * [Render](/hosting/render): create a dedicated integration runbook with their support
+  * [Neon](/hosting/neon): describe how to integrate by using their new Logical Replication beta feature
+  * [Supabase](/hosting/supabase): improve IPv6 error handling
   * [AWS DMS](https://aws.amazon.com/dms/): make ingestion worker compatible with DMS' logical replication decoding

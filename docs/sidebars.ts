@@ -20,6 +20,20 @@ const sidebars: SidebarsConfig = {
       collapsed: false,
       items: [
         'postgresql/source-database',
+        {
+          type: 'category',
+          label: 'Hosting Platforms',
+          collapsed: true,
+          items: [
+            'hosting/supabase',
+            'hosting/neon',
+            'hosting/aws',
+            'hosting/gcp',
+            'hosting/render',
+            'hosting/digitalocean',
+            'hosting/self-managed',
+          ],
+        },
         'postgresql/destination-database',
       ],
     },
@@ -28,12 +42,33 @@ const sidebars: SidebarsConfig = {
       label: 'ORMs',
       collapsed: false,
       items: [
-        'orms/prisma',
-        'orms/rails',
-        'orms/typeorm',
-        'orms/sqlalchemy',
-        'orms/supabase-js',
-        'orms/mikro-orm',
+        {
+          type: 'category',
+          label: 'JavaScript/TypeScript',
+          collapsed: true,
+          items: [
+            'orms/prisma',
+            'orms/typeorm',
+            'orms/supabase-js',
+            'orms/mikro-orm',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Ruby',
+          collapsed: true,
+          items: [
+            'orms/rails',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Python',
+          collapsed: true,
+          items: [
+            'orms/sqlalchemy',
+          ],
+        },
       ],
     },
     'alternatives',

@@ -50,11 +50,12 @@ This allows automatically enhancing low-level database changes with application-
 
 ## Supported ORMs
 
-#### Node.js
+#### JavaScript/TypeScript
 
 * **[Prisma](/orms/prisma)**
-* **[Supabase JS](/orms/supabase-js)**
 * **[TypeORM](/orms/typeorm)**
+* **[Supabase JS](/orms/supabase-js)**
+* **[MikroORM](/orms/mikro-orm)**
 
 #### Ruby
 
