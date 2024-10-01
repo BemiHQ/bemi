@@ -66,10 +66,12 @@ Bemi automatically tracks changes in the default `public` schema. If you would l
 
 ### Ignoring by Columns
 
-Bemi allows to configure ignore-change columns, such as `myTable.updatedAt`, to ignore meaningless data changes.
-This prevents the creation of a new audit trail entry (called "change") for a record in `myTable` if `updatedAt` was the only column value that was updated.
+Bemi allows to configure ignore-change columns, such as `public.tableName.updatedAt`, to ignore meaningless data changes.
+This prevents the creation of a new audit trail entry (called "change") for a record in `tableName` if `updatedAt` was the only column value that was updated.
 
-In other words, `myTable.updatedAt` is used to determine whether an audit trail entry should be recorded or not.
+![](/img/ignored-columns.png)
+
+In other words, `public.tableName.updatedAt` is used to determine whether an audit trail entry should be recorded or not.
 Note that this column will always be recorded if there were updated values in other columns.
 
 ## SSH Tunnel

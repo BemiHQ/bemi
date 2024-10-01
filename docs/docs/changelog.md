@@ -9,6 +9,13 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
 
 # Changelog
 
+## 2024-10
+
+* Dashboard
+  * Allow setting and customizing [Ignore Column Rules](https://docs.bemi.io/postgresql/source-database#ignoring-by-columns)
+* Platform
+  * Create PG publications limited to specific tables with selective tracking
+
 ## 2024-09
 
 * Platform
