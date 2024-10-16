@@ -120,4 +120,24 @@ describe('fromNatsMessage', () => {
 
     expect(result).toStrictEqual(null)
   })
+
+  test('customizes changeAttributes with changeAttributesOverride', () => {
+    const subject = 'bemi-subject'
+    const natsMessage = buildNatsMessage({ subject, streamSequence: 1, data: MESSAGE_DATA.CREATE })
+
+    const result = FetchedRecord.fromNatsMessage(natsMessage, {
+      changeAttributesOverride: (changeAttributes) => ({
+        ...changeAttributes,
+        primaryKey: 'custom-primary-key',
+      }),
+    })
+
+    expect(result).toStrictEqual(
+      new FetchedRecord({
+        subject,
+        streamSequence: 1,
+        changeAttributes: { ...CHANGE_ATTRIBUTES.CREATE, primaryKey: 'custom-primary-key' },
+      }),
+    )
+  })
 })

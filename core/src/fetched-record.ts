@@ -8,8 +8,7 @@ export const MESSAGE_PREFIX_CONTEXT = '_bemi'
 export const MESSAGE_PREFIX_HEARTBEAT = '_bemi_heartbeat'
 const UNAVAILABLE_VALUE_PLACEHOLDER = '__bemi_unavailable_value'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const parseDebeziumData = (debeziumChange: any, now: Date) => {
+const parseDebeziumData = (debeziumChange: any, now: Date): RequiredEntityData<Change> => {
   const {
     op,
     before: beforeRaw,
@@ -86,8 +85,13 @@ export class FetchedRecord {
     this.messagePrefix = messagePrefix
   }
 
-  static fromNatsMessage(natsMessage: JsMsg, now = new Date()) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static fromNatsMessage(
+    natsMessage: JsMsg,
+    {
+      now = new Date(),
+      changeAttributesOverride = (changeAttributes: RequiredEntityData<Change>) => changeAttributes,
+    } = {},
+  ) {
     const debeziumData = decodeData(natsMessage.data) as any
 
     const messagePrefix = debeziumData.message?.prefix
@@ -96,8 +100,10 @@ export class FetchedRecord {
       return null
     }
 
+    const changeAttributes = changeAttributesOverride(parseDebeziumData(debeziumData, now))
+
     return new FetchedRecord({
-      changeAttributes: parseDebeziumData(debeziumData, now),
+      changeAttributes,
       subject: natsMessage.subject,
       streamSequence: natsMessage.info.streamSequence,
       messagePrefix,

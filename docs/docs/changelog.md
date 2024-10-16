@@ -15,6 +15,10 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
   * Allow setting and customizing [Ignore Column Rules](https://docs.bemi.io/postgresql/source-database#ignoring-by-columns)
 * Platform
   * Create PG publications limited to specific tables with selective tracking
+* [Bemi Core](https://github.com/BemiHQ/bemi)
+  * Allow customizing parsed change attributes with an override function
+* [Bemi Prisma](https://github.com/BemiHQ/bemi-prisma)
+  * Fix compatibility with Prisma v5.20+ driver adapter
 
 ## 2024-09
 

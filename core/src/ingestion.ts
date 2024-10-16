@@ -1,4 +1,4 @@
-import { MikroORM } from '@mikro-orm/postgresql'
+import { MikroORM, RequiredEntityData } from '@mikro-orm/postgresql'
 import { Consumer, JsMsg } from 'nats'
 
 import { logger } from './logger'
@@ -69,12 +69,14 @@ export const runIngestionLoop = async ({
   fetchBatchSize = 100,
   insertBatchSize = 100,
   useBuffer = false,
+  changeAttributesOverride = (changeAttributes: RequiredEntityData<Change>) => changeAttributes,
 }: {
   orm: MikroORM
   consumer: Consumer
   fetchBatchSize?: number
   insertBatchSize?: number
   useBuffer?: boolean
+  changeAttributesOverride?: (changeAttributes: RequiredEntityData<Change>) => RequiredEntityData<Change>
 }) => {
   let lastStreamSequence: number | null = null
   let fetchedRecordBuffer = new FetchedRecordBuffer()
@@ -102,7 +104,7 @@ export const runIngestionLoop = async ({
     const now = new Date()
     const natsMessages = Object.values(natsMessageBySequence)
     const fetchedRecords = natsMessages
-      .map((m: JsMsg) => FetchedRecord.fromNatsMessage(m, now))
+      .map((m: JsMsg) => FetchedRecord.fromNatsMessage(m, { now, changeAttributesOverride }))
       .filter((r) => r) as FetchedRecord[]
     const { stitchedFetchedRecords, newFetchedRecordBuffer, ackStreamSequence } = stitchFetchedRecords({
       fetchedRecordBuffer: fetchedRecordBuffer.addFetchedRecords(fetchedRecords),
