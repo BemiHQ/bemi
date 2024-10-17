@@ -2,11 +2,11 @@ import { Options, PostgreSqlDriver } from "@mikro-orm/postgresql";
 import { Migrator } from '@mikro-orm/migrations';
 import { SqlHighlighter } from "@mikro-orm/sql-highlighter";
 
-const DB_HOST = process.env.DB_HOST
-const DB_PORT = parseInt(process.env.DB_PORT as string, 10)
-const DB_NAME = process.env.DB_NAME
-const DB_USER = process.env.DB_USER
-const DB_PASSWORD = process.env.DB_PASSWORD
+const DB_HOST = process.env.DESTINATION_DB_HOST || process.env.DB_HOST
+const DB_PORT = parseInt(process.env.DESTINATION_DB_PORT as string, 10) || parseInt(process.env.DB_PORT as string, 10)
+const DB_NAME = process.env.DESTINATION_DB_NAME || process.env.DB_NAME
+const DB_USER = process.env.DESTINATION_DB_USER || process.env.DB_USER
+const DB_PASSWORD = process.env.DESTINATION_DB_PASSWORD || process.env.DB_PASSWORD
 
 const mikroOrmConfig: Options = {
   driver: PostgreSqlDriver,
