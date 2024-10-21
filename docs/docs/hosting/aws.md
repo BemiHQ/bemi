@@ -7,7 +7,7 @@ keywords: [Bemi, AWS RDS, PostgreSQL, Change Data Capture, real-time data tracki
 image: 'img/social-card.png'
 ---
 
-# AWS RDS
+# Amazon Web Services RDS
 
 ## WAL level
 
