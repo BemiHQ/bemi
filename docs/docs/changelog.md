@@ -17,6 +17,8 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
   * Create PG publications limited to specific tables with selective tracking
 * [Bemi Core](https://github.com/BemiHQ/bemi)
   * Allow customizing parsed change attributes with an override function
+* [Bemi Django](https://github.com/BemiHQ/bemi-django)
+  * Create a new Python package to allow passing application context with data changes
 * [Bemi Prisma](https://github.com/BemiHQ/bemi-prisma)
   * Fix compatibility with Prisma v5.20+ driver adapter
 

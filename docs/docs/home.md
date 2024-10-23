@@ -64,6 +64,7 @@ This allows automatically enhancing low-level database changes with application-
 #### Python
 
 * **[SQLAlchemy](/orms/sqlalchemy)**
+* **[Django](/orms/django)**
 
 ## Architecture overview
 

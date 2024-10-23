@@ -119,6 +119,10 @@ const config: Config = {
               label: "MikroORM",
               href: "https://github.com/BemiHQ/bemi-mikro-orm",
             },
+            {
+              label: "Django",
+              href: "https://github.com/BemiHQ/bemi-django",
+            },
           ],
         },
         {

@@ -67,6 +67,7 @@ const sidebars: SidebarsConfig = {
           collapsed: true,
           items: [
             'orms/sqlalchemy',
+            'orms/django',
           ],
         },
       ],
