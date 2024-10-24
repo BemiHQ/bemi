@@ -23,7 +23,7 @@ const sidebars: SidebarsConfig = {
         {
           type: 'category',
           label: 'Hosting Platforms',
-          collapsed: true,
+          collapsed: false,
           items: [
             'hosting/supabase',
             'hosting/neon',
@@ -45,7 +45,7 @@ const sidebars: SidebarsConfig = {
         {
           type: 'category',
           label: 'JavaScript/TypeScript',
-          collapsed: true,
+          collapsed: false,
           items: [
             'orms/prisma',
             'orms/typeorm',
@@ -56,7 +56,7 @@ const sidebars: SidebarsConfig = {
         {
           type: 'category',
           label: 'Ruby',
-          collapsed: true,
+          collapsed: false,
           items: [
             'orms/rails',
           ],
@@ -64,7 +64,7 @@ const sidebars: SidebarsConfig = {
         {
           type: 'category',
           label: 'Python',
-          collapsed: true,
+          collapsed: false,
           items: [
             'orms/sqlalchemy',
             'orms/django',

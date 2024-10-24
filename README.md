@@ -86,14 +86,14 @@ Run a Docker container that connects to your local PostgreSQL database:
 ```sh
 docker run \
   -e DB_HOST=host.docker.internal \
-  -e DB_PORT=5434 \
-  -e DB_NAME=bemi_dev_source \
+  -e DB_PORT=5432 \
+  -e DB_NAME=[YOUR_DATABASE] \
   -e DB_USER=postgres \
   -e DB_PASSWORD=postgres \
   public.ecr.aws/bemi/dev:latest
 ```
 
-`DB_HOST` pointing to `host.docker.internal` allows accessing `127.0.0.1` on your host machine if you run PostgreSQL outside Docker.
+Replace `DB_NAME` with your local database name. Note that `DB_HOST` pointing to `host.docker.internal` allows accessing `127.0.0.1` on your host machine if you run PostgreSQL outside Docker.
 
 Now try making some database changes like:
 
@@ -101,7 +101,11 @@ Now try making some database changes like:
 UPDATE _bemi_migrations SET executed_at = NOW() WHERE id = 1;
 ```
 
-This will add a new record in the `changes` table within the same database after a few seconds.
+This will add a new record in the `changes` table within the same database after a few seconds:
+
+```sql
+SELECT "primary_key", "table", "operation", "before", "after", "context", "committed_at" FROM changes;
+```
 
 ### Running with Devbox
 
