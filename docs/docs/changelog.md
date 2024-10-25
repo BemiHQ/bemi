@@ -15,11 +15,14 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
   * Allow setting and customizing [Ignore Column Rules](https://docs.bemi.io/postgresql/source-database#ignoring-by-columns)
 * Platform
   * Create PG publications limited to specific tables with selective tracking
+  * Allow ignoring changes by column prefixes, such as `*_cached_counter`
 * [Bemi Core](https://github.com/BemiHQ/bemi)
+  * Enable tracking changes from non-`public` PostgreSQL schemas locally
   * Allow customizing parsed change attributes with an override function
 * [Bemi Django](https://github.com/BemiHQ/bemi-django)
   * Create a new Python package to allow passing application context with data changes
 * [Bemi Prisma](https://github.com/BemiHQ/bemi-prisma)
+  * Enable passing application context in non-`public` PostgreSQL schemas
   * Fix compatibility with Prisma v5.20+ driver adapter
 
 ## 2024-09
