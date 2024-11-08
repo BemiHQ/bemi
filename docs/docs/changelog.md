@@ -9,6 +9,11 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
 
 # Changelog
 
+## 2024-11
+
+* [Bemi Prisma](https://github.com/BemiHQ/bemi-prisma)
+  * Allow using Prisma client database URL specified in `datasources.db`
+
 ## 2024-10
 
 * Dashboard
