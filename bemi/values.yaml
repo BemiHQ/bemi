@@ -7,9 +7,9 @@ replicaCount: 1
 
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
-  repository: nginx
+  repository: ""
   # This sets the pull policy for images.
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
@@ -38,10 +38,12 @@ podAnnotations: {}
 # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 podLabels: {}
 
-podSecurityContext: {}
+podSecurityContext:
+  {}
   # fsGroup: 2000
 
-securityContext: {}
+securityContext:
+  {}
   # capabilities:
   #   drop:
   #   - ALL
@@ -55,12 +57,14 @@ service:
   type: ClusterIP
   # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
   port: 80
+  targetPort: 8080
 
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
   enabled: false
   className: ""
-  annotations: {}
+  annotations:
+    {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
@@ -73,7 +77,8 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
-resources: {}
+resources:
+  {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -121,3 +126,48 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+env:
+  - name: NATS_URL
+    valueFrom:
+      secretKeyRef:
+        name: bemi-secrets
+        key: NATS_URL
+  - name: DB_HOST
+    value: "127.0.0.1"
+  - name: DB_PORT
+    value: "5432"
+  - name: DB_NAME
+    valueFrom:
+      secretKeyRef:
+        name: bemi-secrets
+        key: DB_NAME
+  - name: DB_USER
+    valueFrom:
+      secretKeyRef:
+        name: bemi-secrets
+        key: DB_USER
+  - name: DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: bemi-secrets
+        key: DB_PASSWORD
+  - name: DESTINATION_DB_HOST
+    value: "127.0.0.1"
+  - name: DESTINATION_DB_PORT
+    value: "5432"
+  - name: DESTINATION_DB_NAME
+    valueFrom:
+      secretKeyRef:
+        name: bemi-secrets
+        key: DESTINATION_DB_NAME
+  - name: DESTINATION_DB_USER
+    valueFrom:
+      secretKeyRef:
+        name: bemi-secrets
+        key: DESTINATION_DB_USER
+  - name: DESTINATION_DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: bemi-secrets
+        key: DESTINATION_DB_PASSWORD

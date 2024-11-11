@@ -1,0 +1,16 @@
+name: Deploy Dev
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy.template.yml
+    secrets:
+      CLUSTER_NAME: ${{ secrets.CLUSTER_NAME_DEV }}
+      CLUSTER_LOCATION: ${{ secrets.CLUSTER_LOCATION_DEV }}
+      CONNECTION_NAME: ${{ secrets.CONNECTION_NAME_DEV }}
+      GCP_SA: ${{ secrets.GCP_SA_DEV }}
+      PROJECT_ID: ${{ secrets.PROJECT_ID_DEV }}

@@ -41,15 +41,50 @@ spec:
               containerPort: {{ .Values.service.port }}
               protocol: TCP
           livenessProbe:
-            {{- toYaml .Values.livenessProbe | nindent 12 }}
-          readinessProbe:
-            {{- toYaml .Values.readinessProbe | nindent 12 }}
+            httpGet:
+              path: {{ .Values.healthcheck.path }}
+              port: {{ .Values.service.targetPort }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 3
+          env: {{ .Values.env | toYaml | nindent 12 }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-          {{- with .Values.volumeMounts }}
+            requests:
+              memory: "1000Mi"
+              cpu:    "500m"
+        - name: debezium-server
+          image: debezium/server:2.5.0.Final
+          env:
+            - name: DEBEZIUM_OPTS
+              value: "-Dquarkus.config.location=/config/application.properties"
           volumeMounts:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+            - name: config-volume
+              mountPath: /config
+              readOnly: true
+        - name: cloud-sql-proxy
+          image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.1.0
+          args:
+            - "--structured-logs"
+            - "--port=5432"
+            - {{ .Values.db.instanceConnectionName | quote }}
+            - "--credentials-file=/secrets/service_account.json"
+          securityContext:
+            runAsNonRoot: true
+          volumeMounts:
+          - name: cloudsql-instance-credentials
+            mountPath: /secrets/
+            readOnly: true
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu:    "250m"
+      volumes:
+        - name: cloudsql-instance-credentials
+          secret:
+            secretName: db-private-key 
+        - name: debezium-server-config
+          secret:
+            secretName: debezium-conf
       {{- with .Values.volumes }}
       volumes:
         {{- toYaml . | nindent 8 }}

@@ -1,13 +1,33 @@
 import { AckPolicy, DeliverPolicy } from 'nats'
 import { MikroORM } from '@mikro-orm/postgresql'
+import http from 'http'
 
 import { connectJetstream, buildConsumer } from '../../core/src/nats'
 import { runIngestionLoop } from '../../core/src/ingestion'
 
 import mikroOrmConfig from '../mikro-orm.config'
 
-const main = (async () => {
-  const jetstreamConnection = await connectJetstream('nats://localhost:4222')
+function healthCheck() {
+  const server = http.createServer()
+
+  server.on('request', (req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end('OK')
+  })
+
+  server.listen(process.env.PORT)
+  server.on('error', (err) => {
+    console.error(err)
+    process.exit(1)
+  })
+}
+
+async function main() {
+  if (!process.env.NATS_URL) {
+    throw new Error('NATS_URL is not set')
+  }
+
+  const jetstreamConnection = await connectJetstream(process.env.NATS_URL)
 
   const consumer = await buildConsumer({
     connection: jetstreamConnection,
@@ -24,4 +44,10 @@ const main = (async () => {
   await orm.getMigrator().up()
 
   await runIngestionLoop({ orm, consumer })
-})()
+}
+
+healthCheck()
+main().catch((err) => {
+  console.error(err)
+  process.exit(1)
+})

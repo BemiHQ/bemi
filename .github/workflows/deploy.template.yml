@@ -1,0 +1,85 @@
+name: Workflow Template - Deploy
+
+on:
+  workflow_call:
+    secrets:
+      GCP_SA:
+        required: true
+      PROJECT_ID:
+        required: true
+      CONNECTION_NAME:
+        required: true
+      CLUSTER_NAME:
+        required: false
+      CLUSTER_LOCATION:
+        required: false
+
+jobs:
+  build:
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA }}
+
+      - name: Setup Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.PROJECT_ID }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Configure Docker
+        run: |
+          gcloud auth configure-docker
+
+      - name: Move Core to Worker
+        run: |
+          mv ./core ./worker
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./worker
+          push: true
+          tags: gcr.io/${{ secrets.PROJECT_ID }}/bemi-worker:latest
+          cache-from: type=registry,ref=gcr.io/${{ secrets.PROJECT_ID }}/bemi-worker:build-cache
+          cache-to: type=registry,ref=gcr.io/${{ secrets.PROJECT_ID }}/bemi-worker:build-cache,mode=max
+
+  deploy:
+    needs: build
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA }}
+
+      - name: Setup Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.PROJECT_ID }}
+
+      - name: "Get GKE cluster credentials"
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: ${{ secrets.CLUSTER_NAME }}
+          location: ${{ secrets.CLUSTER_LOCATION }}
+
+      - name: Deploy
+        run: |
+          echo 'Deploying helm chart bemi-worker'
+          helm upgrade bemi-worker ./bemi --values ./bemi/values.yaml --install \
+            --set image.repository=gcr.io/${{ secrets.PROJECT_ID }}/bemi-worker \
+            --set image.tag=latest \
+            --set db.instanceConnectionName=${{ secrets.CONNECTION_NAME }}
+          kubectl rollout restart deployment bemi-worker
+          kubectl describe deployment bemi-worker
