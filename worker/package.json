@@ -1,10 +1,12 @@
 {
   "name": "Bemi Worker",
+  "packageManager": "pnpm@9.12.3",
   "dependencies": {
     "@mikro-orm/core": "^6.1.12",
     "@mikro-orm/migrations": "^6.1.12",
     "@mikro-orm/postgresql": "^6.1.12",
     "@mikro-orm/sql-highlighter": "^1.0.1",
+    "dotenv": "^16.4.5",
     "nats": "^2.19.0"
   },
   "devDependencies": {

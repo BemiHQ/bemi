@@ -1,5 +1,6 @@
 {
   "name": "@bemi-db/core",
+  "packageManager": "pnpm@9.12.3",
   "version": "0.1.0",
   "description": "Automatic data change tracking for PostgreSQL",
   "main": "index.ts",
