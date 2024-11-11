@@ -120,7 +120,7 @@ make worker-install
 Set environment variables specifying connection settings for a PostgreSQL database you want to track and run a worker:
 
 ```sh
-export DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=postgres DB_USER=postgres DB_PASSWORD=postgres
+export DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=postgres DB_USER=postgres DB_PASSWORD=Str0ngP@ssw0rd
 make worker-up
 ```
 
@@ -142,10 +142,9 @@ make worker-setup && cd worker && npm install
 
 Set environment variables specifying connection settings for a PostgreSQL database you want to track run a worker as a single process with directly installed Node.js:
 
-
 ```sh
 export DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=postgres DB_USER=postgres DB_PASSWORD=postgres
-npm concurrently -- "npm:up:*"
+pnpm exec concurrently -- "pnpm:up:*"
 ```
 
 Now try making some database changes like:

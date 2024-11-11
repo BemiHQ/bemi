@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "bemi.fullname" . }}-test-connection"
+  labels:
+    {{- include "bemi.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "bemi.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never
