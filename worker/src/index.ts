@@ -25,11 +25,7 @@ function healthCheck() {
 }
 
 async function main() {
-  if (!process.env.NATS_URL) {
-    throw new Error('NATS_URL is not set')
-  }
-
-  const jetstreamConnection = await connectJetstream(process.env.NATS_URL)
+  const jetstreamConnection = await connectJetstream('nats://localhost:4222')
 
   const consumer = await buildConsumer({
     connection: jetstreamConnection,
