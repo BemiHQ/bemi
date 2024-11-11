@@ -54,9 +54,8 @@ spec:
               cpu:    "500m"
         - name: debezium-server
           image: debezium/server:2.5.0.Final
-          env:
-            - name: DEBEZIUM_OPTS
-              value: "-Dquarkus.config.location=/config/application.properties"
+          volumes:
+            - /config/application.properties:/debezium/conf/application.properties
           volumeMounts:
             - name: debezium-server-config
               mountPath: /config
