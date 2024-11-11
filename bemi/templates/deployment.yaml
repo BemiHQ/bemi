@@ -58,7 +58,7 @@ spec:
             - name: DEBEZIUM_OPTS
               value: "-Dquarkus.config.location=/config/application.properties"
           volumeMounts:
-            - name: config-volume
+            - name: debezium-server-config
               mountPath: /config
               readOnly: true
         - name: cloud-sql-proxy
