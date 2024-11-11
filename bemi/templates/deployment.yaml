@@ -82,8 +82,8 @@ spec:
           secret:
             secretName: db-private-key 
         - name: debezium-server-config
-          secret:
-            secretName: debezium-conf
+          configMap:
+            name: debezium-config
       {{- with .Values.volumes }}
       volumes:
         {{- toYaml . | nindent 8 }}
