@@ -31,6 +31,28 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
+        - name: nats-server
+          image: nats:2.10.9
+          args: ["-js"]
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu:    "250m"
+        - name: debezium-server
+          image: debezium/server:2.5.0.Final
+          volumeMounts:
+            - name: debezium-server-config
+              mountPath: /debezium/conf
+              readOnly: true
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "nc -z localhost 4222"] # check if nats is ready
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu:    "250m"
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
@@ -52,12 +74,11 @@ spec:
             requests:
               memory: "1000Mi"
               cpu:    "500m"
-        - name: debezium-server
-          image: debezium/server:2.5.0.Final
-          volumeMounts:
-            - name: debezium-server-config
-              mountPath: /debezium/conf
-              readOnly: true
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "nc -z localhost 4222 && nc -z localhost 8080"] # check if nats and debezium are ready
+            initialDelaySeconds: 30
+            periodSeconds: 10
         - name: cloud-sql-proxy
           image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.1.0
           args:
