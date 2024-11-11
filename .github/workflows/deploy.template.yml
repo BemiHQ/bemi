@@ -80,6 +80,7 @@ jobs:
           helm upgrade bemi-worker ./bemi --values ./bemi/values.yaml --install \
             --set image.repository=gcr.io/${{ secrets.PROJECT_ID }}/bemi-worker \
             --set image.tag=latest \
+            --set healthcheck.path=/ \
             --set db.instanceConnectionName=${{ secrets.CONNECTION_NAME }}
           kubectl rollout restart deployment bemi-worker
           kubectl describe deployment bemi-worker
