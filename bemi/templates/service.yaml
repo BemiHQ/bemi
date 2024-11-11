@@ -1,13 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: { { include "bemi.fullname" . } }
-  labels: { { - include "bemi.labels" . | nindent 4 } }
+  name: {{ include "bemi.fullname" . }}
+  labels:
+    {{- include "bemi.labels" . | nindent 4 }}
 spec:
-  type: { { .Values.service.type } }
+  type: {{ .Values.service.type }}
   ports:
-    - port: { { .Values.service.port } }
-      targetPort: { { .Values.service.targetPort } }
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
       protocol: TCP
       name: http
-  selector: { { - include "bemi.selectorLabels" . | nindent 4 } }
+  selector:
+    {{- include "bemi.selectorLabels" . | nindent 4 }}
