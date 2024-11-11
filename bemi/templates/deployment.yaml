@@ -54,11 +54,9 @@ spec:
               cpu:    "500m"
         - name: debezium-server
           image: debezium/server:2.5.0.Final
-          volumes:
-            - /config/application.properties:/debezium/conf/application.properties
           volumeMounts:
             - name: debezium-server-config
-              mountPath: /config
+              mountPath: /debezium/conf
               readOnly: true
         - name: cloud-sql-proxy
           image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.1.0

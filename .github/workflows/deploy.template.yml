@@ -15,7 +15,27 @@ on:
         required: false
 
 jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.filter.outputs.build }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          base: ${{ github.ref }}
+          filters: |
+            build:
+              - 'core/**'
+              - 'worker/**'
+
   build:
+    needs: verify
+    if: contains(needs.verify.outputs.build, 'true')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -52,8 +72,9 @@ jobs:
           cache-to: type=registry,ref=gcr.io/${{ secrets.PROJECT_ID }}/bemi-worker:build-cache,mode=max
 
   deploy:
-    needs: build
+    needs: [verify, build]
     runs-on: ubuntu-latest
+    if: always() && !contains(needs.*.result, 'cancelled') && !contains(needs.*.result, 'failure')
     steps:
       - name: Checkout
         uses: actions/checkout@v4
