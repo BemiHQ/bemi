@@ -7,6 +7,8 @@ import { runIngestionLoop } from '../../core/src/ingestion'
 
 import mikroOrmConfig from '../mikro-orm.config'
 
+import 'dotenv/config'
+
 function healthCheck() {
   const server = http.createServer()
 

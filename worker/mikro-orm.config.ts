@@ -1,9 +1,7 @@
 import { Options, PostgreSqlDriver } from '@mikro-orm/postgresql'
 import { Migrator } from '@mikro-orm/migrations'
 import { SqlHighlighter } from '@mikro-orm/sql-highlighter'
-import dotenv from 'dotenv'
-
-dotenv.config()
+import 'dotenv/config'
 
 const DB_HOST = process.env.DESTINATION_DB_HOST || process.env.DB_HOST
 const DB_PORT = parseInt(process.env.DESTINATION_DB_PORT as string, 10) || parseInt(process.env.DB_PORT as string, 10)
