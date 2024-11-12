@@ -1,0 +1,16 @@
+name: Deploy Prod
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy.template.yml
+    secrets:
+      CLUSTER_NAME: ${{ secrets.CLUSTER_NAME_PROD }}
+      CLUSTER_LOCATION: ${{ secrets.CLUSTER_LOCATION_PROD }}
+      CONNECTION_NAME: ${{ secrets.CONNECTION_NAME_PROD }}
+      GCP_SA: ${{ secrets.GCP_SA_PROD }}
+      PROJECT_ID: ${{ secrets.PROJECT_ID_PROD }}
