@@ -152,6 +152,131 @@ psql postgres://[USERNAME]@[HOSTNAME]:5432/[DATABASE] -c \
 
 See [Destination Database](/postgresql/destination-database) for more details.
 
+## Data change querying
+
+Lastly, connect to the Bemi PostgreSQL destination database to easily query change data from your application.
+
+To query historical data, configure an additional [database connection](https://docs.djangoproject.com/en/5.1/topics/db/multi-db/):
+
+```python title="django/todo_project/settings.py"
+DATABASES = {
+    'default': ...
+    'bemi': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DESTINATION_DB_DATABASE'),
+        'USER': os.getenv('DESTINATION_DB_USERNAME'),
+        'PASSWORD': os.getenv('DESTINATION_DB_PASSWORD'),
+        'HOST': os.getenv('DESTINATION_DB_HOST'),
+        'PORT': os.getenv('DESTINATION_DB_PORT'),
+    }
+}
+
+DATABASE_ROUTERS = ['bemi.BemiDatabaseRouter']
+```
+
+Add inheritance to a tracked models or query directly with BemiChange model.
+
+```python title="django/todos/models.py"
+class Todo(BemiRecordMixin, models.Model):
+  ...
+```
+
+### Query changes
+```python
+from bemi.models import BemiChange
+
+BemiChange.objects.last()
+# => <BemiChange: BemiChange object (cd9651ff-e378-41f7-add0-c4fdfa1575ae)>
+#  id: "cd9651ff-e378-41f7-add0-c4fdfa1575ae",
+#  committed_at: Tue, 25 Apr 2024 22:15:50.890000000 UTC +00:00,
+#  table: "todos",
+#  primary_key: "27",
+#  operation: "UPDATE",
+#  before: {"id"=>27, "task"=>"Walk", "is_completed"=>false}>
+#  after: {"id"=>27, "task"=>"Run", "is_completed"=>true},
+#  context:
+#   {"SQL"=> "UPDATE \"public\".\"todos\" SET \"task\" = $1, \"is_completed\" = $2 WHERE \"public\".\"todos\".\"id\" = $3",
+#    "user_id"=>1,
+#    "api_endpoint"=>"/todos/complete"},
+#  ...
+```
+
+### Diff changed values
+
+```python
+from bemi.models import BemiChange
+
+BemiChange.objects.last().diff()
+# => { "task" => ["Walk", "Run"], "completed" => [false, true] }
+```
+
+### Query change by record
+
+```
+from todos.models import Todo
+
+record = Todo.objects.get(pk=...)
+record.bemi_changes()
+```
+
+### Query by field
+
+```python
+from todos.models import Todo
+from bemi.models import BemiChange
+
+# Last change that impacted the "task" field
+record.bemi_changes(field_name='task').last()
+BemiChange.objects.field_changed(table='todos', primary_key='cd9651ff-e378-41f7-add0-c4fdfa1575ae', field_name='task').last()
+```
+
+### Filter by values
+
+```python
+# Query by the previous values
+record.bemi_changes().before({'task': 'Walk'})
+record.bemi_changes().before({'task': 'Walk', 'completed': false})
+record.bemi_changes().before_not({'task': 'Run'})
+
+# Query by the new values
+record.bemi_changes().after('task': 'Run')
+record.bemi_changes().after('task': 'Run', 'completed': true)
+record.bemi_changes().after_not('task': 'Walk')
+
+# Query by the context values
+record.bemi_changes().context({'user_id': 1})
+record.bemi_changes().context({'user_id': 1, 'api_endpoint': '/tasks/complete'})
+record.bemi_changes().context_not({'user_id': 123})
+
+# Chain methods
+record.bemi_changes.before({'task': 'Walk'}).after({'task': 'Run'})
+```
+
+### Filter by operation
+
+```python
+record.bemi_changes().created()
+record.bemi_changes().updated()
+record.bemi_changes().deleted()
+```
+
+### Sort changes
+
+```python
+record.bemi_changes().asc()
+record.bemi_changes().desc()
+```
+
+### Build a custom query
+
+```python
+changes = BemiChange.objects.
+  .filter(table='todos', operation='UPDATE')
+  .filter(context__contains={"user_id": 1})
+  .order_by('-committed_at')
+  [:10]
+```
+
 ## License
 
 Distributed under the terms of the [LGPL-3.0](https://github.com/BemiHQ/bemi-django/blob/main/LICENSE).
