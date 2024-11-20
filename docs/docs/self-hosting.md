@@ -51,8 +51,12 @@ docker run \
 | Automatic updates and backups     | ❌                  | ✅          |
 | Control plane and monitoring      | ❌                  | ✅          |
 
+:::caution Production Use Recommendation
+For production use cases, we recommend opting for Self-Hosting Enterprise instead of the OSS version. The open-source version is designed for evaluation and non-critical workloads, and while it provides core functionality, it lacks the advanced optimizations, monitoring, and edge cases needed for robust production environments.
+:::
+
 ## Self-Hosting Enterprise
 
 Bemi Self-Hosting Enterprise is the most robust way to run Bemi yourself. With this option, you'll get all the optimizations and UI functionality of Bemi Cloud.
 
-To start with Self-Hosting Enterprise, you'll need a valid license key. [Talk to us](https://cal.com/bemihq) to get started.
+To start with Self-Hosting Enterprise, you'll need a valid license key. [Talk to us](https://cal.com/bemihq/book) to get started.
