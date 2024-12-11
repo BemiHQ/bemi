@@ -11,6 +11,8 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
 
 ## 2024-11
 
+* [Bemi Django](https://github.com/BemiHQ/bemi-django)
+  * Add functionality for querying, filtering, and sorting changes
 * [Bemi Prisma](https://github.com/BemiHQ/bemi-prisma)
   * Allow using Prisma client database URL specified in `datasources.db`
 
