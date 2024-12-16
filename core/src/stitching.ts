@@ -25,9 +25,9 @@ export const stitchFetchedRecords = ({
     let maxSubjectSequence: number | undefined = undefined
 
     sortedFetchedRecords.forEach((fetchedRecord) => {
-      const position = fetchedRecord.changeAttributes.position.toString()
-      const samePositionFetchedRecords = fetchedRecordBuffer.fetchedRecordsByPosition(subject, position)
-      const contextFetchedRecord = samePositionFetchedRecords.find((r) => r.isContextMessage())
+      const transactionId = fetchedRecord.changeAttributes.transactionId.toString()
+      const sameTransactionIdFetchedRecords = fetchedRecordBuffer.fetchedRecordsByTransactionId(subject, transactionId)
+      const contextFetchedRecord = sameTransactionIdFetchedRecords.find((r) => r.isContextMessage())
 
       // If it's a heartbeat message/change, use its sequence number
       if (fetchedRecord.isHeartbeatMessage()) {
@@ -42,7 +42,7 @@ export const stitchFetchedRecords = ({
       // Last message without a pair - add it to the buffer
       if (
         useBuffer &&
-        samePositionFetchedRecords.length === 1 && // No-pair change or context
+        sameTransactionIdFetchedRecords.length === 1 && // No-pair change or context
         fetchedRecord === sortedFetchedRecords[sortedFetchedRecords.length - 1] // Last message
       ) {
         newFetchedRecordBuffer = newFetchedRecordBuffer.addFetchedRecord(fetchedRecord)

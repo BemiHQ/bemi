@@ -4,7 +4,6 @@ import { stitchFetchedRecords } from '../stitching'
 import { FetchedRecord, MESSAGE_PREFIX_CONTEXT, MESSAGE_PREFIX_HEARTBEAT } from '../fetched-record'
 import { FetchedRecordBuffer } from '../fetched-record-buffer'
 
-import { POSITIONS } from './fixtures/nats-messages'
 import { MOCKED_DATE, CHANGE_ATTRIBUTES } from './fixtures/fetched-records'
 
 const findFetchedRecord = (fetchedRecords: FetchedRecord[], streamSequence: number) =>
@@ -16,6 +15,102 @@ describe('stitchFetchedRecords', () => {
   })
 
   describe('when messages in the same batch', () => {
+    test('stitches changes with context when out of order positions', () => {
+      const subject = 'bemi-subject'
+      const fetchedRecords = [
+        new FetchedRecord({
+          subject,
+          streamSequence: 1,
+          changeAttributes: { ...CHANGE_ATTRIBUTES.CREATE_MESSAGE, transactionId: 1, position: 141527096 },
+          messagePrefix: MESSAGE_PREFIX_CONTEXT,
+        }),
+        new FetchedRecord({
+          subject,
+          streamSequence: 2,
+          changeAttributes: { ...CHANGE_ATTRIBUTES.CREATE, transactionId: 1, position: 141527704 },
+        }),
+        new FetchedRecord({
+          subject,
+          streamSequence: 3,
+          changeAttributes: { ...CHANGE_ATTRIBUTES.CREATE_MESSAGE, transactionId: 2, position: 141527704 },
+          messagePrefix: MESSAGE_PREFIX_CONTEXT,
+        }),
+        new FetchedRecord({
+          subject,
+          streamSequence: 4,
+          changeAttributes: { ...CHANGE_ATTRIBUTES.CREATE, transactionId: 2, position: 141527888 },
+        }),
+        new FetchedRecord({
+          subject,
+          streamSequence: 5,
+          changeAttributes: { ...CHANGE_ATTRIBUTES.CREATE_MESSAGE, transactionId: 3, position: 141527400 },
+          messagePrefix: MESSAGE_PREFIX_CONTEXT,
+        }),
+        new FetchedRecord({
+          subject,
+          streamSequence: 6,
+          changeAttributes: { ...CHANGE_ATTRIBUTES.CREATE, transactionId: 3, position: 141528024 },
+        }),
+      ]
+
+      const result = stitchFetchedRecords({
+        fetchedRecordBuffer: new FetchedRecordBuffer().addFetchedRecords(fetchedRecords),
+        useBuffer: true,
+      })
+
+      expect(result).toStrictEqual({
+        stitchedFetchedRecords: [
+          findFetchedRecord(fetchedRecords, 2).setContext(findFetchedRecord(fetchedRecords, 1).context()),
+          findFetchedRecord(fetchedRecords, 4).setContext(findFetchedRecord(fetchedRecords, 3).context()),
+          findFetchedRecord(fetchedRecords, 6).setContext(findFetchedRecord(fetchedRecords, 5).context()),
+        ],
+        ackStreamSequence: 6,
+        newFetchedRecordBuffer: new FetchedRecordBuffer(),
+      })
+    })
+
+    test('stitches changes with context when out of order stream sequences with 2+ records within the same transaction', () => {
+      const subject = 'bemi-subject'
+      const fetchedRecords = [
+        new FetchedRecord({
+          subject,
+          streamSequence: 1,
+          changeAttributes: { ...CHANGE_ATTRIBUTES.CREATE_MESSAGE, transactionId: 1 },
+          messagePrefix: MESSAGE_PREFIX_CONTEXT,
+        }),
+        new FetchedRecord({
+          subject,
+          streamSequence: 3,
+          changeAttributes: { ...CHANGE_ATTRIBUTES.CREATE_MESSAGE, transactionId: 1 },
+          messagePrefix: MESSAGE_PREFIX_CONTEXT,
+        }),
+        new FetchedRecord({
+          subject,
+          streamSequence: 2,
+          changeAttributes: { ...CHANGE_ATTRIBUTES.CREATE, transactionId: 1 },
+        }),
+        new FetchedRecord({
+          subject,
+          streamSequence: 4,
+          changeAttributes: { ...CHANGE_ATTRIBUTES.CREATE, transactionId: 1 },
+        }),
+      ]
+
+      const result = stitchFetchedRecords({
+        fetchedRecordBuffer: new FetchedRecordBuffer().addFetchedRecords(fetchedRecords),
+        useBuffer: true,
+      })
+
+      expect(result).toStrictEqual({
+        stitchedFetchedRecords: [
+          findFetchedRecord(fetchedRecords, 2).setContext(findFetchedRecord(fetchedRecords, 1).context()),
+          findFetchedRecord(fetchedRecords, 4).setContext(findFetchedRecord(fetchedRecords, 3).context()),
+        ],
+        ackStreamSequence: 4,
+        newFetchedRecordBuffer: new FetchedRecordBuffer(),
+      })
+    })
+
     test('stitches context if it is first, ignores a heartbeat message', () => {
       const subject = 'bemi-subject'
       const fetchedRecords = [
@@ -44,11 +139,11 @@ describe('stitchFetchedRecords', () => {
           findFetchedRecord(fetchedRecords, 2).setContext(findFetchedRecord(fetchedRecords, 1).context()),
         ],
         ackStreamSequence: 3,
-        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({}),
+        newFetchedRecordBuffer: new FetchedRecordBuffer(),
       })
     })
 
-    test('stitches context if it is second and pauses on the one before last position', () => {
+    test('stitches context if it is second and pauses on the one before last sequence', () => {
       const subject = 'bemi-subject'
       const fetchedRecords = [
         new FetchedRecord({ subject, streamSequence: 1, changeAttributes: CHANGE_ATTRIBUTES.CREATE }),
@@ -73,11 +168,7 @@ describe('stitchFetchedRecords', () => {
           findFetchedRecord(fetchedRecords, 3),
         ],
         ackStreamSequence: 3,
-        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({
-          [subject]: {
-            [POSITIONS.DELETE]: [findFetchedRecord(fetchedRecords, 4)],
-          },
-        }),
+        newFetchedRecordBuffer: new FetchedRecordBuffer().addFetchedRecords([findFetchedRecord(fetchedRecords, 4)]),
       })
     })
 
@@ -87,19 +178,19 @@ describe('stitchFetchedRecords', () => {
         new FetchedRecord({
           subject,
           streamSequence: 1,
-          changeAttributes: { ...CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE, position: 1 },
+          changeAttributes: { ...CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE, transactionId: 1 },
           messagePrefix: MESSAGE_PREFIX_HEARTBEAT,
         }),
         new FetchedRecord({
           subject,
           streamSequence: 3,
-          changeAttributes: { ...CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE, position: 3 },
+          changeAttributes: { ...CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE, transactionId: 3 },
           messagePrefix: MESSAGE_PREFIX_HEARTBEAT,
         }),
         new FetchedRecord({
           subject,
           streamSequence: 2,
-          changeAttributes: { ...CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE, position: 2 },
+          changeAttributes: { ...CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE, transactionId: 2 },
           messagePrefix: MESSAGE_PREFIX_HEARTBEAT,
         }),
       ]
@@ -112,7 +203,7 @@ describe('stitchFetchedRecords', () => {
       expect(result).toStrictEqual({
         stitchedFetchedRecords: [],
         ackStreamSequence: 3,
-        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({}),
+        newFetchedRecordBuffer: new FetchedRecordBuffer(),
       })
     })
   })
@@ -121,7 +212,6 @@ describe('stitchFetchedRecords', () => {
     test('stitches context across multiple subjects with a heartbeat message and pending context', () => {
       const subject1 = 'bemi-subject-1'
       const subject2 = 'bemi-subject-2'
-      const updateMessagePosition = CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE.position + 1
       const fetchedRecords = [
         new FetchedRecord({
           subject: subject1,
@@ -130,6 +220,7 @@ describe('stitchFetchedRecords', () => {
           messagePrefix: MESSAGE_PREFIX_CONTEXT,
         }),
         new FetchedRecord({ subject: subject1, streamSequence: 2, changeAttributes: CHANGE_ATTRIBUTES.CREATE }),
+
         new FetchedRecord({
           subject: subject2,
           streamSequence: 3,
@@ -139,7 +230,10 @@ describe('stitchFetchedRecords', () => {
         new FetchedRecord({
           subject: subject2,
           streamSequence: 4,
-          changeAttributes: { ...CHANGE_ATTRIBUTES.UPDATE_MESSAGE, position: updateMessagePosition },
+          changeAttributes: {
+            ...CHANGE_ATTRIBUTES.UPDATE_MESSAGE,
+            transactionId: CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE.transactionId + 1,
+          },
           messagePrefix: MESSAGE_PREFIX_CONTEXT,
         }),
       ]
@@ -154,18 +248,13 @@ describe('stitchFetchedRecords', () => {
           findFetchedRecord(fetchedRecords, 2).setContext(findFetchedRecord(fetchedRecords, 1).context()),
         ],
         ackStreamSequence: 3,
-        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({
-          [subject2]: {
-            [updateMessagePosition]: [findFetchedRecord(fetchedRecords, 4)],
-          },
-        }),
+        newFetchedRecordBuffer: new FetchedRecordBuffer().addFetchedRecords([findFetchedRecord(fetchedRecords, 4)]),
       })
     })
 
     test('stitches context across multiple subjects with a heartbeat message and pending change', () => {
       const subject1 = 'bemi-subject-1'
       const subject2 = 'bemi-subject-2'
-      const updatePosition = CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE.position + 1
       const fetchedRecords = [
         new FetchedRecord({
           subject: subject1,
@@ -174,6 +263,7 @@ describe('stitchFetchedRecords', () => {
           messagePrefix: MESSAGE_PREFIX_CONTEXT,
         }),
         new FetchedRecord({ subject: subject1, streamSequence: 2, changeAttributes: CHANGE_ATTRIBUTES.CREATE }),
+
         new FetchedRecord({
           subject: subject2,
           streamSequence: 3,
@@ -183,7 +273,10 @@ describe('stitchFetchedRecords', () => {
         new FetchedRecord({
           subject: subject2,
           streamSequence: 4,
-          changeAttributes: { ...CHANGE_ATTRIBUTES.UPDATE, position: updatePosition },
+          changeAttributes: {
+            ...CHANGE_ATTRIBUTES.UPDATE,
+            transactionId: CHANGE_ATTRIBUTES.HEARTBEAT_MESSAGE.transactionId + 1,
+          },
         }),
       ]
 
@@ -197,11 +290,7 @@ describe('stitchFetchedRecords', () => {
           findFetchedRecord(fetchedRecords, 2).setContext(findFetchedRecord(fetchedRecords, 1).context()),
         ],
         ackStreamSequence: 3,
-        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({
-          [subject2]: {
-            [updatePosition]: [findFetchedRecord(fetchedRecords, 4)],
-          },
-        }),
+        newFetchedRecordBuffer: new FetchedRecordBuffer().addFetchedRecords([findFetchedRecord(fetchedRecords, 4)]),
       })
     })
 
@@ -234,7 +323,7 @@ describe('stitchFetchedRecords', () => {
           findFetchedRecord(fetchedRecords, 2).setContext(findFetchedRecord(fetchedRecords, 1).context()),
         ],
         ackStreamSequence: 3,
-        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({}),
+        newFetchedRecordBuffer: new FetchedRecordBuffer(),
       })
     })
   })
@@ -262,11 +351,7 @@ describe('stitchFetchedRecords', () => {
           findFetchedRecord(fetchedRecords1, 1).setContext(findFetchedRecord(fetchedRecords1, 2).context()),
         ],
         ackStreamSequence: 1,
-        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({
-          [subject]: {
-            [POSITIONS.UPDATE]: [findFetchedRecord(fetchedRecords1, 3)],
-          },
-        }),
+        newFetchedRecordBuffer: new FetchedRecordBuffer().addFetchedRecords([findFetchedRecord(fetchedRecords1, 3)]),
       })
 
       const fetchedRecords2 = [
@@ -293,11 +378,7 @@ describe('stitchFetchedRecords', () => {
           findFetchedRecord(fetchedRecords1, 3).setContext(findFetchedRecord(fetchedRecords2, 4).context()),
         ],
         ackStreamSequence: 3,
-        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({
-          [subject]: {
-            [POSITIONS.DELETE]: [findFetchedRecord(fetchedRecords2, 5)],
-          },
-        }),
+        newFetchedRecordBuffer: new FetchedRecordBuffer().addFetchedRecords([findFetchedRecord(fetchedRecords2, 5)]),
       })
     })
 
@@ -314,11 +395,7 @@ describe('stitchFetchedRecords', () => {
       expect(result1).toStrictEqual({
         stitchedFetchedRecords: [],
         ackStreamSequence: undefined,
-        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({
-          [subject]: {
-            [POSITIONS.CREATE]: [findFetchedRecord(fetchedRecords1, 1)],
-          },
-        }),
+        newFetchedRecordBuffer: new FetchedRecordBuffer().addFetchedRecords(fetchedRecords1),
       })
 
       const fetchedRecords2 = [
@@ -342,15 +419,11 @@ describe('stitchFetchedRecords', () => {
           findFetchedRecord(fetchedRecords2, 3),
         ],
         ackStreamSequence: 3,
-        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({
-          [subject]: {
-            [POSITIONS.DELETE]: [findFetchedRecord(fetchedRecords2, 4)],
-          },
-        }),
+        newFetchedRecordBuffer: new FetchedRecordBuffer().addFetchedRecords([findFetchedRecord(fetchedRecords2, 4)]),
       })
     })
 
-    test('saves pending change messages after receiving a heartbeat message with a greater position', () => {
+    test('saves pending change messages after receiving a heartbeat message with a greater sequence number', () => {
       const subject = 'bemi-subject'
       const fetchedRecords1 = [
         new FetchedRecord({ subject, streamSequence: 1, changeAttributes: CHANGE_ATTRIBUTES.CREATE }),
@@ -363,11 +436,7 @@ describe('stitchFetchedRecords', () => {
       expect(result1).toStrictEqual({
         stitchedFetchedRecords: [],
         ackStreamSequence: undefined,
-        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({
-          [subject]: {
-            [POSITIONS.CREATE]: [findFetchedRecord(fetchedRecords1, 1)],
-          },
-        }),
+        newFetchedRecordBuffer: new FetchedRecordBuffer().addFetchedRecords(fetchedRecords1),
       })
 
       const fetchedRecords2 = [
@@ -386,7 +455,7 @@ describe('stitchFetchedRecords', () => {
       expect(result2).toStrictEqual({
         stitchedFetchedRecords: [findFetchedRecord(fetchedRecords1, 1)],
         ackStreamSequence: 2,
-        newFetchedRecordBuffer: FetchedRecordBuffer.fromStore({}),
+        newFetchedRecordBuffer: new FetchedRecordBuffer(),
       })
     })
   })

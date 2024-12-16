@@ -9,6 +9,11 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
 
 # Changelog
 
+## 2024-12
+
+* [Bemi Core](https://github.com/BemiHQ/bemi)
+  * Stitch context with out of order LSN positions
+
 ## 2024-11
 
 * [Bemi Django](https://github.com/BemiHQ/bemi-django)
