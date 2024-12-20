@@ -11,6 +11,8 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
 
 ## 2024-12
 
+* Platform
+  * Enable connecting to PostgreSQL database within private VPCs using a [VPN tunnel](https://docs.bemi.io/postgresql/source-database#vpn-tunnel)
 * [Bemi Core](https://github.com/BemiHQ/bemi)
   * Stitch context with out of order LSN positions
 
