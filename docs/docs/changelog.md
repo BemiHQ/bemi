@@ -9,6 +9,11 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
 
 # Changelog
 
+## 2025-01
+
+* [Bemi Core](https://github.com/BemiHQ/bemi)
+  * Allow running it with enabled IPv6
+
 ## 2024-12
 
 * Platform

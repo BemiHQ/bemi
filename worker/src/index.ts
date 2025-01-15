@@ -7,7 +7,7 @@ import { runIngestionLoop } from '../../core/src/ingestion'
 import mikroOrmConfig from "../mikro-orm.config"
 
 const main = (async () => {
-  const jetstreamConnection = await connectJetstream('nats://localhost:4222');
+  const jetstreamConnection = await connectJetstream('nats://127.0.0.1:4222');
 
   const consumer = await buildConsumer({
     connection: jetstreamConnection,
