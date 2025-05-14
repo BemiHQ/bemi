@@ -166,6 +166,49 @@ export default router.handler({
 
 Note that Next.js middlewares are not supported because they cannot be executed with the Node.js Runtime, see [this discussion](https://github.com/vercel/next.js/discussions/34179).
 
+### T3 Stack
+
+With the [T3 Stack](https://create.t3.gg/), you can use the `bemiContext` function to set application context in a tRPC `createContext` function:
+
+```ts title="src/app/api/trpc/[trpc]/route.ts"
+import { bemiContext } from "@bemi-db/prisma";
+
+const createContext = async (req: NextRequest) => {
+  // Customizable context
+  bemiContext({ url: req.url, userToken: req.cookies['user-token'] });
+
+  return createTRPCContext({
+    headers: req.headers,
+  });
+}
+```
+
+Once it's done, make sure to update your tRPC procedures to perform database changes in the same async context.
+
+For example, instead of returning a Promise for a Prisma query directly:
+
+```ts title="src/server/api/routers/post.ts"
+create: publicProcedure
+  .input(z.object({ name: z.string().min(1) }))
+  .mutation(async ({ ctx, input }) => {
+    // The Prisma query will be executed in a separate async context, losing the Bemi context
+    return ctx.db.post.create({ data: { name: input.name }});
+  }),
+```
+
+Execute the Prisma query within the mutation function and then return the Promise with the manually constructed result:
+
+```ts title="src/server/api/routers/post.ts"
+create: publicProcedure
+  .input(z.object({ name: z.string().min(1) }))
+  .mutation(async ({ ctx, input }) => {
+    // Await for the Prisma query, while it has access to the Bemi context
+    const post = await ctx.db.post.create({ data: { name: input.name } });
+    // Use the Prisma return-value
+    return { id: post.id };
+  }),
+```
+
 ### Inline context
 
 It is also possible to manually set or override context by using the `bemiContext` function:
