@@ -55,13 +55,14 @@ generator client {
 }
 ```
 
-Enable PostgreSQL adapter for your Prisma client by using `withPgAdapter`:
+Enable PostgreSQL adapter for your Prisma client by using `withBemiExtension`:
 
 ```ts title="src/prisma.ts"
-import { withPgAdapter } from "@bemi-db/prisma";
+import { PrismaPg, withBemiExtension } from "@bemi-db/prisma";
 import { PrismaClient } from '@prisma/client';
 
-const prisma = withPgAdapter(new PrismaClient());
+const adapter = PrismaPg({ connectionString: process.env.DATABASE_URL });
+const prisma = withBemiExtension(new PrismaClient({ adapter }));
 ```
 
 Now you can specify custom application context that will be automatically passed with all data changes by following the code examples below.
@@ -72,33 +73,19 @@ Application context:
 * Is used only with `INSERT`, `UPDATE`, `DELETE` SQL queries performed via Prisma. Otherwise, it is a no-op.
 * Is passed directly into PG [Write-Ahead Log](https://www.postgresql.org/docs/current/wal-intro.html) with data changes without affecting the structure of the database and SQL queries.
 
-Application context will automatically include the original SQL query that performed data changes, which is generally useful for troubleshooting purposes.
-
-If you want to enable context passing only for specific models, you can specify an `includeModels` list:
-
-```ts title="src/prisma.ts"
-import { withPgAdapter } from "@bemi-db/prisma";
-import { PrismaClient } from '@prisma/client';
-
-const prisma = withPgAdapter(
-  new PrismaClient(),
-  { includeModels: ['User', 'Comment'] },
-);
-```
-
 ### Express.js
 
-Add the `setContext` [Express.js](https://expressjs.com/) middleware to pass application context with all underlying data changes made within an HTTP request:
+Add the `bemiMiddleware` [Express.js](https://expressjs.com/) middleware to pass application context with all underlying data changes made within an HTTP request:
 
 ```ts title="src/index.ts"
-import { setContext } from "@bemi-db/prisma";
+import { bemiMiddleware } from "@bemi-db/prisma";
 import express, { Request } from "express";
 
 const app = express();
 
 app.use(
-  // Customizable context
-  setContext((req: Request) => ({
+  bemiMiddleware((req: Request) => ({
+    // Customizable context
     userId: req.user?.id,
     endpoint: req.url,
     params: req.body,
@@ -116,8 +103,8 @@ import { ApolloServer } from "@apollo/server";
 
 new ApolloServer({
   plugins: [
-    // Customizable context
     BemiApolloServerPlugin(({ request, contextValue }: any) => ({
+      // Customizable context
       userId: contextValue.userId,
       operationName: request.operationName,
       variables: request.variables,
@@ -129,24 +116,24 @@ new ApolloServer({
 
 ### Next.js
 
-With [Next.js](https://github.com/vercel/next.js) API Routes, it is possible to use the `bemiContext` function to set application context in a handler function:
+With [Next.js](https://github.com/vercel/next.js) API Routes, it is possible to use the `setBemiContext` function to set application context in a handler function:
 
 ```ts title="pages/api/endpoint.ts"
-import { bemiContext } from "@bemi-db/prisma";
+import { setBemiContext } from "@bemi-db/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   // Customizable context
-  bemiContext({ url: req.url, userToken: req.cookies['user-token'] });
+  setBemiContext({ url: req.url, userToken: req.cookies['user-token'] });
 
   // ...
 }
 ```
 
-Alternatively, you can use our Express.js-compatible `setContext` middleware with [next-connect](https://github.com/hoangvvo/next-connect):
+Alternatively, you can use our Express.js-compatible `bemiMiddleware` middleware with [next-connect](https://github.com/hoangvvo/next-connect):
 
 ```ts title="pages/api/endpoint.ts"
-import { setContext } from "@bemi-db/prisma";
+import { bemiMiddleware } from "@bemi-db/prisma";
 import { createRouter, expressWrapper } from "next-connect";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -154,7 +141,7 @@ const router = createRouter<NextApiRequest, NextApiResponse>();
 
 router.use(
   // Customizable context
-  setContext((req) => ({ url: req.url, userToken: req.cookies['user-token'] }))
+  bemiMiddleware((req) => ({ url: req.url, userToken: req.cookies['user-token'] }))
 ).get((req, res) => {
   // ...
 })
@@ -168,61 +155,83 @@ Note that Next.js middlewares are not supported because they cannot be executed 
 
 ### T3 Stack
 
-With the [T3 Stack](https://create.t3.gg/), you can use the `bemiContext` function to set application context in a tRPC `createContext` function:
+With the [T3 Stack](https://create.t3.gg/), you can use the `bemiTRPCMiddleware` that sets the Bemi context in the tRPC context for all API calls:
 
-```ts title="src/app/api/trpc/[trpc]/route.ts"
-import { bemiContext } from "@bemi-db/prisma";
+```ts title="src/server/api/trpc.ts"
+import { bemiTRPCMiddleware } from "@bemi-db/prisma";
 
-const createContext = async (req: NextRequest) => {
-  // Customizable context
-  bemiContext({ url: req.url, userToken: req.cookies['user-token'] });
+// Create a Bemi middleware for tRPC to set the Bemi context
+const bemiMiddleware = bemiTRPCMiddleware(t, ({ ctx }) => ({
+  userId: ctx.session?.user?.id,
+}));
 
-  return createTRPCContext({
-    headers: req.headers,
-  });
-}
+// Use the Bemi middleware in your tRPC procedures
+export const publicProcedure = t.procedure.use(bemiMiddleware);
 ```
 
 Once it's done, make sure to update your tRPC procedures to perform database changes in the same async context.
-
-For example, instead of returning a Promise for a Prisma query directly:
+For example, instead of returning a Promise for a Prisma query directly, execute it the mutation function first and then return the Promise with the manually constructed result:
 
 ```ts title="src/server/api/routers/post.ts"
 create: publicProcedure
   .input(z.object({ name: z.string().min(1) }))
   .mutation(async ({ ctx, input }) => {
-    // The Prisma query will be executed in a separate async context, losing the Bemi context
+    // ❌ The Prisma query will be executed in a separate async context, losing the Bemi context
     return ctx.db.post.create({ data: { name: input.name }});
-  }),
-```
 
-Execute the Prisma query within the mutation function and then return the Promise with the manually constructed result:
-
-```ts title="src/server/api/routers/post.ts"
-create: publicProcedure
-  .input(z.object({ name: z.string().min(1) }))
-  .mutation(async ({ ctx, input }) => {
-    // Await for the Prisma query, while it has access to the Bemi context
+    // ✅ Await for the Prisma query, while it has access to the Bemi context and then use the result
     const post = await ctx.db.post.create({ data: { name: input.name } });
-    // Use the Prisma return-value
     return { id: post.id };
   }),
 ```
 
 ### Inline context
 
-It is also possible to manually set or override context by using the `bemiContext` function:
+It is also possible to manually set or merge context by using the `setBemiContext` and `mergeBemiContext` functions:
 
 ```ts title="src/my-worker.ts"
-import { bemiContext } from "@bemi-db/prisma";
+import { setBemiContext } from "@bemi-db/prisma";
 
 const MyWorker = () => {
-  bemiContext({ worker: 'MyWorker', stage: 'calculate' })
+  setBemiContext({ worker: 'MyWorker', stage: 'calculate' })
   // ...
 
-  bemiContext({ worker: 'MyWorker', stage: 'store' })
+  mergeBemiContext({ stage: 'store' })
   // ...
 }
+```
+
+## Configuration
+
+### SQL query tracking
+
+You can automatically inject the original SQL query that performed data changes into the application context using `injectSqlInContext`.
+This can be useful for troubleshooting purposes:
+
+```ts title="src/prisma.ts"
+import { PrismaPg, withBemiExtension } from "@bemi-db/prisma";
+import { PrismaClient } from '@prisma/client';
+
+const adapter = PrismaPg({ connectionString: process.env.DATABASE_URL });
+const prisma = withBemiExtension(
+  new PrismaClient({ adapter }),
+  { injectSqlInContext: true },
+);
+```
+
+### Allowlist models
+
+If you want to enable context passing only for specific models, you can specify an `includeModels` list:
+
+```ts title="src/prisma.ts"
+import { PrismaPg, withBemiExtension } from "@bemi-db/prisma";
+import { PrismaClient } from '@prisma/client';
+
+const adapter = PrismaPg({ connectionString: process.env.DATABASE_URL });
+const prisma = withBemiExtension(
+  new PrismaClient({ adapter }),
+  { includeModels: ['User', 'Comment'] },
+);
 ```
 
 ### SSL
