@@ -9,6 +9,25 @@ keywords: ['Bemi Changelog', 'Bemi New Features', 'Postgres Audit Trails', 'Chan
 
 # Changelog
 
+## 2025-05
+
+* [Bemi Prisma](https://github.com/BemiHQ/bemi-prisma)
+  * Add support for setting up Bemi context in tRPC apps
+  * Add `mergeBemiContext()` to merge context with the existing one
+  * Add `currentBemiContext()` to get the current context
+  * Fix migration generation to work with PostgreSQL tables containing dashes in their names
+
+## 2025-03
+
+* Dashboard
+  * Add table data breakdown to data usage
+* Platform
+  * Allow sending high-volume usage notifications to customers' Slack channels
+* [Bemi Prisma](https://github.com/BemiHQ/bemi-prisma)
+  * Make the package compatible with the latest Prisma version 6.7.0
+* [Bemi TypeORM](https://github.com/BemiHQ/bemi-typeorm)
+  * Add `bemiContext()` function for setting inline context
+
 ## 2025-01
 
 * [Bemi Core](https://github.com/BemiHQ/bemi)
